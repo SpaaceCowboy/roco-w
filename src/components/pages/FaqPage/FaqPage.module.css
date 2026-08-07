@@ -1,0 +1,101 @@
+.page {
+  position: relative;
+  background: var(--color-bg);
+  color: var(--color-fg);
+}
+.body {
+  position: relative;
+  z-index: 1;
+  padding-block: clamp(2.5rem, 6vh, 4.5rem) clamp(4rem, 10vh, 8rem);
+}
+.inner {
+  width: 100%;
+  max-width: var(--max-width-wide);
+  margin-inline: auto;
+  padding-inline: var(--container-padding);
+}
+.grid {
+  display: grid;
+  grid-template-columns: minmax(16rem, 24rem) 1fr;
+  gap: clamp(2rem, 5vw, 5rem);
+  align-items: start;
+}
+
+/* Left — media slot + CTA (sticky). */
+.aside {
+  position: sticky;
+  inset-block-start: calc(var(--nav-h) + 1.5rem);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+.media {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  aspect-ratio: 4 / 5;
+  padding: clamp(1.25rem, 2vw, 1.75rem);
+  border: 1px solid var(--glass-border);
+  border-radius: 1rem;
+  overflow: hidden;
+  background:
+    radial-gradient(120% 90% at 75% 15%, color-mix(in srgb, var(--color-accent) 16%, transparent), transparent 55%),
+    var(--glass-bg-strong);
+}
+.mediaImg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.mediaTag {
+  position: relative;
+  font-family: var(--font-mono, var(--font-secondary));
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.6);
+}
+.cta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+}
+.ctaText {
+  margin: 0;
+  font-family: var(--font-secondary);
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--color-muted);
+}
+
+.main {
+  min-width: 0;
+}
+
+@media (max-width: 860px) {
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  .aside {
+    position: static;
+    flex-direction: row;
+    align-items: stretch;
+  }
+  .media {
+    flex: 1;
+    aspect-ratio: 3 / 2;
+  }
+}
+@media (max-width: 560px) {
+  .aside {
+    flex-direction: column;
+  }
+  .media {
+    aspect-ratio: 16 / 9;
+  }
+}

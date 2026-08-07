@@ -1,0 +1,516 @@
+/* Accounts subpage — persistent dot-grid behind everything, viewport hero with
+   staggered approach cards, then two account families (intro → table → detail). */
+.page {
+  position: relative;
+  background: var(--color-bg);
+  color: var(--color-fg);
+}
+.inner {
+  width: 100%;
+  max-width: var(--max-width-wide);
+  margin-inline: auto;
+  padding-inline: var(--container-padding);
+}
+
+/* ---- Hero (fills the viewport) ---- */
+.hero {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100svh;
+  padding-block: calc(var(--nav-h) + clamp(3rem, 9vh, 6rem)) clamp(3rem, 8vh, 6rem);
+}
+.hero .inner {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.corner {
+  position: absolute;
+  z-index: 2;
+  width: 11px;
+  height: 11px;
+  color: var(--color-muted);
+  pointer-events: none;
+}
+.cornerTL { inset-block-start: calc(var(--nav-h) + 0.5rem); inset-inline-start: var(--container-padding); }
+.cornerTR { inset-block-start: calc(var(--nav-h) + 0.5rem); inset-inline-end: var(--container-padding); }
+.cornerBL { inset-block-end: 1.25rem; inset-inline-start: var(--container-padding); }
+.cornerBR { inset-block-end: 1.25rem; inset-inline-end: var(--container-padding); }
+
+.headRow {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: clamp(1.5rem, 5vw, 5rem);
+  align-items: end;
+}
+.title {
+  margin: 0;
+  font-weight: 700;
+  font-size: clamp(2.75rem, 9vw, 7rem);
+  line-height: 0.98;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: var(--color-fg);
+}
+.overview {
+  margin: 0;
+  max-width: 46ch;
+  padding-block-end: 0.4rem;
+  font-family: var(--font-secondary);
+  font-size: clamp(0.95rem, 1.2vw, 1.2rem);
+  line-height: 1.6;
+  color: var(--color-muted);
+}
+.hair {
+  height: 1px;
+  margin-block: clamp(2rem, 5vh, 3.5rem);
+  background: var(--color-border);
+}
+
+/* Approach cards — staggered like the home Accounts meta-row: two top-right,
+   two bottom-left, each on a flowing lime guideline. Fills the remaining hero. */
+.approach {
+  flex: 1;
+  align-content: center;
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  column-gap: clamp(1rem, 2vw, 2rem);
+  row-gap: clamp(3rem, 8vh, 6rem);
+}
+.block {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding-inline-start: clamp(1rem, 1.6vw, 1.75rem);
+}
+.pos1 { grid-column: 7 / 10; grid-row: 1; }
+.pos2 { grid-column: 10 / 13; grid-row: 1; }
+.pos3 { grid-column: 1 / 4; grid-row: 2; }
+.pos4 { grid-column: 4 / 7; grid-row: 2; }
+.blockNum {
+  font-family: var(--font-mono, var(--font-secondary));
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  color: var(--color-accent);
+}
+.blockTitle {
+  margin: 0;
+  font-size: clamp(1.05rem, 1.5vw, 1.35rem);
+  font-weight: 600;
+  line-height: 1.15;
+  color: var(--color-fg);
+}
+.blockText {
+  margin: 0;
+  font-family: var(--font-secondary);
+  font-size: clamp(0.9rem, 1.05vw, 1rem);
+  line-height: 1.55;
+  color: var(--color-muted);
+}
+
+/* Flowing guideline (approach cards + detail blocks). */
+.guideline,
+.noteGuide {
+  position: absolute;
+  inset-block: 0.1rem;
+  inset-inline-start: 0;
+  width: 2px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.05),
+    rgba(255, 255, 255, 0.2) 45%,
+    rgba(255, 255, 255, 0.04)
+  );
+}
+.guideline::after,
+.noteGuide::after {
+  content: "";
+  position: absolute;
+  inset-inline: -0.5px;
+  top: -50%;
+  height: 45%;
+  background: linear-gradient(to bottom, transparent, var(--color-accent) 55%, transparent);
+  filter: drop-shadow(0 0 3px color-mix(in srgb, var(--color-accent) 55%, transparent));
+  animation: ap-flow 3.2s linear infinite;
+}
+@keyframes ap-flow {
+  0% { top: -50%; }
+  100% { top: 100%; }
+}
+
+/* ---- Families ---- */
+.body {
+  position: relative;
+  z-index: 1;
+  padding-block: clamp(5rem, 12vh, 9rem) clamp(5rem, 12vh, 9rem);
+}
+.family {
+  scroll-margin-block-start: calc(var(--nav-h) + 1.5rem);
+}
+.family + .family {
+  margin-block-start: clamp(6rem, 16vh, 12rem);
+}
+.familyIntro {
+  max-width: 64ch;
+  margin-block-end: clamp(3rem, 7vh, 5rem);
+}
+.kicker {
+  display: inline-block;
+  margin-block-end: 0.85rem;
+  font-family: var(--font-mono, var(--font-secondary));
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.lion { color: var(--color-accent); }
+.cheetah { color: #7ee0ff; }
+.familyTitle {
+  margin: 0 0 0.9rem;
+  font-weight: 700;
+  font-size: clamp(2.25rem, 5vw, 4rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+.familyAccent {
+  background: linear-gradient(96deg, var(--color-accent), #7ee0ff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.familyText {
+  margin: 0;
+  font-family: var(--font-secondary);
+  font-size: clamp(1rem, 1.25vw, 1.2rem);
+  line-height: 1.6;
+  color: var(--color-fg);
+}
+
+/* ---- Comparison table ----
+   The WRAPPER is the scroll container and holds the border + rounded corners, so
+   the fixed left label column always shows the same clean rounded corners while
+   the option cards scroll fully behind it (nothing peeks to its left). */
+.matrixWrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border: 1px solid var(--glass-border);
+  border-radius: 1rem;
+  background: var(--color-bg);
+}
+.matrix {
+  display: grid;
+  grid-template-columns: minmax(7rem, 14rem) repeat(var(--cols), minmax(11rem, 1fr));
+  min-width: 42rem;
+}
+/* Fixed left label column; only the option columns scroll. A right shadow makes
+   the split read clearly while scrolling. */
+.cornerCell,
+.rowLabel {
+  position: sticky;
+  inset-inline-start: 0;
+  z-index: 2;
+  background: var(--color-surface);
+  box-shadow: 1px 0 0 var(--glass-border);
+}
+.headCell {
+  border-block-end: 1px solid var(--glass-border);
+}
+.accHead {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: clamp(1.25rem, 1.8vw, 1.75rem);
+  border-inline-start: 1px solid var(--glass-border);
+  transition: background-color 0.2s ease;
+}
+.accName {
+  font-size: clamp(1.05rem, 1.5vw, 1.35rem);
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--color-fg);
+}
+/* One tag per column — audience line (standard/social) or the cents note. */
+.tag {
+  align-self: stretch;
+  padding: 0.5rem 0.7rem;
+  border: 1px solid var(--glass-border);
+  border-radius: 0.5rem;
+  background: color-mix(in srgb, var(--color-surface) 55%, transparent);
+  font-family: var(--font-secondary);
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: var(--color-muted);
+}
+.tagCents {
+  border-color: color-mix(in srgb, var(--color-accent) 45%, var(--glass-border));
+  color: var(--color-accent);
+}
+/* Pin the Join button to the bottom so every column's button aligns, whatever
+   the tag height. */
+.headCta {
+  margin-block-start: auto;
+  width: 100%;
+}
+.rowLabel {
+  display: flex;
+  align-items: center;
+  padding: clamp(0.8rem, 1.2vw, 1.1rem) clamp(1rem, 1.5vw, 1.4rem);
+  border-block-end: 1px solid color-mix(in srgb, var(--color-border) 55%, transparent);
+  font-family: var(--font-secondary);
+  font-size: 0.9rem;
+  color: var(--color-muted);
+}
+.cell {
+  display: flex;
+  align-items: center;
+  padding: clamp(0.8rem, 1.2vw, 1.1rem) clamp(1rem, 1.5vw, 1.4rem);
+  border-inline-start: 1px solid var(--glass-border);
+  border-block-end: 1px solid color-mix(in srgb, var(--color-border) 55%, transparent);
+  font-family: var(--font-mono, var(--font-secondary));
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-fg);
+  transition: background-color 0.2s ease;
+}
+.sameRow,
+.sameCell {
+  color: color-mix(in srgb, var(--color-muted) 80%, transparent);
+  font-weight: 500;
+}
+.diffCell {
+  color: var(--color-fg);
+}
+.colHi {
+  background: color-mix(in srgb, var(--color-accent) 9%, transparent);
+}
+.accHead.colHi {
+  background: color-mix(in srgb, var(--color-accent) 13%, transparent);
+}
+
+/* ---- Per-account detail: media panel (image + floating glass boxes) + text.
+   The Nano variant mirrors the Standard one. ---- */
+.details {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(4rem, 11vh, 8.5rem);
+  margin-block-start: clamp(4rem, 9vh, 6.5rem);
+}
+.detail {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: clamp(2rem, 4vw, 4.5rem);
+  align-items: center;
+}
+.detail.mirror .detailMedia {
+  order: 2;
+}
+.detail.mirror .detailBody {
+  order: 1;
+}
+
+/* Media: image/video placeholder with frosted glass benefit boxes on top. */
+.detailMedia {
+  position: relative;
+  min-height: clamp(20rem, 42vh, 30rem);
+}
+.mediaImg,
+.mediaVideo {
+  position: absolute;
+  inset: 0;
+  border: 1px solid var(--glass-border);
+  border-radius: 1rem;
+  overflow: hidden;
+}
+.mediaVideo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: var(--color-surface);
+}
+/* Blocked autoplay (iOS Low Power) → just hold the poster, no big play button. */
+.mediaVideo::-webkit-media-controls-start-playback-button,
+.mediaVideo::-webkit-media-controls-play-button,
+.mediaVideo::-webkit-media-controls {
+  display: none !important;
+  -webkit-appearance: none;
+}
+.mediaImg {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: clamp(1.25rem, 2vw, 1.75rem);
+  background:
+    radial-gradient(120% 100% at 75% 15%, color-mix(in srgb, var(--color-accent) 16%, transparent), transparent 55%),
+    linear-gradient(150deg, var(--color-surface), #10151800);
+}
+.mediaImg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1.4px);
+  background-size: 24px 24px;
+  opacity: 0.55;
+  pointer-events: none;
+}
+.mediaTag {
+  position: relative;
+  align-self: flex-start;
+  font-family: var(--font-mono, var(--font-secondary));
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+.mediaLabel {
+  position: relative;
+  font-family: var(--font-secondary);
+  font-size: 0.9rem;
+  color: var(--color-muted);
+}
+
+/* Frosted glass benefit CHIPS floating over the media: strict pills, unique
+   icon on the left, label on the right, no description. Anchored to the side
+   facing the text (flips for the mirrored Nano variant). */
+/* Chips always sit on the RIGHT of the video so the hero stays visible on the
+   left, for both the standard and mirrored variants. */
+.glassBoxes {
+  position: absolute;
+  inset-block-end: clamp(1rem, 2vw, 1.75rem);
+  inset-inline-end: clamp(1rem, 2vw, 1.75rem);
+  inset-inline-start: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.55rem;
+  max-width: min(62%, 18rem);
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.85rem 0.5rem 0.6rem;
+  border: 1px solid var(--glass-border);
+  border-radius: 999px;
+  background: var(--glass-bg-strong);
+  -webkit-backdrop-filter: blur(14px) saturate(130%);
+  backdrop-filter: blur(14px) saturate(130%);
+  box-shadow: 0 14px 34px -22px rgba(0, 0, 0, 0.75);
+}
+.chipIcon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-accent) 18%, transparent);
+  color: var(--color-accent);
+}
+.chipText {
+  font-family: var(--font-secondary);
+  font-size: 0.85rem;
+  font-weight: 600;
+  line-height: 1.15;
+  color: var(--color-fg);
+  white-space: nowrap;
+}
+
+/* Small tablet and below: ~25% smaller chips + tighter gaps so the video hero
+   is barely covered. */
+@media (max-width: 900px) {
+  .glassBoxes {
+    gap: 0.4rem;
+    max-width: min(68%, 14rem);
+  }
+  .chip {
+    gap: 0.45rem;
+    padding: 0.38rem 0.65rem 0.38rem 0.45rem;
+  }
+  .chipIcon {
+    width: 1.3rem;
+    height: 1.3rem;
+  }
+  .chipText {
+    font-size: 0.64rem;
+  }
+}
+
+/* Text side. */
+.detailBody {
+  position: relative;
+  padding-inline-start: 1.5rem;
+}
+.detailName {
+  margin: 0 0 1rem;
+  font-weight: 700;
+  font-size: clamp(1.75rem, 3.5vw, 2.75rem);
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: var(--color-fg);
+}
+.detailBig {
+  margin: 0;
+  max-width: 42ch;
+  font-family: var(--font-secondary);
+  font-size: clamp(1.05rem, 1.5vw, 1.4rem);
+  line-height: 1.55;
+  color: var(--color-fg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .guideline::after,
+  .noteGuide::after {
+    animation: none;
+    opacity: 0.5;
+  }
+  .cell,
+  .accHead {
+    transition: none;
+  }
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 980px) {
+  .approach {
+    grid-template-columns: 1fr 1fr;
+    row-gap: 2rem;
+    column-gap: 1.5rem;
+  }
+  .pos1, .pos2, .pos3, .pos4 {
+    grid-column: auto;
+    grid-row: auto;
+  }
+}
+@media (max-width: 860px) {
+  .headRow {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+    align-items: start;
+  }
+  /* Detail stacks: media on top (order reset), text below. */
+  .detail {
+    grid-template-columns: 1fr;
+    gap: 1.75rem;
+  }
+  .detail.mirror .detailMedia,
+  .detail.mirror .detailBody {
+    order: 0;
+  }
+  .detailMedia {
+    min-height: clamp(18rem, 60vw, 24rem);
+  }
+}
+@media (max-width: 560px) {
+  .approach {
+    grid-template-columns: 1fr;
+  }
+}

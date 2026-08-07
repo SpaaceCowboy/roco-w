@@ -1,0 +1,115 @@
+/* Social Trading — dark "Rating module" section: leaderboard preview image on
+   the left, heading + copy + preview note on the right. */
+.section {
+  position: relative;
+  z-index: 1;
+  background: var(--color-bg);
+  color: var(--color-fg);
+  padding-block: clamp(3rem, 8vh, 6rem) clamp(4rem, 10vh, 8rem);
+}
+.inner {
+  width: 100%;
+  max-width: var(--max-width-wide);
+  margin-inline: auto;
+  padding-inline: var(--container-padding);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  grid-template-areas:
+    "media copy"
+    "note  .";
+  grid-template-rows: auto auto;
+  column-gap: clamp(2rem, 5vw, 4.5rem);
+  row-gap: 0.9rem;
+  align-items: stretch;
+}
+
+/* Left — leaderboard preview image, with a small note in the row beneath it */
+.media {
+  grid-area: media;
+  margin: 0;
+  max-width: 46rem;
+  border: 1px solid var(--glass-border);
+  border-radius: 1.1rem;
+  overflow: hidden;
+  background: #0a0f14;
+}
+.image {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.imgNote {
+  grid-area: note;
+  align-self: start;
+  margin: 0;
+  max-width: 46rem;
+  font-family: var(--font-secondary);
+  font-size: 0.85rem;
+  line-height: 1.55;
+  font-style: italic;
+  color: var(--color-muted);
+}
+
+/* Right — title on top, a bottom block (subtext + CTA) aligned to the image
+   bottom (copy fills the image row, not the note row). */
+.copy {
+  grid-area: copy;
+  align-self: stretch;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: clamp(2.5rem, 6vw, 4.5rem);
+}
+.title {
+  margin: 0;
+  font-weight: 700;
+  font-size: clamp(2.4rem, 4.4vw, 3.85rem);
+  line-height: 1.03;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: var(--color-fg);
+}
+.accent {
+  background: linear-gradient(96deg, var(--color-accent), #7ee0ff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.bottom {
+  min-width: 0;
+}
+.text {
+  margin: 0;
+  max-width: 26rem;
+  font-family: var(--font-secondary);
+  font-size: clamp(1.15rem, 1.6vw, 1.5rem);
+  line-height: 1.55;
+  color: var(--color-fg-soft, var(--color-fg));
+}
+.cta {
+  margin-block-start: clamp(1.75rem, 3.5vw, 2.5rem);
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 860px) {
+  .grid {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "media"
+      "note"
+      "copy";
+    row-gap: clamp(1.75rem, 5vw, 2.5rem);
+  }
+  .media,
+  .imgNote {
+    max-width: none;
+  }
+  .copy {
+    justify-content: flex-start;
+    gap: clamp(1.5rem, 4vw, 2.25rem);
+  }
+}

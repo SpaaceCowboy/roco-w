@@ -1,0 +1,289 @@
+/* What We Do — blueprint-style vertical timeline (adapted from sui.io). A
+   sticky, dotted centre line with a diamond and a gradient that runs down it;
+   big cards stretch to the left / right edges and appear one-by-one. */
+.section {
+  position: relative;
+  z-index: 1;
+  background: var(--color-bg);
+  color: var(--color-fg);
+  padding-block: clamp(4rem, 10vh, 8rem);
+}
+
+.inner {
+  width: 100%;
+  max-width: var(--max-width-wide);
+  margin-inline: auto;
+  padding-inline: var(--container-padding);
+}
+
+/* Header — centred, gradient-accented title + subtitle. */
+.header {
+  text-align: center;
+  margin-block-end: clamp(3rem, 8vh, 6rem);
+}
+.title {
+  margin: 0;
+  font-weight: 700;
+  font-size: clamp(2rem, 4.5vw, 3.5rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: var(--color-fg);
+}
+.titleAccent {
+  background: linear-gradient(96deg, var(--color-accent), #7ee0ff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.subtitle {
+  margin: 1.1rem auto 0;
+  max-width: 60ch;
+  font-family: var(--font-secondary);
+  font-size: clamp(0.9rem, 1.1vw, 1.05rem);
+  line-height: 1.6;
+  color: var(--color-muted);
+}
+
+/* Timeline grid: two columns with a dotted spine between; one card per row. */
+.main {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: clamp(3.5rem, 10vw, 9rem);
+  row-gap: clamp(6rem, 26vh, 16rem);
+}
+
+/* Central spine — an absolute strip spanning the whole grid; its inner element
+   sticks to the viewport centre while you scroll through the section. */
+.spine {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 50%;
+  transform: translateX(-50%);
+  width: 16px;
+  pointer-events: none;
+}
+.spineSticky {
+  position: sticky;
+  inset-block-start: 0;
+  height: 100vh;
+  height: 100svh;
+}
+/* Short, centred dotted line — cropped (faded) at top and bottom. */
+.line {
+  position: absolute;
+  inset-block-start: 18%;
+  height: 64%;
+  inset-inline-start: 50%;
+  width: 2px;
+  transform: translateX(-50%);
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.4) 1px, transparent 1.4px);
+  background-size: 2px 9px;
+  background-repeat: repeat-y;
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 12%, #000 88%, transparent);
+  mask-image: linear-gradient(to bottom, transparent, #000 12%, #000 88%, transparent);
+}
+/* Gradient fill that grows behind the square, tied to scroll (height set in JS). */
+.fill {
+  position: absolute;
+  inset-block-start: 18%;
+  height: 0;
+  inset-inline-start: 50%;
+  width: 2px;
+  transform: translateX(-50%);
+  background: linear-gradient(to bottom, transparent, var(--color-accent) 55%, #7ee0ff);
+  filter: drop-shadow(0 0 5px color-mix(in srgb, var(--color-accent) 55%, transparent));
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 14%);
+  mask-image: linear-gradient(to bottom, transparent, #000 14%);
+}
+/* White square indicator, position set in JS (rides the fill's leading edge). */
+.square {
+  position: absolute;
+  inset-block-start: 18%;
+  inset-inline-start: 50%;
+  width: 11px;
+  height: 11px;
+  transform: translate(-50%, -50%);
+  background: #fff;
+  box-shadow: 0 0 14px 1px rgba(255, 255, 255, 0.5);
+}
+
+/* Cards — big blueprint boxes that stretch to the grid edges. */
+.card {
+  --pad: clamp(1.1rem, 1.6vw, 1.5rem);
+  position: relative;
+  border: 1px solid var(--glass-border);
+  border-radius: 0.5rem;
+  background: color-mix(in srgb, var(--color-surface) 60%, transparent);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  opacity: 0;
+  transition:
+    opacity 0.7s ease,
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.4s ease,
+    box-shadow 0.4s ease;
+}
+.left {
+  grid-column: 1;
+  justify-self: stretch;
+  transform: translateX(-45px);
+}
+.right {
+  grid-column: 2;
+  justify-self: stretch;
+  transform: translateX(45px);
+}
+.card.in {
+  opacity: 1;
+  transform: none;
+}
+/* Lit while the card crosses the centre line. */
+.card.active {
+  border-color: color-mix(in srgb, var(--color-accent) 55%, var(--glass-border));
+  box-shadow:
+    0 24px 60px -30px rgba(0, 0, 0, 0.8),
+    0 0 44px -22px color-mix(in srgb, var(--color-accent) 55%, transparent);
+}
+
+/* Header row: boxed number + mono all-caps label, divider below. */
+.head {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: var(--pad);
+}
+.numBox {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  border: 1px solid var(--color-border);
+  font-family: var(--font-mono, var(--font-secondary));
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-fg);
+}
+.label {
+  font-family: var(--font-mono, var(--font-secondary));
+  font-size: clamp(0.9rem, 1.3vw, 1.1rem);
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-fg);
+}
+/* Chevron affordance — only shown on the mobile tap accordion. */
+.chev {
+  display: none;
+  margin-inline-start: auto;
+  width: 1.15rem;
+  height: 1.15rem;
+  color: var(--color-muted);
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.chev svg {
+  width: 100%;
+  height: 100%;
+}
+.card.open .chev {
+  transform: rotate(180deg);
+  color: var(--color-accent);
+}
+
+/* Collapsible middle — hidden by default (just header + footer show), expands
+   open when the card reaches the centre (via the 0fr→1fr grid trick). */
+.bodyWrap {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.card.open .bodyWrap {
+  grid-template-rows: 1fr;
+}
+.bodyInner {
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* Body: single lime icon + copy. */
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 1.4rem;
+  min-height: 13rem;
+  padding: clamp(2rem, 3vw, 3rem) var(--pad);
+  border-block-start: 1px solid var(--glass-border);
+}
+.bodyIcon {
+  display: inline-flex;
+  width: 2.75rem;
+  height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--glass-border);
+  border-radius: 0.4rem;
+  color: var(--color-accent);
+}
+.text {
+  margin: 0;
+  max-width: 46ch;
+  font-family: var(--font-secondary);
+  font-size: clamp(0.95rem, 1.2vw, 1.1rem);
+  line-height: 1.6;
+  color: var(--color-muted);
+}
+
+/* Footer row: muted mono tag, divider above (no icon). */
+.foot {
+  padding: var(--pad);
+  border-block-start: 1px solid var(--glass-border);
+  font-family: var(--font-mono, var(--font-secondary));
+  font-size: 0.85rem;
+  letter-spacing: 0.04em;
+  color: var(--color-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  /* Don't force every body open — the JS/tap accordion controls it. Just drop
+     the height transition. */
+  .bodyWrap {
+    transition: none;
+  }
+}
+
+/* Mobile/tablet (≤900px, matches the JS): single column, tap accordion. */
+@media (max-width: 900px) {
+  .main {
+    grid-template-columns: 1fr;
+    row-gap: clamp(1rem, 3vh, 1.5rem);
+    padding-inline-start: 0;
+  }
+  /* No central spine on mobile — it's a plain tap list. */
+  .spine {
+    display: none;
+  }
+  .card,
+  .left,
+  .right {
+    grid-column: 1;
+    justify-self: stretch;
+    transform: translateY(24px);
+    cursor: pointer;
+  }
+  .card.in {
+    transform: none;
+  }
+  .head {
+    user-select: none;
+  }
+  .chev {
+    display: inline-flex;
+  }
+}

@@ -1,0 +1,478 @@
+/* Payment Methods subpage — dark, brand kit reused from Markets + home. */
+.page {
+  position: relative;
+  background: var(--color-bg);
+  color: var(--color-fg);
+}
+.inner {
+  width: 100%;
+  max-width: var(--max-width-wide);
+  margin-inline: auto;
+  padding-inline: var(--container-padding);
+}
+
+/* ---- Hero band ---- */
+.hero {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 100svh;
+  padding-block: calc(var(--nav-h) + clamp(3.5rem, 10vh, 7rem)) clamp(2.5rem, 6vh, 4.5rem);
+}
+.hero .inner {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 1;
+}
+.dots {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+.corner {
+  position: absolute;
+  z-index: 2;
+  width: 11px;
+  height: 11px;
+  color: var(--color-muted);
+  pointer-events: none;
+}
+.cornerTL {
+  inset-block-start: calc(var(--nav-h) + 0.5rem);
+  inset-inline-start: var(--container-padding);
+}
+.cornerTR {
+  inset-block-start: calc(var(--nav-h) + 0.5rem);
+  inset-inline-end: var(--container-padding);
+}
+.cornerBL {
+  inset-block-end: 1.25rem;
+  inset-inline-start: var(--container-padding);
+}
+.cornerBR {
+  inset-block-end: 1.25rem;
+  inset-inline-end: var(--container-padding);
+}
+
+.title {
+  margin: 0;
+  font-weight: 700;
+  font-size: clamp(2.5rem, 8vw, 6.5rem);
+  line-height: 0.98;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: var(--color-fg);
+}
+.hair {
+  height: 1px;
+  margin-block: clamp(2.5rem, 9vh, 7.5rem) 0;
+  background: var(--color-border);
+}
+.introRow {
+  margin-block-start: clamp(1.75rem, 4vh, 3rem);
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr;
+  gap: clamp(1.5rem, 4vw, 4rem);
+  align-items: start;
+}
+.introLeft {
+  order: 2;
+  display: flex;
+  justify-content: flex-end;
+}
+.introLeadBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: start;
+  gap: clamp(1.5rem, 3vh, 2.25rem);
+}
+.lead {
+  margin: 0;
+  max-width: 18ch;
+  font-weight: 700;
+  font-size: clamp(1.5rem, 3vw, 2.5rem);
+  line-height: 1.08;
+  letter-spacing: -0.01em;
+}
+.leadAccent {
+  background: linear-gradient(96deg, var(--color-accent), #7ee0ff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.sub {
+  order: 1;
+  align-self: start;
+  margin: 0;
+  max-width: 48ch;
+  font-family: var(--font-secondary);
+  font-size: clamp(0.95rem, 1.2vw, 1.15rem);
+  line-height: 1.6;
+  color: var(--color-muted);
+}
+
+/* ---- Tabs + panel ---- */
+.body {
+  padding-block: clamp(4rem, 10vh, 7.5rem) clamp(4rem, 10vh, 8rem);
+  scroll-margin-block-start: calc(var(--nav-h) + 1.5rem);
+}
+.methodTabs {
+  padding-block-end: clamp(2rem, 5vh, 3.5rem);
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(3rem, 6vw, 5rem);
+}
+/* space between the stacked crypto / fiat sections */
+.panel + .panel {
+  margin-block-start: clamp(5rem, 11vh, 9rem);
+  padding-block-start: clamp(5rem, 11vh, 9rem);
+  border-block-start: 1px solid var(--color-border);
+}
+@keyframes pp-rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.panelTop,
+.cards,
+.countries {
+  animation: pp-rise 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.cards {
+  animation-delay: 0.1s;
+}
+.countries {
+  animation-delay: 0.18s;
+}
+
+/* Panel top — text left, media placeholder right. */
+.panelTop {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(2rem, 5vw, 5rem);
+  align-items: center;
+}
+/* Fiat section: mirror — image/slot on the left, text on the right. */
+.panelTopMirror .panelMedia {
+  order: 1;
+}
+.panelTopMirror .panelText {
+  order: 2;
+}
+.panelText {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.25rem;
+}
+.microRow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.microBlock {
+  flex: none;
+  width: 2.25rem;
+  height: 0.45rem;
+  background: var(--color-accent);
+  border-radius: 1px;
+}
+.micro {
+  font-family: var(--font-secondary);
+  font-size: 0.9rem;
+  color: var(--color-muted);
+}
+.catTitle {
+  margin: 0;
+  font-weight: 700;
+  font-size: clamp(2rem, 4.5vw, 3.5rem);
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+.catAccent {
+  background: linear-gradient(96deg, var(--color-accent), #7ee0ff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.intro {
+  margin: 0;
+  max-width: 48ch;
+  font-family: var(--font-secondary);
+  font-size: clamp(0.95rem, 1.2vw, 1.15rem);
+  line-height: 1.65;
+  color: var(--color-fg);
+}
+
+/* ---- Empty image slots (assets added later) ---- */
+.slot {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed color-mix(in srgb, var(--color-fg) 22%, transparent);
+  border-radius: 1rem;
+  background:
+    radial-gradient(120% 90% at 80% 0%, color-mix(in srgb, var(--color-accent) 10%, transparent), transparent 60%),
+    var(--glass-bg-strong);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  overflow: hidden;
+}
+.slotLabel {
+  font-family: var(--font-mono, var(--font-secondary));
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+.panelMedia {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+}
+/* real image (natural aspect, framed) instead of the dashed slot */
+.mediaFrame {
+  margin: 0;
+  aspect-ratio: auto;
+  border: 1px solid var(--glass-border);
+  border-radius: 1rem;
+  overflow: hidden;
+  background: #0a0f14;
+}
+.mediaImg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* ---- Method cards ---- */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: clamp(1rem, 1.6vw, 1.5rem);
+}
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: clamp(1.4rem, 2vw, 1.9rem);
+  border: 1px solid var(--glass-border);
+  border-radius: 1.1rem;
+  background: var(--glass-bg-strong);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  transition: border-color 0.25s ease, transform 0.25s ease;
+}
+.card:hover {
+  border-color: color-mix(in srgb, var(--color-accent) 45%, var(--glass-border));
+  transform: translateY(-3px);
+}
+.cardLogo {
+  width: 3.25rem;
+  height: 3.25rem;
+  border-radius: 0.75rem;
+}
+/* Crypto card visual (coin plaque — name is baked into the image). */
+.cardMedia {
+  margin: 0;
+  aspect-ratio: 3 / 2;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  background: #05070a;
+}
+.cardMediaImg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+/* White tile holding a brand mark (Visa / Mastercard / gateway). */
+.brandLogo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 4.75rem;
+  height: 3rem;
+  padding: 0 0.6rem;
+  border-radius: 0.6rem;
+  background: #fff;
+  box-shadow: inset 0 0 0 1px rgba(2, 17, 27, 0.08);
+}
+.brandGlyph {
+  height: 1.6rem;
+  width: auto;
+  max-width: 100%;
+}
+/* Fiat card — icon on the left, name + subtext on the right. */
+.brandRow {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+.brandText {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+.cardName {
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: var(--color-fg);
+}
+.cardSub {
+  font-family: var(--font-secondary);
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: var(--color-muted);
+}
+.networks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-block-start: auto;
+}
+.network {
+  padding: 0.28rem 0.6rem;
+  border: 1px solid var(--glass-border);
+  border-radius: 999px;
+  font-family: var(--font-mono, var(--font-secondary));
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  color: var(--color-muted);
+}
+
+/* ---- Fiat: supported countries + currencies ---- */
+.countries {
+  margin-block-start: clamp(1.5rem, 3vw, 3rem);
+}
+.countriesHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-block-end: clamp(1.5rem, 3vw, 2.25rem);
+}
+.countriesHeadLeft {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.countriesTitle {
+  margin: 0;
+  font-weight: 700;
+  font-size: clamp(1.1rem, 1.8vw, 1.5rem);
+  letter-spacing: -0.01em;
+}
+.countriesCount {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.9rem;
+  height: 1.6rem;
+  padding: 0 0.5rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-accent) 18%, transparent);
+  font-family: var(--font-mono, var(--font-secondary));
+  font-size: 0.78rem;
+  color: var(--color-accent);
+}
+/* Live filter input */
+.search {
+  min-width: min(18rem, 100%);
+  padding: 0.6rem 1rem;
+  border: 1px solid var(--glass-border);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-fg) 4%, transparent);
+  color: var(--color-fg);
+  font-family: var(--font-secondary);
+  font-size: 0.9rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.search::placeholder {
+  color: var(--color-muted);
+}
+.search:focus {
+  outline: none;
+  border-color: color-mix(in srgb, var(--color-accent) 60%, var(--glass-border));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 18%, transparent);
+}
+.countryGrid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+  gap: 0.6rem;
+}
+.country {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.7rem 1rem;
+  border: 1px solid var(--glass-border);
+  border-radius: 0.6rem;
+  background: color-mix(in srgb, var(--color-fg) 3%, transparent);
+  transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+}
+.country:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--color-accent) 45%, var(--glass-border));
+  background: color-mix(in srgb, var(--color-accent) 8%, transparent);
+}
+.noResults {
+  margin: 0;
+  padding: 1.5rem 0;
+  font-family: var(--font-secondary);
+  color: var(--color-muted);
+}
+.countryName {
+  font-family: var(--font-secondary);
+  font-size: 0.85rem;
+  color: var(--color-fg);
+}
+.countryCur {
+  flex: none;
+  font-family: var(--font-mono, var(--font-secondary));
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  color: color-mix(in srgb, var(--color-fg) 82%, transparent);
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 900px) {
+  .introRow {
+    grid-template-columns: 1fr;
+    gap: clamp(1.5rem, 5vw, 2.25rem);
+  }
+  .introLeft {
+    order: 1;
+    justify-content: flex-start;
+  }
+  .sub {
+    order: 2;
+  }
+  .panelTop {
+    grid-template-columns: 1fr;
+    gap: clamp(1.5rem, 5vw, 2.5rem);
+  }
+  .panelMedia {
+    order: -1;
+  }
+}

@@ -1,0 +1,284 @@
+/* Economic Calendar subpage — WHITE editorial theme (matches the home About
+   section), with the About "vision"-style guideline columns for advantages. */
+.page {
+  --cal-ink: #161d20;
+  --cal-muted: #5b6b73;
+  --cal-border: #e6eaec;
+  --cal-accent: #6f9e00;
+
+  position: relative;
+  z-index: 0;
+  background: #ffffff;
+  color: var(--cal-ink);
+}
+/* Fixed light dot-grid backdrop — stays put while the content scrolls. Softly
+   faded from the upper centre; the light-theme echo of the dark DotMatrix. */
+.page::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: radial-gradient(rgba(22, 29, 32, 0.16) 1.4px, transparent 1.7px);
+  background-size: 24px 24px;
+  -webkit-mask-image: radial-gradient(120% 85% at 50% 30%, #000 0%, rgba(0, 0, 0, 0.4) 48%, transparent 82%);
+  mask-image: radial-gradient(120% 85% at 50% 30%, #000 0%, rgba(0, 0, 0, 0.4) 48%, transparent 82%);
+}
+.inner {
+  width: 100%;
+  max-width: var(--max-width-wide);
+  margin-inline: auto;
+  padding-inline: var(--container-padding);
+}
+
+/* ---- Hero band ---- */
+.hero {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 100svh;
+  padding-block: calc(var(--nav-h) + clamp(3.5rem, 10vh, 7rem)) clamp(2.5rem, 6vh, 4.5rem);
+}
+.hero .inner {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 1;
+}
+.corner {
+  position: absolute;
+  z-index: 2;
+  width: 11px;
+  height: 11px;
+  color: rgba(22, 29, 32, 0.4);
+  pointer-events: none;
+}
+.cornerTL {
+  inset-block-start: calc(var(--nav-h) + 0.5rem);
+  inset-inline-start: var(--container-padding);
+}
+.cornerTR {
+  inset-block-start: calc(var(--nav-h) + 0.5rem);
+  inset-inline-end: var(--container-padding);
+}
+.cornerBL {
+  inset-block-end: 1.25rem;
+  inset-inline-start: var(--container-padding);
+}
+.cornerBR {
+  inset-block-end: 1.25rem;
+  inset-inline-end: var(--container-padding);
+}
+
+.title {
+  margin: 0;
+  font-weight: 700;
+  font-size: clamp(2.5rem, 9vw, 7rem);
+  line-height: 0.98;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: var(--cal-ink);
+}
+.hair {
+  height: 1px;
+  margin-block: clamp(2.5rem, 9vh, 7.5rem) 0;
+  background: var(--cal-border);
+}
+.introRow {
+  margin-block-start: clamp(1.75rem, 4vh, 3rem);
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr;
+  gap: clamp(1.5rem, 4vw, 4rem);
+  align-items: start;
+}
+.introLeft {
+  order: 2;
+  display: flex;
+  justify-content: flex-end;
+}
+.introLeadBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: start;
+  gap: clamp(1.5rem, 3vh, 2.25rem);
+}
+.lead {
+  margin: 0;
+  max-width: 16ch;
+  font-weight: 700;
+  font-size: clamp(1.5rem, 3vw, 2.5rem);
+  line-height: 1.08;
+  letter-spacing: -0.01em;
+  color: var(--cal-ink);
+}
+.leadAccent {
+  background: linear-gradient(96deg, #6f9e00, #1f7a4d 55%, #2a3439);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.sub {
+  order: 1;
+  align-self: start;
+  margin: 0;
+  max-width: 48ch;
+  font-family: var(--font-secondary);
+  font-size: clamp(0.95rem, 1.2vw, 1.15rem);
+  line-height: 1.6;
+  color: var(--cal-muted);
+}
+
+/* ---- Widget ---- */
+.body {
+  padding-block: clamp(3rem, 8vh, 6rem);
+}
+.widgetHead {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-block-end: clamp(1.25rem, 2.5vw, 1.75rem);
+}
+.microBlock {
+  flex: none;
+  width: 2.25rem;
+  height: 0.45rem;
+  background: var(--cal-accent);
+  border-radius: 1px;
+}
+.micro {
+  font-family: var(--font-secondary);
+  font-size: 0.9rem;
+  color: var(--cal-muted);
+}
+.widgetFrame {
+  border: 1px solid var(--cal-border);
+  border-radius: 1rem;
+  overflow: hidden;
+  /* slightly grey so the (transparent) table stands out from the white page */
+  background: #f1f4f5;
+  min-height: 520px;
+}
+
+/* ---- Advantages (About "vision"-style guideline columns) ---- */
+.advantages {
+  padding-block: clamp(1rem, 3vh, 2rem) clamp(4rem, 10vh, 8rem);
+}
+.advHead {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  margin-block-end: clamp(2.5rem, 6vw, 4.5rem);
+  padding-block-end: clamp(1.25rem, 3vh, 2rem);
+  border-block-end: 1px solid var(--cal-border);
+}
+.advTitle {
+  margin: 0;
+  font-weight: 700;
+  font-size: clamp(1.4rem, 3vw, 2.4rem);
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: var(--cal-ink);
+}
+.advGrid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: clamp(1.5rem, 3vw, 3rem);
+}
+.advCol {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 0.9rem;
+  min-height: clamp(12rem, 20vh, 17rem);
+  padding-inline-start: clamp(1rem, 2vw, 2.25rem);
+}
+/* Vertical guideline — faint dark base + flowing lime pulse (About pattern). */
+.advGuide {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  width: 1.5px;
+  overflow: hidden;
+  transform-origin: top center;
+  background: linear-gradient(
+    to bottom,
+    rgba(22, 29, 32, 0.04),
+    rgba(22, 29, 32, 0.22) 45%,
+    rgba(22, 29, 32, 0.03)
+  );
+}
+.advGuide::after {
+  content: "";
+  position: absolute;
+  inset-inline: -0.5px;
+  height: 40%;
+  top: -50%;
+  background: linear-gradient(to bottom, transparent, #86c40f 55%, transparent);
+  filter: drop-shadow(0 0 3px rgba(134, 196, 15, 0.55));
+  animation: cal-guideline-flow 3.4s linear infinite;
+  animation-delay: var(--flow-delay, 0s);
+}
+@keyframes cal-guideline-flow {
+  0% {
+    top: -50%;
+  }
+  100% {
+    top: 100%;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .advGuide::after {
+    animation: none;
+    opacity: 0;
+  }
+}
+.advNo {
+  font-family: var(--font-mono, var(--font-secondary));
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  color: #5c9a1e;
+}
+.advText {
+  font-family: var(--font-mono, var(--font-secondary));
+  font-size: clamp(0.82rem, 1vw, 0.95rem);
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #1c2427;
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 900px) {
+  .introRow {
+    grid-template-columns: 1fr;
+    gap: clamp(1.5rem, 5vw, 2.25rem);
+  }
+  .introLeft {
+    order: 1;
+    justify-content: flex-start;
+  }
+  .sub {
+    order: 2;
+  }
+  .advGrid {
+    grid-template-columns: 1fr 1fr;
+    gap: 1.75rem 1.5rem;
+  }
+  .advCol {
+    min-height: 0;
+  }
+}
+@media (max-width: 520px) {
+  .advGrid {
+    grid-template-columns: 1fr;
+  }
+}

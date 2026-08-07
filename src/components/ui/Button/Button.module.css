@@ -1,0 +1,84 @@
+.btn {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.9rem 2.25rem;
+  border: 1px solid transparent;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease,
+    color 0.3s ease,
+    transform 0.25s ease;
+}
+
+.text {
+  font-family: var(--font-brand);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* ---- Size variants (default = lg). Use sm/md on dense UI or lower devices. ---- */
+.md {
+  padding: 0.7rem 1.6rem;
+  border-radius: 0.45rem;
+}
+.md .text {
+  font-size: 0.875rem;
+}
+.sm {
+  padding: 0.5rem 1.1rem;
+  border-radius: 0.4rem;
+}
+.sm .text {
+  font-size: 0.8125rem;
+  letter-spacing: 0.04em;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+}
+
+/* Solid lime → deeper lime on hover (matches the nav "Join Now"). */
+.primary {
+  background-color: var(--color-accent);
+  color: var(--color-on-accent);
+}
+.primary:hover {
+  background-color: var(--lime-strong);
+}
+
+/* Outline → fills lime on hover. */
+.secondary {
+  background-color: transparent;
+  border-color: var(--glass-border);
+  color: var(--color-fg);
+}
+.secondary:hover {
+  background-color: var(--color-accent);
+  border-color: var(--color-accent);
+  color: var(--color-on-accent);
+}
+
+/* Solid black — for use on light / lime surfaces. */
+.dark {
+  background-color: #0f1416;
+  color: #ffffff;
+}
+.dark:hover {
+  background-color: #000000;
+}
+
+/* Disabled (button only) — muted + non-interactive. */
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+}

@@ -1,0 +1,76 @@
+/* Reusable subpage header — corners, big title + overview, hairline. Pair with
+   <PageBackground> for the shared dot-grid. */
+.hero {
+  position: relative;
+  z-index: 1;
+  padding-block: calc(var(--nav-h) + clamp(3rem, 9vh, 6rem)) clamp(2.5rem, 6vh, 4.5rem);
+}
+.hero.fill {
+  display: flex;
+  flex-direction: column;
+  min-height: 100svh;
+}
+.corner {
+  position: absolute;
+  z-index: 2;
+  width: 11px;
+  height: 11px;
+  color: var(--color-muted);
+  pointer-events: none;
+}
+.cornerTL { inset-block-start: calc(var(--nav-h) + 0.5rem); inset-inline-start: var(--container-padding); }
+.cornerTR { inset-block-start: calc(var(--nav-h) + 0.5rem); inset-inline-end: var(--container-padding); }
+.cornerBL { inset-block-end: 1.25rem; inset-inline-start: var(--container-padding); }
+.cornerBR { inset-block-end: 1.25rem; inset-inline-end: var(--container-padding); }
+
+.inner {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: var(--max-width-wide);
+  margin-inline: auto;
+  padding-inline: var(--container-padding);
+}
+.hero.fill .inner {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.headRow {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: clamp(1.5rem, 5vw, 5rem);
+  align-items: end;
+}
+.title {
+  margin: 0;
+  font-weight: 700;
+  font-size: clamp(2.75rem, 9vw, 7rem);
+  line-height: 0.98;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: var(--color-fg);
+}
+.overview {
+  margin: 0;
+  max-width: 46ch;
+  padding-block-end: 0.4rem;
+  font-family: var(--font-secondary);
+  font-size: clamp(0.95rem, 1.2vw, 1.2rem);
+  line-height: 1.6;
+  color: var(--color-muted);
+}
+.hair {
+  height: 1px;
+  margin-block: clamp(2rem, 5vh, 3.5rem);
+  background: var(--color-border);
+}
+
+@media (max-width: 860px) {
+  .headRow {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+    align-items: start;
+  }
+}

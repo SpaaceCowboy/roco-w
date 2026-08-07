@@ -1,0 +1,313 @@
+/* Light editorial section — its own opaque background covers the fixed globe. */
+.about {
+  position: relative;
+  z-index: 1;
+  pointer-events: auto;
+  background: #ffffff;
+  color: #161d20;
+  padding-block: clamp(5rem, 13vh, 9rem);
+}
+
+.inner {
+  width: 100%;
+  max-width: var(--max-width-wide);
+  margin-inline: auto;
+  padding-inline: var(--container-padding);
+}
+
+/* ---- Top row: four small elements on the 12-col grid ---- */
+.microRow {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  align-items: start;
+  gap: 1.5rem;
+  margin-block-end: clamp(6rem, 15vh, 12rem);
+  padding-block-end: 1.5rem;
+  border-block-end: 1px solid #e6eaec;
+}
+
+.tok {
+  display: inline-block;
+  will-change: transform, opacity;
+}
+
+.el1 {
+  grid-column: 1 / 4;
+  font-family: var(--font-mono, var(--font-secondary));
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #1c2427;
+}
+
+.el2 {
+  grid-column: 4 / 8;
+  margin: 0;
+  max-width: 34ch;
+  font-family: var(--font-secondary);
+  font-size: 12px;
+  line-height: 1.55;
+  color: #2a3439;
+}
+.muted {
+  color: #b3bcc0;
+}
+
+.el3 {
+  grid-column: 8 / 11;
+  align-self: center;
+  display: block;
+  color: #20272a;
+}
+.el3 svg {
+  display: block;
+  width: 100%;
+  max-width: 132px;
+  height: 26px;
+}
+
+.el4 {
+  grid-column: 11 / 13;
+  justify-self: end;
+  /* room for the letters to drift down */
+  padding-block-end: 0.4em;
+  overflow: visible;
+  font-family: var(--font-mono, var(--font-secondary));
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  font-variant-numeric: tabular-nums;
+  color: #16211d;
+}
+
+/* ---- Statement (left) + aside (right) ---- */
+.headRow {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: clamp(2rem, 4vw, 4.5rem);
+  align-items: end;
+}
+
+.title {
+  grid-column: 1 / 9;
+  margin: 0;
+  font-weight: 700;
+  font-size: clamp(1.75rem, 3.4vw, 3.5rem);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: #16211d;
+}
+
+.gradient {
+  background: linear-gradient(96deg, #6f9e00, #1f7a4d 55%, #2a3439);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.aside {
+  grid-column: 9 / 13;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: clamp(1.25rem, 2.5vh, 2rem);
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.85rem;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  font-family: var(--font-secondary);
+  font-size: clamp(0.95rem, 1.1vw, 1.0625rem);
+  font-weight: 500;
+  color: #253138;
+}
+
+.check {
+  flex: none;
+  color: #5c9a1e;
+}
+
+.cta {
+  display: inline-flex;
+}
+
+/* ---- Scroll-scrubbed video (left) + blurb (right), on the white background.
+   Blurb aligns to col 9 — same vertical line as the feature list/button above. ---- */
+.media {
+  margin-block-start: clamp(3rem, 7vh, 6rem);
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: clamp(2rem, 4vw, 4.5rem);
+  align-items: center;
+}
+
+.mediaVideo {
+  grid-column: 2 / 8;
+  justify-self: start;
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: min(82vh, 46rem);
+}
+
+.mediaText {
+  grid-column: 9 / 13;
+  margin: 0;
+  font-family: var(--font-secondary);
+  font-size: clamp(1.375rem, 2vw, 2rem);
+  line-height: 1.22;
+  font-weight: 600;
+  color: #16211d;
+}
+
+.mediaMuted {
+  color: #9aa6ab;
+}
+
+/* ---- Bottom four-column micro row ---- */
+.cols4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: clamp(1.5rem, 3vw, 3rem);
+  margin-block-start: clamp(3rem, 7vh, 6rem);
+  padding-block-start: clamp(1.5rem, 4vh, 3rem);
+  border-block-start: 1px solid #e6eaec;
+}
+
+.colItem {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-height: clamp(15rem, 24vh, 21rem);
+}
+
+.withLine {
+  padding-inline-start: clamp(1rem, 2vw, 2.25rem);
+}
+
+/* Vertical guideline: faint base gradient with an ongoing bright pulse that
+   flows top→bottom, like energy in a tube. */
+.guideline {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  width: 1.5px;
+  overflow: hidden;
+  background: linear-gradient(
+    to bottom,
+    rgba(22, 29, 32, 0.04),
+    rgba(22, 29, 32, 0.22) 45%,
+    rgba(22, 29, 32, 0.03)
+  );
+  transform-origin: top center;
+  will-change: transform;
+}
+
+.guideline::after {
+  content: "";
+  position: absolute;
+  inset-inline: -0.5px;
+  height: 40%;
+  top: -50%;
+  background: linear-gradient(to bottom, transparent, #86c40f 55%, transparent);
+  filter: drop-shadow(0 0 3px rgba(134, 196, 15, 0.55));
+  animation: guideline-flow 3.4s linear infinite;
+  animation-delay: var(--flow-delay, 0s);
+}
+
+@keyframes guideline-flow {
+  0% {
+    top: -50%;
+  }
+  100% {
+    top: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .guideline::after {
+    animation: none;
+    opacity: 0;
+  }
+}
+
+.microItem {
+  font-family: var(--font-mono, var(--font-secondary));
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #1c2427;
+}
+
+.microWide {
+  margin: 0;
+  max-width: 32ch;
+  font-family: var(--font-secondary);
+  font-size: 12px;
+  line-height: 1.65;
+  text-transform: none;
+  letter-spacing: 0;
+  color: #2a3439;
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 900px) {
+  .cols4 {
+    grid-template-columns: 1fr 1fr;
+    gap: 1.75rem 1.5rem;
+  }
+  .colItem {
+    min-height: 0;
+  }
+  .microWide {
+    max-width: none;
+  }
+  .microRow {
+    gap: 1.25rem 1rem;
+  }
+  .el1 {
+    grid-column: 1 / 7;
+  }
+  .el4 {
+    grid-column: 9 / 13;
+  }
+  .el2 {
+    grid-column: 1 / 8;
+    grid-row: 2;
+    max-width: none;
+  }
+  .el3 {
+    grid-column: 9 / 13;
+    grid-row: 2;
+  }
+  .title {
+    grid-column: 1 / 13;
+    margin-block-end: 2rem;
+  }
+  .aside {
+    grid-column: 1 / 13;
+  }
+  .media {
+    grid-template-columns: 1fr;
+  }
+  .mediaVideo {
+    grid-column: 1 / -1;
+    justify-self: center;
+  }
+  .mediaText {
+    grid-column: 1 / -1;
+  }
+}

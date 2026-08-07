@@ -1,0 +1,560 @@
+/* ============================================================
+   Header — telkom-style navbar, dark frosted glass, brand tokens.
+   Logical properties (inline-start/end) so it mirrors under RTL.
+   ============================================================ */
+
+.navbar {
+  position: fixed;
+  inset-block-start: 0;
+  inset-inline: 0;
+  z-index: 1000;
+}
+
+.padding {
+  width: 100%;
+  max-width: var(--max-width-wide);
+  margin-inline: auto;
+  padding-block-start: 1rem;
+  padding-inline: var(--container-padding);
+}
+
+/* ---------- Desktop ---------- */
+.desktop {
+  display: block;
+}
+
+/* The bar's frosted glass lives on a ::before layer (not on .desktopWrap
+   itself) so the dropdown panels — which are descendants — aren't nested inside
+   a backdrop-filtered ancestor (that would stop their own blur from working). */
+.desktopWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 0.5rem;
+  padding-inline-start: 0.75rem;
+}
+
+.desktopWrap::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  backdrop-filter: blur(18px) saturate(140%);
+  border: 1px solid var(--glass-border);
+}
+
+.logo {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  color: var(--color-fg);
+  line-height: 1;
+}
+
+.logo svg {
+  height: 2rem;
+  width: auto;
+  display: block;
+}
+
+.menu {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: stretch;
+  align-self: stretch;
+}
+
+/* A nav cell (link OR dropdown toggle button): divider on the leading edge,
+   fills with accent on hover. Reset styles so <button> matches <a>/<Link>. */
+.linkItem {
+  display: flex;
+  align-items: stretch;
+  border: 0;
+  border-inline-start: 1px solid var(--color-border);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: start;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.linkItem:hover {
+  background-color: var(--color-accent);
+}
+
+.linkWrap {
+  display: flex;
+  align-items: center;
+  /* Compact near the breakpoint, roomier on wide screens — keeps the whole
+     bar inside its container across all 6 locales (long DE/RU labels). */
+  padding: 1rem clamp(0.8rem, 0.9vw, 1.25rem);
+}
+
+.linkText {
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--color-fg);
+  white-space: nowrap;
+  transition: color 0.3s ease;
+}
+
+.linkItem:hover .linkText {
+  color: var(--color-on-accent);
+}
+
+/* CTAs — each hovers within its own colour family so the two never look alike:
+   Login: white → pale-lime tint. Join Now: lime → deeper lime.
+   Text stays gunmetal on both (light backgrounds). Join Now is last → rounded. */
+/* Login: styled like a normal nav link (transparent, fills accent on hover)
+   but with lime text — not a solid filled button. */
+.ctaLogin {
+  background-color: transparent;
+}
+
+.ctaLogin .linkText {
+  color: var(--color-accent);
+}
+
+.ctaJoin {
+  background-color: var(--color-accent);
+  border-inline-start: none;
+  border-start-end-radius: 0.5rem;
+  border-end-end-radius: 0.5rem;
+}
+
+.ctaJoin:hover {
+  background-color: var(--lime-strong);
+}
+
+.ctaJoin .linkText {
+  color: var(--gunmetal);
+}
+
+/* ---------- Dropdown (hover-reveal) ---------- */
+.dropRoot {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+}
+
+/* Toggle keeps the accent fill while its panel is open. */
+.dropOpen {
+  background-color: var(--color-accent);
+}
+
+.dropOpen .linkText {
+  color: var(--color-on-accent);
+}
+
+.dropPanel {
+  position: absolute;
+  inset-block-start: 100%;
+  inset-inline-start: 0;
+  min-width: 14rem;
+  margin-block-start: 0.5rem;
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  backdrop-filter: blur(18px) saturate(140%);
+  border: 1px solid var(--glass-border);
+  border-radius: 0.5rem;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+  z-index: 20;
+}
+
+.dropItem {
+  display: block;
+  padding: 0.625rem 0.875rem;
+  border-radius: 0.375rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--color-fg);
+  white-space: nowrap;
+  text-decoration: none;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.dropItem:hover {
+  background-color: var(--color-accent);
+  color: var(--color-on-accent);
+}
+
+/* Inactive "soon" items — not built yet, non-clickable. */
+.dropSoon {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  color: var(--color-muted);
+  cursor: default;
+}
+.dropSoon:hover {
+  background-color: transparent;
+  color: var(--color-muted);
+}
+.mobileChildSoon {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--color-muted);
+  cursor: default;
+}
+.soonBadge {
+  flex: none;
+  padding: 0.05rem 0.4rem;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  font-family: var(--font-mono, var(--font-secondary));
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+/* ---------- Language switcher (desktop) ---------- */
+.langRoot {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  border-inline-start: 1px solid var(--color-border);
+}
+
+.langToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 1rem clamp(0.7rem, 0.8vw, 1rem);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-fg);
+  transition: background-color 0.3s ease;
+}
+
+.langToggle:hover,
+.langToggleOpen {
+  background-color: var(--color-accent);
+  color: var(--color-on-accent);
+}
+
+.langToggleOpen .linkText {
+  color: var(--color-on-accent);
+}
+
+.chev {
+  transition: transform 0.3s ease;
+}
+
+.chevOpen {
+  transform: rotate(180deg);
+  transition: transform 0.3s ease;
+}
+
+.langList {
+  position: absolute;
+  inset-block-start: calc(100% + 0.5rem);
+  inset-inline-end: 0;
+  min-width: 11rem;
+  padding: 0.5rem;
+  background: var(--glass-bg-strong);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  backdrop-filter: blur(18px) saturate(140%);
+  border: 1px solid var(--glass-border);
+  border-radius: 0.5rem;
+  overflow: hidden;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+  z-index: 20;
+}
+
+.langItem {
+  display: block;
+  width: 100%;
+  text-align: start;
+  padding: 0.5rem 0.875rem;
+  border-radius: 0.375rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-brand);
+  font-size: 0.9375rem;
+  color: var(--color-fg);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.langItem:hover {
+  background-color: var(--color-accent);
+  color: var(--color-on-accent);
+}
+
+.langActive {
+  color: var(--color-accent);
+  font-weight: 700;
+}
+
+.langActive:hover {
+  color: var(--color-on-accent);
+}
+
+/* ---------- Mobile ---------- */
+.mobile {
+  display: none;
+}
+
+.mobileBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 1rem 1.25rem 0;
+  padding: 0.75rem 1.25rem;
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  backdrop-filter: blur(18px) saturate(140%);
+  border: 1px solid var(--glass-border);
+  border-radius: 0.5rem;
+}
+
+.hamburger {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 0.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.hamburger span {
+  display: block;
+  width: 1.75rem;
+  height: 2px;
+  background: var(--color-fg);
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.hamburgerOpen span:nth-child(1) {
+  transform: translateY(4px) rotate(45deg);
+}
+
+.hamburgerOpen span:nth-child(2) {
+  transform: translateY(-4px) rotate(-45deg);
+}
+
+.mobilePanelWrap {
+  margin: 0.5rem 1.25rem 0;
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease, opacity 0.3s ease;
+}
+
+.mobilePanelOpen {
+  /* Fit within the viewport below the bar so every row (incl. the CTAs and
+     language switch) is reachable; the panel scrolls internally past that. */
+  max-height: calc(100dvh - 6rem);
+  opacity: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  /* Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--color-accent) 45%, transparent) transparent;
+}
+
+/* WebKit — slim, rounded, lime-tinted thumb that brightens on hover. */
+.mobilePanelOpen::-webkit-scrollbar {
+  width: 6px;
+}
+.mobilePanelOpen::-webkit-scrollbar-track {
+  background: transparent;
+}
+.mobilePanelOpen::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--color-accent) 40%, transparent);
+  border-radius: 999px;
+}
+.mobilePanelOpen::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--color-accent) 70%, transparent);
+}
+
+/* Reusable smooth accordion expand (nav children + language list): the outer
+   grid animates 0fr→1fr, the inner clips overflow, contents fade/slide in. */
+.expand {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.expandOpen {
+  grid-template-rows: 1fr;
+}
+.expandInner {
+  overflow: hidden;
+  min-height: 0;
+}
+.expandInner > * {
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+.expandOpen .expandInner > * {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .expand {
+    transition: none;
+  }
+  .expandInner > * {
+    transition: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.mobilePanel {
+  background: var(--glass-bg-strong);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  backdrop-filter: blur(18px) saturate(140%);
+  border: 1px solid var(--glass-border);
+  border-radius: 0.5rem;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+}
+
+.mobileList {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem 1.5rem;
+}
+
+/* Each parent row (accordion) or leaf link. */
+.mobileRow {
+  border-block-end: 1px solid var(--color-border);
+}
+
+.mobileRow:last-child {
+  border-block-end: none;
+}
+
+.mobileLink,
+.mobileParent {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0.9rem 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: start;
+  text-decoration: none;
+  font: inherit;
+  /* <button> doesn't inherit color by default → bare chevrons went black */
+  color: var(--color-fg);
+}
+
+.mobileText {
+  font-size: 1.125rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--color-fg);
+}
+
+/* Chevron-only toggle beside a navigating parent label. */
+.mobileToggle {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem;
+  margin-inline-start: auto;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-fg);
+}
+
+/* Mobile CTA buttons — same white/lime swap, full-width pills. */
+.mobileCtas {
+  display: flex;
+  gap: 0.75rem;
+  padding: 1.25rem 1.5rem;
+}
+
+.mobileCta {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  padding: 0.9rem 1rem;
+  border: 0;
+  border-radius: 0.5rem;
+  text-decoration: none;
+}
+
+.mobileChildren {
+  display: flex;
+  flex-direction: column;
+  padding-block-end: 0.75rem;
+  padding-inline-start: 0.5rem;
+}
+
+.mobileChild {
+  padding: 0.5rem 0;
+  font-size: 1rem;
+  color: var(--color-muted);
+  text-decoration: none;
+}
+
+.mobileChild:hover {
+  color: var(--color-accent);
+}
+
+.divider {
+  height: 1px;
+  background: var(--color-border);
+}
+
+.accordion {
+  padding: 1rem 1.5rem 1.5rem;
+}
+
+.accordionTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0.5rem 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-fg);
+}
+
+.accordionBody {
+  display: flex;
+  flex-direction: column;
+  padding-block-start: 0.5rem;
+}
+
+/* Breakpoint: swap desktop ⇄ mobile. Raised to 1240px so the mobile menu
+   takes over *before* the packed desktop bar (logo + 6 dropdowns + language +
+   2 CTAs) can overflow — the row needs ~1100–1200px depending on locale. */
+@media (max-width: 1240px) {
+  .desktop {
+    display: none;
+  }
+  .mobile {
+    display: block;
+  }
+}

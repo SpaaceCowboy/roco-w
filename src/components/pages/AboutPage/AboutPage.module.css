@@ -1,0 +1,362 @@
+/* About Us — dark, home-hero manner: centred title, central team image, and
+   the "Who We Are" copy as guideline-flanked subtext blocks. */
+.page {
+  position: relative;
+  z-index: 0;
+  background: var(--color-bg);
+  color: var(--color-fg);
+}
+
+.hero {
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+  display: flex;
+  min-height: 100svh;
+  padding-block: calc(var(--nav-h) + clamp(2.5rem, 6vh, 4.5rem)) clamp(3rem, 7vh, 5rem);
+}
+.inner {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: var(--max-width-wide);
+  margin-inline: auto;
+  padding-inline: var(--container-padding);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.corner {
+  position: absolute;
+  z-index: 2;
+  width: 11px;
+  height: 11px;
+  color: var(--color-muted);
+  pointer-events: none;
+}
+.cornerTL {
+  inset-block-start: calc(var(--nav-h) + 0.5rem);
+  inset-inline-start: var(--container-padding);
+}
+.cornerTR {
+  inset-block-start: calc(var(--nav-h) + 0.5rem);
+  inset-inline-end: var(--container-padding);
+}
+.cornerBL {
+  inset-block-end: 1.25rem;
+  inset-inline-start: var(--container-padding);
+}
+.cornerBR {
+  inset-block-end: 1.25rem;
+  inset-inline-end: var(--container-padding);
+}
+
+.kicker {
+  font-family: var(--font-mono, var(--font-secondary));
+  font-size: clamp(0.8rem, 1.1vw, 0.95rem);
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+.title {
+  margin: clamp(1rem, 2.5vh, 1.75rem) 0 0;
+  font-weight: 700;
+  font-size: clamp(3rem, 8.5vw, 7.5rem);
+  line-height: 1;
+  letter-spacing: -0.015em;
+  text-transform: uppercase;
+  color: var(--color-fg);
+}
+
+/* Central team image */
+.media {
+  position: relative;
+  margin: clamp(2rem, 5vh, 3.5rem) 0 0;
+  width: min(100%, 30rem);
+  aspect-ratio: 1 / 1;
+  border-radius: 1.25rem;
+  background: #0a0f14;
+}
+.mediaImg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border: 1px solid var(--glass-border);
+  border-radius: 1.25rem;
+}
+
+/* Floating glass stat card over the left of the image (parallaxed). */
+.card {
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-start: 0;
+  transform: translate(-38%, -50%);
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.35rem;
+  width: max-content;
+  padding: clamp(1rem, 1.6vw, 1.35rem) clamp(1.15rem, 1.8vw, 1.6rem);
+  border: 1px solid var(--glass-border);
+  border-radius: 1rem;
+  background:
+    radial-gradient(140% 100% at 0% 0%, color-mix(in srgb, var(--color-accent) 16%, transparent), transparent 55%),
+    var(--glass-bg-strong);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 24px 60px -30px rgba(0, 0, 0, 0.7);
+  text-align: start;
+  will-change: transform;
+}
+.cardIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  margin-block-end: 0.3rem;
+  border-radius: 0.6rem;
+  border: 1px solid var(--glass-border);
+  color: var(--color-accent);
+}
+.cardGlyph {
+  width: 1.35rem;
+  height: 1.35rem;
+}
+.cardStat {
+  font-weight: 700;
+  font-size: clamp(1.5rem, 2.4vw, 2rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--color-fg);
+}
+.cardLabel {
+  font-family: var(--font-secondary);
+  font-size: 0.8rem;
+  color: var(--color-muted);
+}
+
+/* Who-we-are copy — guideline-flanked blocks (social pattern) */
+.blocks {
+  margin: clamp(2.5rem, 6vh, 4rem) 0 0;
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(1.5rem, 3.5vw, 3rem);
+  text-align: start;
+}
+.block {
+  position: relative;
+  padding-inline-start: 1.15rem;
+}
+.blockLabel {
+  display: block;
+  font-family: var(--font-mono, var(--font-secondary));
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+.blockText {
+  margin: 0.6rem 0 0;
+  font-family: var(--font-secondary);
+  font-size: clamp(0.9rem, 1vw, 1rem);
+  line-height: 1.6;
+  color: var(--color-muted);
+}
+
+/* Vertical guideline with a flowing lime pulse. */
+.guideline {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  width: 1.5px;
+  overflow: hidden;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.04),
+    rgba(255, 255, 255, 0.18) 45%,
+    rgba(255, 255, 255, 0.03)
+  );
+}
+.guideline::after {
+  content: "";
+  position: absolute;
+  inset-inline: -0.5px;
+  height: 40%;
+  top: -50%;
+  background: linear-gradient(to bottom, transparent, var(--color-accent) 55%, transparent);
+  filter: drop-shadow(0 0 3px color-mix(in srgb, var(--color-accent) 55%, transparent));
+  animation: about-guideline-flow 3.4s linear infinite;
+  animation-delay: var(--flow-delay, 0s);
+}
+@keyframes about-guideline-flow {
+  0% {
+    top: -50%;
+  }
+  100% {
+    top: 100%;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .guideline::after {
+    animation: none;
+    opacity: 0;
+  }
+}
+
+/* ---- Partners ribbon ---- */
+.partners {
+  position: relative;
+  z-index: 1;
+  padding-block: clamp(2.5rem, 6vh, 4.5rem);
+  border-block-start: 1px solid var(--color-border);
+}
+.partnersLabel {
+  display: block;
+  margin-block-end: clamp(1.5rem, 3vw, 2.25rem);
+  font-family: var(--font-mono, var(--font-secondary));
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+.marquee {
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+  mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+}
+.track {
+  display: flex;
+  width: max-content;
+  gap: clamp(2.5rem, 6vw, 5rem);
+  /* seamless infinite scroll — never pauses */
+  animation: about-marquee 34s linear infinite;
+}
+@keyframes about-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+.logo {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.logoImg {
+  height: clamp(2.5rem, 4.5vw, 3.5rem);
+  width: auto;
+  /* monochrome logos → light, subtle on the dark strip */
+  filter: brightness(0) invert(1);
+  opacity: 0.7;
+}
+@media (prefers-reduced-motion: reduce) {
+  .track {
+    animation: none;
+  }
+}
+
+/* ---- Yellow CTA banner ---- */
+.ctaWrap {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: var(--max-width-wide);
+  margin-inline: auto;
+  padding-inline: var(--container-padding);
+  padding-block-end: clamp(4rem, 10vh, 8rem);
+}
+.ctaBanner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1.25rem 2rem;
+  padding: clamp(1.4rem, 3vw, 2.25rem) clamp(1.6rem, 4vw, 3rem);
+  border-radius: 1rem;
+  background: var(--color-accent);
+  color: #0f1416;
+}
+.ctaText {
+  margin: 0;
+  font-weight: 700;
+  font-size: clamp(1.1rem, 2.2vw, 1.7rem);
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+}
+.ctaBtn {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.85rem 1.6rem;
+  border-radius: 999px;
+  background: #0f1416;
+  color: #fff;
+  font-family: var(--font-secondary);
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-decoration: none;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+.ctaBtn:hover {
+  transform: translateY(-2px);
+  background: #000;
+}
+
+/* ---- Regulatory note ---- */
+.regNote {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: var(--max-width-wide);
+  margin-inline: auto;
+  padding-inline: var(--container-padding);
+  padding-block-end: clamp(3rem, 7vh, 5rem);
+}
+.regLabel {
+  display: block;
+  margin-block-end: 0.75rem;
+  font-family: var(--font-mono, var(--font-secondary));
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+.regText {
+  margin: 0 0 0.5rem;
+  max-width: 90ch;
+  font-family: var(--font-secondary);
+  font-size: 0.82rem;
+  line-height: 1.6;
+  color: var(--color-muted);
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 820px) {
+  .blocks {
+    grid-template-columns: 1fr;
+    max-width: 34rem;
+    margin-inline: auto;
+  }
+  .card {
+    transform: translate(-12%, -50%);
+  }
+}
+@media (max-width: 480px) {
+  .card {
+    inset-block-start: auto;
+    inset-block-end: 0.75rem;
+    inset-inline-start: 0.75rem;
+    transform: none;
+  }
+}

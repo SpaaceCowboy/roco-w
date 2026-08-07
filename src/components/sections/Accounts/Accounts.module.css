@@ -1,0 +1,321 @@
+/* Our Accounts — dark section with 4 spec cards (lift + glow on hover). Same
+   dot-matrix background as the hero. */
+.accounts {
+  position: relative;
+  z-index: 1;
+  isolation: isolate;
+  overflow: hidden;
+  background: var(--color-bg);
+  color: var(--color-fg);
+  padding-block: clamp(4rem, 10vh, 8rem);
+}
+
+/* Reused hero dot-grid (WebGL) — gated so it pauses when off-screen. */
+.dots {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.inner {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: var(--max-width-wide);
+  margin-inline: auto;
+  padding-inline: var(--container-padding);
+}
+
+/* Header — title, subtitle stacked underneath (left-aligned). */
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-block-end: clamp(3.5rem, 7vw, 5.5rem);
+}
+
+.title {
+  margin: 0;
+  max-width: 14ch;
+  font-weight: 700;
+  font-size: clamp(2rem, 4.5vw, 3.5rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  background: linear-gradient(96deg, var(--color-accent), #7ee0ff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.subtitle {
+  margin: 0;
+  max-width: 44ch;
+  text-align: start;
+  font-family: var(--font-secondary);
+  font-size: clamp(0.95rem, 1.2vw, 1.1rem);
+  line-height: 1.5;
+  color: var(--color-muted);
+}
+
+/* Meta row — staggered: two objects top-right, two bottom-left. Long guideline
+   lines; no top hairline. */
+.metaRow {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  column-gap: clamp(1rem, 2vw, 2rem);
+  row-gap: clamp(1.5rem, 3vh, 2.5rem);
+  margin-block-end: clamp(3rem, 6vh, 5rem);
+}
+.metaItem {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  min-height: 14rem;
+  padding-block: 0.25rem;
+  padding-inline-start: clamp(1rem, 1.6vw, 1.75rem);
+}
+/* metaText + "For every level" sit at the BOTTOM (near the line's end). */
+.posTR2,
+.posBL2 {
+  justify-content: flex-end;
+}
+.posTR1 {
+  grid-column: 7 / 10;
+  grid-row: 1;
+}
+.posTR2 {
+  grid-column: 10 / 13;
+  grid-row: 1;
+}
+.posBL1 {
+  grid-column: 1 / 4;
+  grid-row: 2;
+}
+.posBL2 {
+  grid-column: 4 / 7;
+  grid-row: 2;
+}
+.tok {
+  display: inline-block;
+}
+.metaLabel {
+  font-family: var(--font-mono, var(--font-secondary));
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-fg);
+}
+.metaTag {
+  font-family: var(--font-secondary);
+  font-size: clamp(0.95rem, 1.2vw, 1.125rem);
+  color: var(--color-fg);
+}
+.metaText {
+  margin: 0;
+  max-width: 34ch;
+  font-family: var(--font-secondary);
+  font-size: 0.85rem;
+  line-height: 1.55;
+  color: var(--color-muted);
+}
+
+/* Vertical guideline with a flowing lime pulse (light base on the dark bg). */
+.guideline {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  width: 1.5px;
+  overflow: hidden;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.04),
+    rgba(255, 255, 255, 0.18) 45%,
+    rgba(255, 255, 255, 0.03)
+  );
+}
+.guideline::after {
+  content: "";
+  position: absolute;
+  inset-inline: -0.5px;
+  height: 40%;
+  top: -50%;
+  background: linear-gradient(to bottom, transparent, var(--color-accent) 55%, transparent);
+  filter: drop-shadow(0 0 3px color-mix(in srgb, var(--color-accent) 55%, transparent));
+  animation: acc-guideline-flow 3.4s linear infinite;
+  animation-delay: var(--flow-delay, 0s);
+}
+@keyframes acc-guideline-flow {
+  0% {
+    top: -50%;
+  }
+  100% {
+    top: 100%;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .guideline::after {
+    animation: none;
+    opacity: 0;
+  }
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: clamp(1.25rem, 2vw, 2rem);
+}
+
+/* Card — the whole card is the Join link. */
+.card {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: clamp(1.75rem, 2.4vw, 2.5rem);
+  border: 1px solid var(--glass-border);
+  border-radius: 1rem;
+  background: var(--glass-bg-strong);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  transition:
+    transform 0.35s ease,
+    border-color 0.35s ease,
+    box-shadow 0.35s ease;
+}
+
+/* Lime accent bar that grows across the top on hover. */
+.card::before {
+  content: "";
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline: 0;
+  height: 3px;
+  background: var(--color-accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.45s ease;
+}
+
+.card:hover {
+  transform: translateY(-8px);
+  border-color: color-mix(in srgb, var(--color-accent) 55%, var(--glass-border));
+  box-shadow:
+    0 26px 60px -24px rgba(0, 0, 0, 0.7),
+    0 0 44px -14px color-mix(in srgb, var(--color-accent) 45%, transparent);
+}
+.card:hover::before {
+  transform: scaleX(1);
+}
+
+.cardName {
+  margin: 0 0 1.5rem;
+  font-size: clamp(1.2rem, 1.7vw, 1.5rem);
+  font-weight: 600;
+  line-height: 1.15;
+  color: var(--color-fg);
+}
+
+.specs {
+  list-style: none;
+  margin: 0 0 1.25rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.specRow {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-family: var(--font-secondary);
+  font-size: 0.9375rem;
+}
+.specIcon {
+  display: inline-flex;
+  flex: none;
+  color: var(--color-accent);
+}
+.specLabel {
+  color: var(--color-muted);
+}
+.specValue {
+  margin-inline-start: auto;
+  font-weight: 600;
+  color: var(--color-fg);
+  text-align: end;
+}
+
+.note {
+  margin-block-start: auto;
+  margin-block-end: 1.25rem;
+  padding-block-start: 1.1rem;
+  border-block-start: 1px solid var(--glass-border);
+  font-family: var(--font-secondary);
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--color-muted);
+}
+
+.cardCta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-mono, var(--font-secondary));
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  transition:
+    color 0.3s ease,
+    gap 0.3s ease;
+}
+.cardCta svg {
+  transition: transform 0.3s ease;
+}
+.card:hover .cardCta {
+  color: var(--color-accent);
+  gap: 0.75rem;
+}
+.card:hover .cardCta svg {
+  transform: translateX(3px);
+}
+
+@media (max-width: 860px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  .subtitle {
+    text-align: start;
+  }
+  .metaRow {
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+  .posTR1,
+  .posTR2,
+  .posBL1,
+  .posBL2 {
+    grid-column: auto;
+    grid-row: auto;
+  }
+  .metaItem {
+    min-height: 0;
+  }
+}
+@media (max-width: 560px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

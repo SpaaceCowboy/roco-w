@@ -1,0 +1,812 @@
+{
+  "metadata": {
+    "title": "RocoBroker",
+    "description": "RocoBroker — online trading and brokerage."
+  },
+  "nav": {
+    "blog": "Blog",
+    "markets": "Markets",
+    "trading": "Trading",
+    "resources": "Resources",
+    "tools": "Tools",
+    "opportunities": "Opportunities",
+    "about": "About",
+    "login": "Login",
+    "joinNow": "Join Now",
+    "forexTrading": "Forex trading",
+    "commodities": "Commodities",
+    "metals": "Metals",
+    "crypto": "Crypto Currencies",
+    "stocks": "Stocks",
+    "indices": "Indices",
+    "accountTypes": "Account Types",
+    "socialTrade": "Social Trade",
+    "paymentMethods": "Payment Methods",
+    "faq": "FAQ",
+    "metatrader5": "MetaTrader 5",
+    "calendar": "Calendar",
+    "promotions": "Promotions",
+    "partnership": "Partnership",
+    "aboutUs": "About us",
+    "contactUs": "Contact Us",
+    "legalDocuments": "Legal Documents",
+    "soon": "Soon"
+  },
+  "hero": {
+    "title": "Rewrite Trade Rules",
+    "subtext": "Trade <w>forex, stocks, crypto</w> <g>and more — all from one account.</g>",
+    "tradeNow": "Trade Now"
+  },
+  "stats": {
+    "support": "Support",
+    "instruments": "Trading instruments",
+    "payments": "Payment methods",
+    "experience": "Market experience",
+    "introTitle": "Trade Every Market.",
+    "introAccent": "Effortlessly."
+  },
+  "about": {
+    "kicker": "Who We Are",
+    "titleLead": "ROCO is a trusted global financial trading brand offering secure, innovative services",
+    "titleAccent": "across every market.",
+    "body": "ROCO is a trusted global financial trading brand offering secure, innovative services across various markets.",
+    "point1": "Catering to traders of all levels",
+    "point2": "Advanced trading tools",
+    "point3": "Educational resources",
+    "point4": "24/7 multilingual customer support",
+    "cta": "Explore More",
+    "mediaLabel": "Video coming soon",
+    "micro": "Secure, innovative trading — built for every kind of trader.",
+    "overlay": "Tools, education, and 24/7 support. Wherever markets move, ROCO moves with you.",
+    "visionLabel": "Our vision",
+    "vision": "We believe trading should be open to everyone, everywhere. Secure technology, honest education, and support in your language — so every trader competes on equal footing. This is trading without barriers.",
+    "visionA": "Access for all",
+    "visionB": "Markets without borders"
+  },
+  "markets": {
+    "title": "Markets",
+    "subtitle": "We offer various markets from FX pairs to precious metals",
+    "forex": {
+      "tag": "FX",
+      "title": "Forex Trading",
+      "desc": "Trade major, minor, and exotic currency pairs in the world's largest financial market with flexibility and precision."
+    },
+    "commodities": {
+      "tag": "Commodities",
+      "title": "Commodities",
+      "desc": "Invest in commodities like oil, gas, and agricultural products for portfolio diversification."
+    },
+    "metals": {
+      "tag": "Metals",
+      "title": "Metals",
+      "desc": "Trade precious metals such as gold, silver, platinum, and palladium to hedge against market volatility."
+    },
+    "crypto": {
+      "tag": "Crypto",
+      "title": "Crypto Currencies",
+      "desc": "Access the digital asset market with popular cryptocurrencies like Bitcoin."
+    },
+    "stocks": {
+      "tag": "Equities",
+      "title": "Stocks",
+      "desc": "Buy and sell shares of leading global companies with real-time market data."
+    },
+    "indices": {
+      "tag": "Indices",
+      "title": "Indices",
+      "desc": "Trade major stock market indices and track the performance of global economies."
+    }
+  },
+  "accounts": {
+    "title": "Our Accounts",
+    "subtitle": "Four accounts, from first trade to full-time strategy.",
+    "labelDeposit": "Min Deposit",
+    "labelLeverage": "Max Leverage",
+    "labelSpread": "Spread",
+    "labelCommission": "Commission",
+    "cta": "Join us",
+    "lion": {
+      "name": "Lion Account",
+      "deposit": "No Limit",
+      "leverage": "1:1000",
+      "spread": "from 1.2",
+      "commission": "0",
+      "note": "For beginners and traders seeking simpler trading."
+    },
+    "nanoLion": {
+      "name": "Nano-Lion Account",
+      "deposit": "No Limit",
+      "leverage": "1:1000",
+      "spread": "1.2 pip",
+      "commission": "0",
+      "note": "All values (deposits, profits, etc.) are in cents."
+    },
+    "nanoCheetah": {
+      "name": "NANO-Cheetah Account",
+      "deposit": "No Limit",
+      "leverage": "1:1000",
+      "spread": "Raw Spread",
+      "commission": "8 cent",
+      "note": "All values (deposits, profits, etc.) are in cents."
+    },
+    "cheetah": {
+      "name": "Cheetah Account",
+      "deposit": "No Limit",
+      "leverage": "1:1000",
+      "spread": "Raw Spread",
+      "commission": "8$",
+      "note": "For professional traders who value speed and precision."
+    },
+    "metaLabel": "Pick your edge",
+    "metaA": "For every level",
+    "metaB": "Up to 1:1000 leverage",
+    "metaText": "Cent accounts to test the waters, raw-spread setups for professionals — one login, switch tiers any time."
+  },
+  "mt5": {
+    "title": "MetaTrader 5 for",
+    "subtitle": "Trade anywhere, anytime. Access MetaTrader 5 on your preferred device and trade with speed, stability, and security.",
+    "downloadOn": "Download on",
+    "getItOn": "Get it on",
+    "downloadFor": "Download for",
+    "web": "Web",
+    "terminal": "Terminal",
+    "titleAccent": "Every Device"
+  },
+  "whatWeDo": {
+    "title": "What We",
+    "titleAccent": "Do",
+    "subtitle": "Everything you need to trade with confidence. News, education, markets, tools, and round-the-clock support.",
+    "forexNews": {
+      "label": "Forex News",
+      "text": "ROCO provides you with all the international news and events that affect your trading.",
+      "foot": "Live market feed"
+    },
+    "education": {
+      "label": "Educational Networking",
+      "text": "ROCO helps you access reliable educational resources through networking.",
+      "foot": "ROCO Academy"
+    },
+    "markets": {
+      "label": "Markets",
+      "text": "ROCO lets you trade across many markets — Forex, Commodities, Metals, Indices, and more.",
+      "foot": "Multi-asset access"
+    },
+    "support": {
+      "label": "24/7 Support",
+      "text": "Professional support available around the clock to assist you whenever you need it.",
+      "foot": "Always online"
+    },
+    "tools": {
+      "label": "Trading Tools",
+      "text": "ROCO offers comprehensive tools that significantly enhance your trading experience.",
+      "foot": "Pro toolkit"
+    }
+  },
+  "faq": {
+    "eyebrow": "FAQ",
+    "titleLead": "Here are the essentials about ROCO — how it works,",
+    "titleMuted": "your accounts, and how to start trading.",
+    "items": {
+      "minDeposit": {
+        "q": "What is the minimum deposit amount?",
+        "a": "There is no minimum deposit amount."
+      },
+      "methods": {
+        "q": "What deposit and withdrawal methods do you offer?",
+        "a": "Methods include Rial via TCPAY, plus BTC, ETH, USDT, and USDC on various networks. Additional methods will be added soon."
+      },
+      "withdrawTime": {
+        "q": "How long does it take to process my withdrawal request?",
+        "a": "Withdrawals are processed on the same business day."
+      },
+      "commissions": {
+        "q": "What are your commissions and spreads?",
+        "a": "Lion Account: spreads start from 1.2 pips with no commission. Cheetah Account: raw spreads with an $8 commission per lot."
+      },
+      "islamic": {
+        "q": "Do you offer Islamic (swap-free) accounts?",
+        "a": "Currently, Islamic accounts are not available, but they will be introduced soon."
+      },
+      "scalping": {
+        "q": "Is scalping or hedging allowed?",
+        "a": "Yes, our broker supports scalping and hedging strategies."
+      }
+    }
+  },
+  "footer": {
+    "tagline": "ROCO Broker Ltd is a financial brokerage company with offices in Montenegro and Egypt, registered in the Comoros Union.",
+    "colDownload": "Download MetaTrader 5",
+    "colLinks": "Quick Links",
+    "colContact": "Contact Us",
+    "accounts": "Accounts",
+    "followUs": "Follow Us",
+    "officesLabel": "Offices",
+    "regLabel": "Registered address",
+    "emailLabel": "Email",
+    "phoneLabel": "Phone",
+    "whatsapp": "WhatsApp",
+    "telegram": "Telegram",
+    "risk": "Forex trading involves significant risks, including high volatility and leverage that can amplify both gains and losses. ROCO does not serve residents of the USA or North Korea.",
+    "license": "Licensed under MISA registration HT01024109, License BFX2024190.",
+    "rights": "All Rights Reserved.",
+    "cookieSettings": "Cookie settings"
+  },
+  "ibPromo": {
+    "title": "Boost your earnings, explore our IB plan now!",
+    "cta": "Join us as IB"
+  },
+  "marketsPage": {
+    "title": "Markets",
+    "lead": "Trade every market,",
+    "leadAccent": "from a single account.",
+    "sub": "Forex, metals, commodities, stocks, crypto and indices — deep liquidity, tight spreads and fast MT5 execution across them all.",
+    "cta": "Start trading",
+    "micro": "Secure, innovative trading — built for every kind of trader.",
+    "imageLabel": "Chart preview coming soon",
+    "cat": {
+      "forex": {
+        "intro": "Ready to succeed in forex? Join ROCO for a superior experience in the world's largest financial market.",
+        "p1": "24/5 trading with high liquidity and leverage — opportunities in both rising and falling markets.",
+        "p2": "Competitive spreads and fast execution on advanced platforms like MT5.",
+        "p3": "24/7 customer support in a secure, regulated environment."
+      },
+      "metals": {
+        "intro": "Precious metals like gold and silver are prized for their enduring value. Trade them as CFDs to profit from price moves without owning the physical metal.",
+        "p1": "Flexibility to trade both rising and falling markets.",
+        "p2": "Hedge volatility with gold, silver, platinum and palladium.",
+        "p3": "Competitive costs and fast MT5 execution."
+      },
+      "commodities": {
+        "intro": "Expand your portfolio by trading CFD commodities with ROCO — access markets like gold, oil and agricultural products.",
+        "p1": "Diversification, inflation protection and global demand-driven opportunities.",
+        "p2": "Low trading costs on an advanced platform.",
+        "p3": "24/5 support and a secure, regulated environment."
+      },
+      "stocks": {
+        "intro": "Trade CFDs on major brand stocks to access popular shares without buying them outright.",
+        "p1": "Global market exposure and long-term growth opportunities.",
+        "p2": "Profit from both upswings and downturns without owning the stock.",
+        "p3": "Real-time market data and advanced charting."
+      },
+      "crypto": {
+        "intro": "A user-friendly platform, competitive fees and a wide range of cryptocurrencies — a reliable environment to explore crypto trading.",
+        "p1": "Speculate on price moves without owning the assets.",
+        "p2": "Advanced charting tools and real-time market analysis.",
+        "p3": "Trade popular coins in both rising and falling markets."
+      },
+      "indices": {
+        "intro": "Indices track the performance of groups of companies across sectors, regions and markets — broad, diverse exposure in one trade.",
+        "p1": "Profit from both rising and falling index prices.",
+        "p2": "Insights into economic health and market trends.",
+        "p3": "CFD trading without owning the underlying assets."
+      }
+    },
+    "bannerTitle": "Ready to trade the world's markets? Open your ROCO account in minutes."
+  },
+  "accountsPage": {
+    "title": "Accounts",
+    "overview": "Every ROCO account shares the same affordable minimum deposit — so you choose by trading style and features, not by cost. Two families, six accounts, one login.",
+    "cta": "Join us",
+    "centsNote": "All values (deposits, profits, etc.) are in cents.",
+    "bannerTitle": "Found your account? Open it in minutes and start trading.",
+    "labels": {
+      "minDeposit": "Min deposit",
+      "maxDeposit": "Max deposit",
+      "maxBalance": "Max balance",
+      "spread": "Spread",
+      "commission": "Commission",
+      "leverage": "Max leverage",
+      "stopOut": "Stop out",
+      "marginCall": "Margin call",
+      "minVolume": "Min volume",
+      "maxVolume": "Max volume",
+      "social": "Social trade"
+    },
+    "values": {
+      "noLimit": "No limit",
+      "rawSpread": "Raw spread",
+      "na": "—",
+      "provider": "Provider",
+      "follower": "Follower"
+    },
+    "approachKicker": "How our accounts work",
+    "approach": {
+      "a1": {
+        "t": "Transparent pricing",
+        "d": "Pay through the spread on Lion, or raw spread plus a fixed commission on Cheetah. No hidden costs."
+      },
+      "a2": {
+        "t": "Full market access",
+        "d": "Forex, metals, commodities, stocks, crypto and indices — all from one MT5 login."
+      },
+      "a3": {
+        "t": "Standard or cent",
+        "d": "Trade full-size, or switch to a Nano cent account to test strategies with minimal risk."
+      },
+      "a4": {
+        "t": "Copy or provide",
+        "d": "Social Trade lets you follow and copy top traders, or become a provider others follow."
+      }
+    },
+    "lion": {
+      "kicker": "Spread-only · zero commission",
+      "intro": "The Lion family keeps it simple: you pay only through a spread from 1.2 pips, with no commission. Start standard, go cent-sized with Nano-Lion, or copy top traders with Lion Social Trade.",
+      "stdNote": "Full-size trading with no deposit, balance or withdrawal caps — for beginners who want simple, transparent conditions.",
+      "nanoNote": "The same spread-only setup in cents. Smaller stakes, real market experience, minimized risk.",
+      "socialNote": "Follow and automatically copy Lion providers — hands-off trading on the same conditions.",
+      "tag": "For beginners and traders seeking simpler trading."
+    },
+    "cheetah": {
+      "kicker": "Raw spread · fixed commission",
+      "intro": "The Cheetah family is built for speed and precision: raw spreads with a defined commission, so your costs stay tight and predictable. Choose standard, cent-sized Nano-Cheetah, or Cheetah Social Trade.",
+      "stdNote": "Raw spreads with an $8 commission per lot — for professionals who value speed and defined costs.",
+      "nanoNote": "Raw-spread trading in cents with an 8-cent commission. Practise pro conditions with minimal risk.",
+      "socialNote": "Follow and copy Cheetah providers on the same raw-spread, commission-based conditions.",
+      "tag": "For professional traders who value speed and precision."
+    },
+    "detail": {
+      "lionStd": {
+        "desc": "Lion account is ideal for traders seeking a straightforward, transparent trading experience.",
+        "b1": {
+          "t": "Transparent Trading",
+          "d": "Competitive spreads with no hidden fees."
+        },
+        "b2": {
+          "t": "Market Access",
+          "d": "Direct access with clear pricing for cost-effective trading."
+        },
+        "b3": {
+          "t": "Flexible Funding",
+          "d": "Suitable for traders of all levels, requiring no high initial deposits."
+        },
+        "b4": {
+          "t": "Reliable Performance",
+          "d": "Designed for consistent results without tier restrictions."
+        }
+      },
+      "lionNano": {
+        "desc": "The Nano-Lion is a cent account that shows balances in cents instead of dollars, so you can start with very small deposits. Ideal for beginner traders who seek:",
+        "b1": {
+          "t": "Transparent Trading",
+          "d": "Competitive spreads with no hidden fees."
+        },
+        "b2": {
+          "t": "Value Control & Flexibility",
+          "d": "Trade smaller volumes while managing your capital effectively."
+        },
+        "b3": {
+          "t": "Minimized Risk",
+          "d": "Perfect for learning and testing strategies in a low-risk environment."
+        },
+        "b4": {
+          "t": "Real Market Experience",
+          "d": "Engage with live market conditions using micro-scale funds."
+        }
+      },
+      "cheetahStd": {
+        "desc": "Cheetah account is ideal for traders who seek raw spreads with a clear, commission-based cost structure.",
+        "b1": {
+          "t": "Transparent Trading",
+          "d": "Raw spreads with a clear and competitive commission structure."
+        },
+        "b2": {
+          "t": "Defined Costs",
+          "d": "No hidden fees, ensuring traders know exactly what they're paying."
+        },
+        "b3": {
+          "t": "Commission-Based Structure",
+          "d": "Ideal for traders who prefer transparent costs tied to trading volume."
+        },
+        "b4": {
+          "t": "Reliable Performance",
+          "d": "Designed for cost-effective trading with better expense control."
+        }
+      },
+      "cheetahNano": {
+        "desc": "The Nano-Cheetah is a cent account that shows balances in cents instead of dollars, so you can start with very small deposits. Ideal for beginner traders who seek:",
+        "b1": {
+          "t": "Transparent Trading",
+          "d": "Competitive spreads with no hidden fees."
+        },
+        "b2": {
+          "t": "Value Control & Flexibility",
+          "d": "Trade smaller volumes while managing your capital effectively."
+        },
+        "b3": {
+          "t": "Minimized Risk",
+          "d": "Perfect for learning and testing strategies in a low-risk environment."
+        },
+        "b4": {
+          "t": "Real Market Experience",
+          "d": "Engage with live market conditions using micro-scale funds."
+        }
+      }
+    },
+    "mediaLabel": "Image or video coming soon"
+  },
+  "contact": {
+    "title": "Contact",
+    "overview": "Let's get in touch. Our multilingual team is here around the clock — reach us by email, phone, WhatsApp or Telegram, or send a message below.",
+    "reachKicker": "Reach us",
+    "email": "Email",
+    "phone": "Phone",
+    "whatsapp": "WhatsApp",
+    "telegram": "Telegram",
+    "officesLabel": "Offices",
+    "regLabel": "Registered address",
+    "formKicker": "Send a message",
+    "fName": "Name",
+    "fEmail": "Email",
+    "fSubject": "Subject",
+    "fDepartment": "Department",
+    "fMessage": "Message",
+    "selectDept": "Select a department",
+    "deptSupport": "Support Department",
+    "deptMarketing": "Marketing Department",
+    "deptHr": "HR Department",
+    "submit": "Contact us now",
+    "restriction": "ROCO does not provide services to residents of the USA or North Korea.",
+    "errRequired": "This field is required",
+    "errEmail": "Enter a valid email address"
+  },
+  "legal": {
+    "title": "Legal Documents",
+    "overview": "The agreements and disclosures that govern your ROCO account. View or download each document below.",
+    "view": "View document",
+    "docs": {
+      "clientAgreement": {
+        "name": "Client Agreement",
+        "desc": "The terms governing your trading account with ROCO."
+      },
+      "riskDisclosure": {
+        "name": "Risk Disclosure Statement",
+        "desc": "The risks of trading forex and CFDs, including leverage."
+      },
+      "aml": {
+        "name": "AML Compliance",
+        "desc": "Our anti-money-laundering policy and obligations."
+      },
+      "privacy": {
+        "name": "Privacy Policy",
+        "desc": "How we collect, use and protect your personal data."
+      },
+      "socialFollower": {
+        "name": "Social Trade — Follower Agreement",
+        "desc": "Terms for following and copying signal providers."
+      },
+      "socialProvider": {
+        "name": "Social Trade — Provider Agreement",
+        "desc": "Terms for acting as a signal provider."
+      },
+      "pamm": {
+        "name": "PAMM Investor & Manager Agreement",
+        "desc": "Terms for PAMM managed-account participation."
+      }
+    },
+    "open": "Open in new tab",
+    "download": "Download PDF",
+    "companyLine": "Global online trading brand. For any document query, contact us."
+  },
+  "faqPage": {
+    "title": "FAQ",
+    "eyebrow": "FAQ",
+    "overview": "Answers to the questions we hear most — accounts, deposits, spreads, platforms and support. Can't find yours? Our team is one message away.",
+    "items": {
+      "openAccount": {
+        "q": "How can I open an account?",
+        "a": "Visit rocobroker.com and complete the registration form. Once registered, your account is activated immediately."
+      },
+      "minDeposit": {
+        "q": "What is the minimum deposit amount?",
+        "a": "There is no minimum deposit amount."
+      },
+      "methods": {
+        "q": "What deposit and withdrawal methods do you offer?",
+        "a": "Rial via TCPAY, and BTC, ETH, USDT, USDC on various networks. More methods are coming soon."
+      },
+      "withdrawTime": {
+        "q": "How long does it take to process my withdrawal request?",
+        "a": "Withdrawals are processed on the same business day."
+      },
+      "commissions": {
+        "q": "What are your commissions and spreads?",
+        "a": "Lion Account: spreads start from 1.2 pips with no commission. Cheetah Account: raw spreads with an $8 commission per lot."
+      },
+      "islamic": {
+        "q": "Do you offer Islamic (swap-free) accounts?",
+        "a": "Currently, Islamic accounts are not available, but they will be introduced soon."
+      },
+      "scalping": {
+        "q": "Is scalping or hedging allowed?",
+        "a": "Yes, our broker supports scalping and hedging strategies."
+      },
+      "spreadsNews": {
+        "q": "Why do spreads widen during economic news releases?",
+        "a": "Market volatility and reduced liquidity during major economic announcements widen spreads; they normalize afterwards."
+      },
+      "orderClosed": {
+        "q": "Why was my order closed?",
+        "a": "Orders close when they reach the margin call level (0%) or the stop-out level (40%)."
+      },
+      "regulated": {
+        "q": "Is your broker regulated?",
+        "a": "Yes, we are regulated under Mwali (Union of Comoros) with registration number HT0004400 and license number BFX40440."
+      },
+      "demo": {
+        "q": "Do you offer a demo account?",
+        "a": "Yes, you can activate a demo account with $10,000 virtual funds through your user panel."
+      },
+      "iranianRials": {
+        "q": "Can I deposit using Iranian Rials?",
+        "a": "No, but you can deposit Rials via Top Change and convert them to USD."
+      },
+      "depositMissing": {
+        "q": "Why is my deposit not showing in my account?",
+        "a": "Verify your account number and contact support; for crypto deposits, provide your TXID."
+      },
+      "robots": {
+        "q": "Can I use trading robots?",
+        "a": "Yes, you can use Expert Advisors (EAs) on MetaTrader 5. You are responsible for their performance."
+      },
+      "education": {
+        "q": "Do you offer educational resources?",
+        "a": "Yes, our educational section is under development and will include articles, videos, and webinars."
+      },
+      "leverage": {
+        "q": "Can I change my account leverage?",
+        "a": "Yes, you can change your account leverage through your user panel."
+      },
+      "microLots": {
+        "q": "Can I trade with micro lots?",
+        "a": "Yes, you can trade with small lot sizes such as 0.01 lot (micro lots)."
+      },
+      "cashback": {
+        "q": "Does your broker offer cashback?",
+        "a": "No."
+      },
+      "dailyAnalysis": {
+        "q": "Do you provide daily analysis or economic news?",
+        "a": "Daily market analysis and economic news are shared via our Telegram and Instagram channels."
+      }
+    },
+    "cta": "Open an account"
+  },
+  "socialTrading": {
+    "title": "Social",
+    "titleAccent": "Trading",
+    "lead": "Imagine having the collective wisdom of the world's most successful traders at your fingertips.",
+    "followerLabel": "Follower",
+    "followerText": "Investors can effortlessly follow leading traders and replicate their strategies, contributing just a small share of the profits to the provider while maximizing their own potential gains.",
+    "providerLabel": "Provider",
+    "providerText": "Traders willing to share their strategies empower investors to replicate their trades, creating a mutually rewarding experience. As their follower base expands, they have the potential to earn even more.",
+    "cta": "Start your journey",
+    "cardTitle": "Rating module",
+    "cardText": "We've simplified the process of choosing the right trader by filtering them through strict criteria!",
+    "values": {
+      "title": "Safety, Integrity,",
+      "titleAccent": "Opportunity",
+      "lead": "Roco Broker's Social Trading Platform is a premier destination for both traders and investors.",
+      "bullet1": "Safety",
+      "bullet2": "Integrity",
+      "bullet3": "Opportunity",
+      "investorsLabel": "Investors",
+      "investorsText": "Investors can seamlessly explore top traders with full transparency, discovering the most promising opportunities tailored to their goals — sharing only a portion of profits with the traders who help them succeed.",
+      "expertLabel": "Expert traders",
+      "expertText": "For expert traders, the platform provides an unparalleled opportunity to showcase their strategies and gain recognition among thousands of investors eager to follow and replicate their success."
+    },
+    "rating": {
+      "title": "Rating",
+      "accent": "Module",
+      "text": "We've simplified the process of choosing the right trader by filtering them through strict criteria!",
+      "note": "Please log in to access the full rating module — the current view is for preview purposes only."
+    },
+    "banner": {
+      "title": "A Unique Opportunity for Smart Investing",
+      "cta": "Claim your 40% bonus"
+    }
+  },
+  "paymentsPage": {
+    "title": "Deposit & withdrawal methods",
+    "lead": "Move money with",
+    "leadAccent": "ease and confidence",
+    "sub": "RocoBroker provides a comprehensive selection of secure and reliable deposit and withdrawal options, enabling clients to manage their financial transactions with ease and confidence.",
+    "cta": "Open an account",
+    "tabCrypto": "Crypto",
+    "tabFiat": "Fiat",
+    "cryptoMicro": "Commission-free",
+    "cryptoTitle": "Crypto",
+    "cryptoIntro": "Crypto deposits and withdrawals at Roco Broker are commission-free.",
+    "fiatMicro": "Cards & local methods",
+    "fiatTitle": "Fiat",
+    "fiatIntro": "Clients can deposit or withdraw local currencies after converting them to dollars using the available payment gateways. Deposit and withdrawal commissions vary depending on the country and payment gateway.",
+    "networksLabel": "Networks",
+    "countriesLabel": "Supported countries & currencies",
+    "imageLabel": "Image",
+    "fiatSub": {
+      "visa": "Debit & credit cards",
+      "mc": "Debit & credit cards",
+      "psp": "Local payment gateways"
+    },
+    "searchPlaceholder": "Search a country or currency",
+    "noResults": "No matches found"
+  },
+  "calendarPage": {
+    "title": "Economic Calendar",
+    "lead": "Maximize Your Trading",
+    "leadAccent": "Potential",
+    "sub": "Don't let the market catch you off guard. Make the economic calendar a regular part of your trading routine and start planning your trades with confidence. By anticipating key events and understanding their potential impact, you'll be better prepared to take advantage of market opportunities while managing risk effectively.",
+    "cta": "Open an account",
+    "widgetLabel": "Live economic events",
+    "advantagesTitle": "Advantages of ROCO Economic Calendar",
+    "adv1": "Make more informed trades",
+    "adv2": "Enhance your market analysis",
+    "adv3": "Risk management in trading",
+    "adv4": "Time your entries and exits",
+    "adv5": "Spot trading opportunities",
+    "adv6": "Stay ahead of market moves",
+    "adv7": "Integration with trading tools",
+    "adv8": "User-friendly interface"
+  },
+  "mt5Page": {
+    "title": "MetaTrader 5",
+    "lead": "Trade efficiently, effectively,",
+    "leadAccent": "and confidently",
+    "sub": "MetaTrader 5 is designed for traders who want to take their trading to the next level. Whether you're a beginner or an experienced professional, MT5 offers everything you need to trade efficiently, effectively, and confidently in any market environment.",
+    "cta": "Open an account",
+    "advantagesTitle": "Advantages of MetaTrader 5",
+    "adv1t": "User-Friendly",
+    "adv1d": "Experience seamless navigation and intuitive design that empowers traders of all levels.",
+    "adv2t": "Advanced Charting",
+    "adv2d": "Utilize sophisticated charting tools featuring multiple timeframes and indicators.",
+    "adv3t": "Multi-Asset Trading",
+    "adv3d": "Trade across diverse asset classes including forex, stocks, commodities, and indices.",
+    "adv4t": "Robust Analytical Tools",
+    "adv4d": "Powerful analytical functions to enhance your trading, ensuring you stay in the market.",
+    "adv5t": "Improved Order",
+    "adv5d": "More advanced order types.",
+    "adv6t": "Depth of Market",
+    "adv6d": "Depth of Market for real-time order book data.",
+    "adv7t": "Flexibility",
+    "adv7d": "21 timeframes and 6 order types.",
+    "adv8t": "Platforms",
+    "adv8d": "Desktop, web, and mobile versions."
+  },
+  "promotionsPage": {
+    "title": "Promotions",
+    "lead": "We are a TEAM!",
+    "leadAccent": "A simple reward for you!",
+    "statsEyebrow": "Rewards at a glance",
+    "stat1": "First-deposit bonus",
+    "stat2": "Maximum bonus payout",
+    "stat3": "Maximum leverage",
+    "stat4": "Loss that unlocks free coaching",
+    "stat5": "Lots for the loyalty bonus",
+    "stat6": "Loyalty bonus reward",
+    "depositTitle": "40% Deposit Bonus for First Deposit",
+    "c1t": "Up to $1,000",
+    "c1d": "The maximum payable bonus is $1,000.",
+    "c2t": "Non-losable",
+    "c2d": "The bonus is non-losable.",
+    "c3t": "Always withdrawable",
+    "c3d": "The profit from the bonus is always available for withdrawal.",
+    "c4t": "1:100 leverage",
+    "c4d": "The maximum leverage for this promotion is 1:100.",
+    "condHeading": "Conditions to receive the bonus",
+    "depositAccent": "40% Deposit Bonus",
+    "motivTitle": "Motivational Bonus",
+    "motivSubtitle": "How to get it",
+    "motiv1": "If your trading account shows a $500 loss",
+    "motiv2": "One of our experts will reach out to schedule your exclusive coaching session",
+    "motiv3": "Enjoy your free coaching session!",
+    "motiv4": "We're here to help you stay on track and succeed!",
+    "loyaltyTitle": "Loyalty Bonus",
+    "loyaltySubtitle": "How to claim it",
+    "loy1": "Open your account (register if you haven't already).",
+    "loy2": "Trade a total of 100 lots (EUR/USD).",
+    "loy3": "Watch your $50 bonus appear — easy as that!",
+    "loy4": "It's that simple. Start trading and enjoy your reward!",
+    "bannerTitle": "Start trading and claim your rewards",
+    "bannerCta": "Open an account"
+  },
+  "aboutPage": {
+    "kicker": "+12 Years financial market experience",
+    "title": "Who We Are",
+    "b1label": "Global brand",
+    "b1text": "ROCO is a trusted global financial trading brand offering secure, innovative services across various markets.",
+    "b2label": "Full support",
+    "b2text": "Catering to traders of all levels, ROCO provides advanced tools, educational resources, and 24/7 multilingual customer support.",
+    "b3label": "Every market",
+    "b3text": "Trade currencies, commodities, precious metals, stocks, indices, and cryptocurrencies via CFDs — without owning the underlying assets.",
+    "cardLabel": "Years of experience",
+    "partnersLabel": "Our partners",
+    "wantTitle": "What We",
+    "wantAccent": "Want",
+    "wantSubtitle": "Our vision and mission.",
+    "visionLabel": "Brand Vision",
+    "visionFoot": "Vision",
+    "visionText": "To revolutionize the trading landscape, empowering individuals and businesses to break free from traditional constraints and embrace a new era of bold, transparent, and accessible trading solutions.",
+    "missionLabel": "Brand Mission",
+    "missionFoot": "Mission",
+    "missionText": "Our mission is to simplify trading with innovative, user-friendly platforms that empower traders to challenge norms, embrace technology, and succeed in a changing market.",
+    "whyTitle": "Why Choose Us",
+    "whyIntro": "At RocoBroker, we believe in harnessing the latest technology and resources to offer our clients unparalleled support. Our commitment to transparency, integrity, and customer satisfaction sets us apart.",
+    "why1t": "Leverage",
+    "why1d": "Amplify returns, but use wisely",
+    "why2t": "Liquidity",
+    "why2d": "Easy entry and exit with trillions traded daily",
+    "why3t": "Customer Support",
+    "why3d": "360-degree, 24/7 support",
+    "why4t": "Risk Management",
+    "why4d": "Built-in tools to manage your exposure",
+    "statLeftDesc": "Years of experience across global financial markets.",
+    "statLeftMicro": "Trusted since 2014 — secure, innovative trading for every kind of trader, everywhere in the world.",
+    "statRightDesc": "Multilingual customer support, every day of the year.",
+    "ctaText": "Join thousands of traders worldwide.",
+    "ctaBtn": "Open an account",
+    "regLabel": "Regulatory information",
+    "regNote": "ROCO Broker Ltd is a financial brokerage company regulated by Comoros Union, Mwali International Services Authority (MISA) under registration number HT01024109 and License number BFX2024190.",
+    "regRestriction": "ROCO does not provide services to residents of the USA and North Korea."
+  },
+  "notFound": {
+    "message": "The page you're looking for doesn't exist or has moved.",
+    "cta": "Back to home"
+  },
+  "partnershipPage": {
+    "title": "Partnership",
+    "lead": "Become ROCO's",
+    "leadAccent": "Ambassador worldwide",
+    "sub": "With our IB plans, become ROCO's Ambassador worldwide! If you have a network of traders or an interest in connecting people with top-tier financial services, becoming an IB with ROCO is an excellent opportunity to grow your income and build a flexible, independent business.",
+    "cta": "Join us as IB",
+    "stepsKicker": "How it works",
+    "s1t": "Sign up to ROCO",
+    "s1d": "Create your ROCO account in minutes.",
+    "s2t": "Upgrade to IB",
+    "s2d": "Switch your profile to an Introducing Broker.",
+    "s3t": "Get our approval",
+    "s3d": "Our team reviews and activates your IB status.",
+    "s4t": "Motivate your network",
+    "s4d": "Share why traders choose ROCO.",
+    "s5t": "Provide them referral codes/links",
+    "s5d": "Hand out your unique referral codes and links.",
+    "s6t": "Ask them to open a Lion account",
+    "s6d": "Have your referrals open a Lion account.",
+    "s7t": "Now — enjoy your income!",
+    "s7d": "Earn commission as your network trades.",
+    "advTitle": "Advantages of becoming ROCO's Ambassador",
+    "adv1": "Competitive commissions",
+    "adv2": "Reliable and trusted broker",
+    "adv3": "Extensive support",
+    "ringMicro": "In 7 simple steps"
+  },
+  "cookies": {
+    "heading": "Cookies on this site",
+    "body": "We use essential cookies to make this site work. With your permission, we'd also use analytics and marketing cookies to improve the site and measure our campaigns.",
+    "policy": "Cookie & Privacy Policy",
+    "essentialLabel": "Essential",
+    "essentialMeta": "Always active",
+    "essentialBody": "Required for the site to function — loading, your preferences, and security. These can't be turned off.",
+    "analyticsLabel": "Analytics",
+    "analyticsBody": "Anonymous statistics that show which pages are useful — no personal data, no cross-site tracking.",
+    "marketingLabel": "Marketing",
+    "marketingBody": "Used to measure campaigns and show relevant content. Off by default.",
+    "manage": "Manage choices",
+    "save": "Save choices",
+    "reject": "Reject all",
+    "accept": "Accept all"
+  },
+  "welcomePromo": {
+    "kicker": "Limited offer",
+    "title": "40% Deposit Bonus",
+    "text": "Get a 40% bonus on your first deposit.",
+    "cta": "Claim now",
+    "close": "Close"
+  },
+  "a11y": {
+    "skipToContent": "Skip to content"
+  },
+  "error": {
+    "message": "Something went wrong. Please try again.",
+    "retry": "Try again",
+    "home": "Back to home"
+  }
+}

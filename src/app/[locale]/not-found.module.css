@@ -1,0 +1,83 @@
+/* 404 — site style, red-tinted animated dot backdrop, flickering white "404". */
+.page {
+  position: relative;
+  z-index: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100svh;
+  overflow: hidden;
+  background:
+    radial-gradient(120% 90% at 50% 40%, rgba(224, 75, 75, 0.14), transparent 60%),
+    var(--color-bg);
+  color: var(--color-fg);
+  text-align: center;
+}
+.bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+.corner {
+  position: absolute;
+  z-index: 2;
+  width: 11px;
+  height: 11px;
+  color: color-mix(in srgb, #e04b4b 60%, var(--color-muted));
+  pointer-events: none;
+}
+.cornerTL {
+  inset-block-start: clamp(1.5rem, 3vh, 2.5rem);
+  inset-inline-start: var(--container-padding);
+}
+.cornerTR {
+  inset-block-start: clamp(1.5rem, 3vh, 2.5rem);
+  inset-inline-end: var(--container-padding);
+}
+.cornerBL {
+  inset-block-end: clamp(1.5rem, 3vh, 2.5rem);
+  inset-inline-start: var(--container-padding);
+}
+.cornerBR {
+  inset-block-end: clamp(1.5rem, 3vh, 2.5rem);
+  inset-inline-end: var(--container-padding);
+}
+
+.inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(1.25rem, 3vw, 2rem);
+  padding-inline: var(--container-padding);
+}
+.code {
+  display: flex;
+  font-weight: 700;
+  font-size: clamp(6rem, 22vw, 16rem);
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+  color: #ffffff;
+  text-shadow: 0 0 40px rgba(224, 75, 75, 0.35);
+}
+.digit {
+  display: inline-block;
+  will-change: opacity;
+}
+.message {
+  margin: 0;
+  max-width: 42ch;
+  font-family: var(--font-secondary);
+  font-size: clamp(0.95rem, 1.3vw, 1.2rem);
+  line-height: 1.6;
+  color: var(--color-muted);
+}
+.cta {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+  margin-block-start: 0.5rem;
+}

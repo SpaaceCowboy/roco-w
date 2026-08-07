@@ -1,0 +1,289 @@
+.scene {
+  position: relative;
+  background: var(--color-bg);
+}
+
+/* ---- Stage: the globe/dots/corners live here and are bounded to the hero +
+   features via a sticky layer, so they scroll AWAY before the later sections
+   (no globe bleeding behind the white About/Markets, no pin gaps). ---- */
+.stage {
+  position: relative;
+}
+
+/* Sticky background — pins for the length of .stage (hero + features), then
+   scrolls off. */
+.stageBg {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  z-index: 0;
+  overflow: hidden;
+}
+
+/* Foreground hero + features, pulled up to overlay the sticky background. */
+.stageContent {
+  position: relative;
+  z-index: 2;
+  margin-block-start: -100svh;
+  pointer-events: none;
+}
+
+/* Everything after the stage — no globe behind it. White base so the pinned
+   Markets' spacer never reveals the dark scene bg (the ticker keeps its own
+   dark band). */
+.after {
+  position: relative;
+  z-index: 1;
+  background: #ffffff;
+}
+
+/* Dot-matrix layer (inside the sticky stage). */
+.bgLayer {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* The globe — centred; HomeScene transforms it (shrink + rise). */
+.planetLayer {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  transform-origin: 50% 50%;
+  /* Starts high in the hero; JS eases it to centre. Set here too so there's no
+     flash before GSAP takes over. */
+  transform: translateY(20%);
+  will-change: transform;
+}
+
+.planetRise {
+  position: absolute;
+  inset: 0;
+  animation: planet-rise 1.7s cubic-bezier(0.16, 1, 0.3, 1) 0.25s both;
+}
+
+@keyframes planet-rise {
+  from {
+    transform: translateY(14%);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+/* Corner "+" marks (inside the sticky stage). */
+.frame {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.corner {
+  position: absolute;
+  width: 11px;
+  height: 11px;
+  color: var(--color-muted);
+}
+.cornerTL {
+  inset-block-start: calc(var(--nav-h) + 1.25rem);
+  inset-inline-start: var(--container-padding);
+}
+.cornerTR {
+  inset-block-start: calc(var(--nav-h) + 1.25rem);
+  inset-inline-end: var(--container-padding);
+}
+.cornerBL {
+  inset-block-end: 1.5rem;
+  inset-inline-start: var(--container-padding);
+}
+.cornerBR {
+  inset-block-end: 1.5rem;
+  inset-inline-end: var(--container-padding);
+}
+
+/* Live-price ribbon — full-bleed frosted band at the very end of the page. */
+.ticker {
+  pointer-events: auto;
+  min-height: 46px;
+  display: flex;
+  align-items: center;
+  border-block-start: 1px solid var(--glass-border);
+  background: var(--glass-bg-strong);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  backdrop-filter: blur(18px) saturate(140%);
+}
+
+.ticker :global(.tradingview-widget-container) {
+  width: 100%;
+}
+
+/* ---- Features: 3-column grid formed around the centred planet ---- */
+.features {
+  position: relative;
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  padding-block: clamp(3rem, 8vh, 6rem);
+}
+
+.featInner {
+  width: 100%;
+  max-width: var(--max-width-wide);
+  margin-inline: auto;
+  padding-inline: var(--container-padding);
+}
+
+.newTitle {
+  margin: 0 auto clamp(2.5rem, 6vh, 5rem);
+  max-width: 18ch;
+  text-align: center;
+  font-weight: 700;
+  font-size: clamp(2rem, 4.5vw, 4rem);
+  line-height: 1.04;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: var(--color-fg);
+}
+
+.gradient {
+  background: linear-gradient(96deg, var(--color-accent), #7ee0ff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr clamp(18rem, 34vw, 30rem) 1fr;
+  align-items: center;
+  gap: clamp(1rem, 2vw, 2rem);
+}
+
+.sideLeft,
+.sideRight {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1rem, 2vh, 1.75rem);
+}
+
+.centerCol {
+  /* reserved space for the planet */
+  min-height: 40vh;
+}
+
+.cardOuter {
+  width: 100%;
+  will-change: transform, opacity;
+}
+
+/* Left big card: app mockup on the right (lower part cropped), stat bottom-left. */
+.bigCard {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  min-height: clamp(19rem, 40vh, 25rem);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: clamp(1.5rem, 2.4vw, 2.25rem);
+  border: 1px solid var(--glass-border);
+  border-radius: 0.75rem;
+  background: var(--glass-bg-strong);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  backdrop-filter: blur(18px) saturate(140%);
+}
+
+.bigPhone {
+  position: absolute;
+  inset-block-start: 1.75rem;
+  inset-inline-end: 1.25rem;
+  width: clamp(8rem, 15vw, 12.5rem);
+  height: auto;
+  pointer-events: none;
+  filter: drop-shadow(0 22px 45px rgba(0, 0, 0, 0.55));
+}
+
+.bigLabel {
+  position: relative;
+  z-index: 1;
+  max-width: 55%;
+  font-family: var(--font-secondary);
+  font-size: clamp(0.9rem, 1.1vw, 1.0625rem);
+  line-height: 1.35;
+  color: var(--color-muted);
+}
+
+.bigValue {
+  position: relative;
+  z-index: 1;
+  font-weight: 700;
+  font-size: clamp(3.25rem, 5.5vw, 5rem);
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+  color: var(--color-fg);
+}
+
+/* Frosted glass card — same method as the navbar (var(--glass-bg-strong) +
+   backdrop-filter: blur(18px) saturate(140%)). Full column width, no shadow, no
+   gradient. Subtext sits top-right; the large number sits bottom-left. */
+.card {
+  width: 100%;
+  min-height: clamp(9rem, 15vh, 12rem);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: clamp(1.25rem, 2vw, 1.75rem);
+  border: 1px solid var(--glass-border);
+  border-radius: 0.75rem;
+  background: var(--glass-bg-strong);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  backdrop-filter: blur(18px) saturate(140%);
+}
+
+.label {
+  align-self: flex-end;
+  text-align: end;
+  max-width: 60%;
+  font-family: var(--font-secondary);
+  font-size: clamp(0.9rem, 1.1vw, 1.0625rem);
+  line-height: 1.35;
+  color: var(--color-muted);
+}
+
+.value {
+  align-self: flex-start;
+  font-weight: 700;
+  font-size: clamp(3.25rem, 5.5vw, 5rem);
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+  color: var(--color-fg);
+}
+
+/* Stack on small screens — planet stays behind, cards flow in one column. */
+@media (max-width: 860px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+  .centerCol {
+    order: -1;
+    min-height: 46vh;
+  }
+  /* Content is taller than the viewport here, so flex-centering shoves the
+     title up under the fixed navbar. Anchor to the top and push it well below
+     the nav so the title sits comfortably lower on the screen. */
+  .features {
+    align-items: flex-start;
+    padding-block-start: calc(var(--nav-h) + 14vh);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .planetRise {
+    animation: none;
+  }
+}

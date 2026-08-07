@@ -1,0 +1,190 @@
+.page {
+  position: relative;
+  background: var(--color-bg);
+  color: var(--color-fg);
+}
+.body {
+  position: relative;
+  z-index: 1;
+  padding-block: clamp(2.5rem, 6vh, 4.5rem) clamp(4rem, 10vh, 8rem);
+}
+.inner {
+  width: 100%;
+  max-width: var(--max-width-wide);
+  margin-inline: auto;
+  padding-inline: var(--container-padding);
+}
+
+/* Side rail (tabs + company) | document panel. */
+.grid {
+  display: grid;
+  grid-template-columns: minmax(14rem, 20rem) 1fr;
+  gap: clamp(1.5rem, 3vw, 3rem);
+  align-items: start;
+}
+
+.side {
+  position: sticky;
+  inset-block-start: calc(var(--nav-h) + 1rem);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+.tabs {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.tab {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid transparent;
+  border-radius: 0.6rem;
+  background: none;
+  cursor: pointer;
+  text-align: start;
+  font-family: var(--font-secondary);
+  font-size: 0.95rem;
+  color: var(--color-muted);
+  transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+}
+.tab:hover {
+  color: var(--color-fg);
+  background: var(--glass-bg);
+}
+.tabDot {
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 2px;
+  background: currentColor;
+  opacity: 0.4;
+  transform: rotate(45deg);
+  transition: opacity 0.2s ease, background-color 0.2s ease;
+}
+.tabActive {
+  color: var(--color-fg);
+  background: var(--glass-bg-strong);
+  border-color: var(--glass-border);
+}
+.tabActive .tabDot {
+  opacity: 1;
+  background: var(--color-accent);
+}
+
+.company {
+  padding: 1.25rem;
+  border: 1px solid var(--glass-border);
+  border-radius: 0.75rem;
+  background: var(--glass-bg);
+}
+.companyName {
+  display: block;
+  font-weight: 700;
+  color: var(--color-fg);
+}
+.companyLine {
+  margin: 0.5rem 0 0.75rem;
+  font-family: var(--font-secondary);
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--color-muted);
+}
+.companyLink {
+  font-family: var(--font-secondary);
+  font-size: 0.85rem;
+  color: var(--color-accent);
+  overflow-wrap: anywhere;
+}
+
+/* Document panel. */
+.panel {
+  border: 1px solid var(--glass-border);
+  border-radius: 1rem;
+  overflow: hidden;
+  background: var(--glass-bg-strong);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+}
+.panelHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: clamp(1.25rem, 2vw, 1.75rem);
+  border-block-end: 1px solid var(--glass-border);
+}
+.panelTitle {
+  margin: 0 0 0.35rem;
+  font-size: clamp(1.15rem, 1.8vw, 1.5rem);
+  font-weight: 600;
+  color: var(--color-fg);
+}
+.panelDesc {
+  margin: 0;
+  max-width: 52ch;
+  font-family: var(--font-secondary);
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: var(--color-muted);
+}
+.panelActions {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+.action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 0.9rem;
+  border: 1px solid var(--glass-border);
+  border-radius: 0.5rem;
+  font-family: var(--font-mono, var(--font-secondary));
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-fg);
+  text-decoration: none;
+  transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+}
+.action:hover {
+  color: var(--color-on-accent);
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+}
+.viewer {
+  display: block;
+  width: 100%;
+  height: clamp(30rem, 78vh, 52rem);
+  border: 0;
+  background: #2a2f33;
+}
+.fallback {
+  padding: 2rem;
+  text-align: center;
+}
+.fallback a {
+  color: var(--color-accent);
+}
+
+@media (max-width: 860px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+  .side {
+    position: static;
+  }
+  .tabs {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  .viewer {
+    /* shorter on mobile so there's always room to scroll the page past the PDF */
+    height: clamp(16rem, 52vh, 26rem);
+  }
+}

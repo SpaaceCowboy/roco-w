@@ -1,0 +1,87 @@
+/* Reusable CSS-only accordion (radio + 0fr→1fr grid expand). */
+.list {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+.item {
+  border-block-end: 1px solid var(--color-border);
+}
+.item:last-child {
+  border-block-end: 0;
+}
+
+/* Visually-hidden radio (still focusable for keyboard users). */
+.input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  cursor: pointer;
+  padding: clamp(1.1rem, 2.2vw, 1.6rem) 0;
+  font-size: clamp(1rem, 1.35vw, 1.2rem);
+  color: var(--color-fg);
+  transition: color 0.25s ease;
+}
+.label:hover {
+  color: var(--color-accent);
+}
+.input:focus-visible ~ .label {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+.chev {
+  flex: none;
+  display: inline-flex;
+  width: 1.25rem;
+  height: 1.25rem;
+  color: var(--color-muted);
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.chev svg {
+  width: 100%;
+  height: 100%;
+}
+.input:checked ~ .label .chev {
+  transform: rotate(180deg);
+  color: var(--color-accent);
+}
+
+/* Answer panel — collapsed via the 0fr→1fr grid trick. */
+.panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.input:checked ~ .panel {
+  grid-template-rows: 1fr;
+}
+.panelInner {
+  overflow: hidden;
+  min-height: 0;
+}
+.answer {
+  margin: 0;
+  max-width: 68ch;
+  padding-block-end: clamp(1.1rem, 2.2vw, 1.6rem);
+  font-family: var(--font-secondary);
+  font-size: clamp(0.9rem, 1.1vw, 1.0625rem);
+  line-height: 1.65;
+  color: var(--color-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel,
+  .chev {
+    transition: none;
+  }
+}

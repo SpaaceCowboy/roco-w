@@ -1,0 +1,235 @@
+/* Social Trading — hero over a light studio shot (phone showing the rating app
+   on the right, empty light space on the left). No overlay: dark copy sits on
+   the empty left, with a small floating glass "rating" chip on the right. */
+.hero {
+  --st-ink: #02111b;
+  --st-muted: rgba(2, 17, 27, 0.66);
+
+  position: relative;
+  z-index: 0;
+  display: flex;
+  align-items: center;
+  min-height: 100svh;
+  padding-block: calc(var(--nav-h) + clamp(2rem, 6vh, 5rem)) clamp(3rem, 8vh, 6rem);
+  overflow: hidden;
+  background: #eef0f2;
+  color: var(--st-ink);
+}
+
+.bg {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 75% center;
+}
+
+/* Corner "+" marks framing the hero (ink on the light backdrop). */
+.corner {
+  position: absolute;
+  z-index: 2;
+  width: 11px;
+  height: 11px;
+  color: rgba(2, 17, 27, 0.4);
+  pointer-events: none;
+}
+.cornerTL {
+  inset-block-start: clamp(1.5rem, 3vh, 2.5rem);
+  inset-inline-start: var(--container-padding);
+}
+.cornerTR {
+  inset-block-start: clamp(1.5rem, 3vh, 2.5rem);
+  inset-inline-end: var(--container-padding);
+}
+.cornerBL {
+  inset-block-end: clamp(1.5rem, 3vh, 2.5rem);
+  inset-inline-start: var(--container-padding);
+}
+.cornerBR {
+  inset-block-end: clamp(1.5rem, 3vh, 2.5rem);
+  inset-inline-end: var(--container-padding);
+}
+
+.inner {
+  width: 100%;
+  max-width: var(--max-width-wide);
+  margin-inline: auto;
+  padding-inline: var(--container-padding);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  align-items: center;
+}
+
+/* ---- Left ---- */
+.left {
+  min-width: 0;
+}
+.title {
+  margin: 0;
+  font-weight: 700;
+  font-size: clamp(2.75rem, 9vw, 7rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  /* keep "Social Trading" on one line on wider screens */
+  white-space: nowrap;
+  /* not pure black — a deep gunmetal ink */
+  color: #12202a;
+}
+/* Accent word: gradient from black to a dark grey. */
+.titleAccent {
+  white-space: nowrap;
+  background: linear-gradient(96deg, #02111b 15%, #5b666e);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.lead {
+  margin: clamp(0.5rem, 1vw, 0.85rem) 0 0;
+  max-width: 62rem;
+  font-family: var(--font-secondary);
+  font-size: clamp(1rem, 1.3vw, 1.2rem);
+  line-height: 1.6;
+  color: var(--st-muted);
+}
+
+/* Two horizontal subtext blocks, each flanked by a flowing guideline. */
+.blocks {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(1.5rem, 3.5vw, 3.5rem);
+  margin-block-start: clamp(3rem, 7vw, 5rem);
+  max-width: 48rem;
+}
+.block {
+  position: relative;
+  padding-inline-start: 1.15rem;
+}
+.blockLabel {
+  display: block;
+  font-family: var(--font-mono, var(--font-secondary));
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--st-ink);
+}
+.blockText {
+  margin: 0.6rem 0 0;
+  font-family: var(--font-secondary);
+  font-size: clamp(0.82rem, 0.95vw, 0.92rem);
+  line-height: 1.6;
+  color: var(--st-muted);
+}
+
+/* Vertical guideline with a flowing lime pulse (shared pattern; dark base for
+   the light backdrop). */
+.guideline {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  width: 1.5px;
+  overflow: hidden;
+  background: linear-gradient(
+    to bottom,
+    rgba(2, 17, 27, 0.04),
+    rgba(2, 17, 27, 0.24) 45%,
+    rgba(2, 17, 27, 0.03)
+  );
+}
+.guideline::after {
+  content: "";
+  position: absolute;
+  inset-inline: -0.5px;
+  height: 40%;
+  top: -50%;
+  background: linear-gradient(to bottom, transparent, var(--color-accent) 55%, transparent);
+  filter: drop-shadow(0 0 3px color-mix(in srgb, var(--color-accent) 55%, transparent));
+  animation: st-guideline-flow 3.4s linear infinite;
+  animation-delay: var(--flow-delay, 0s);
+}
+@keyframes st-guideline-flow {
+  0% {
+    top: -50%;
+  }
+  100% {
+    top: 100%;
+  }
+}
+
+.cta {
+  margin-block-start: clamp(1.25rem, 2.5vw, 1.75rem);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .guideline::after {
+    animation: none;
+    opacity: 0;
+  }
+}
+
+/* ---- Responsive ---- */
+/* Title breaks to two rows (Social / Trading) below 1600 so it never crowds
+   the phone on the right of the shot. */
+@media (max-width: 1600px) {
+  .title {
+    white-space: normal;
+  }
+  .titleAccent {
+    display: block;
+  }
+}
+
+/* Laptop range: the phone takes the right half, so keep the copy narrow and
+   stack the Follower / Provider blocks one under the other. */
+@media (max-width: 1440px) {
+  .lead {
+    max-width: 33rem;
+  }
+  .blocks {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    max-width: 33rem;
+  }
+}
+
+/* Tablet / mobile: stop overlaying copy on the cover image (which would crop
+   the phone). Stack instead — copy on top, then the full studio shot below so
+   the app on the phone stays completely visible. */
+@media (max-width: 900px) {
+  .hero {
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    min-height: auto;
+    padding-block: calc(var(--nav-h) + clamp(1.5rem, 5vh, 3rem)) clamp(2.5rem, 6vh, 4rem);
+  }
+  .inner {
+    order: 1;
+    position: relative;
+    z-index: 1;
+  }
+  .bg {
+    order: 2;
+    position: static;
+    inset: auto;
+    z-index: auto;
+    width: calc(100% - 2 * var(--container-padding));
+    height: auto;
+    object-fit: initial;
+    margin: clamp(2rem, 6vw, 3rem) var(--container-padding) 0;
+    border: 1px solid rgba(2, 17, 27, 0.1);
+    border-radius: 1rem;
+  }
+}
+
+@media (max-width: 540px) {
+  .blocks {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+}

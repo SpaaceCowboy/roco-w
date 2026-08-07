@@ -1,0 +1,182 @@
+/*
+ * Global baseline only — no layout/design yet (built step by step later).
+ * Brand tokens are placeholders; the client will provide the real palette.
+ */
+
+:root {
+  /* Brand font stack. Montserrat covers Latin + Cyrillic; the Noto/system
+     fallbacks catch Arabic, Persian and CJK until we add dedicated script
+     fonts. */
+  --font-brand: var(--font-montserrat), "Noto Sans Arabic", "Noto Sans SC",
+    system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  /* Secondary typeface — supporting/subtext copy. */
+  --font-secondary: var(--font-open-sans), "Noto Sans Arabic", "Noto Sans SC",
+    system-ui, -apple-system, sans-serif;
+
+  /* Monospace — used for the numbered nav labels (1.0, 2.0, …). */
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
+
+  /* ===================================================================
+     Brand palette — from the RocoBroker brand guide (Figma).
+     =================================================================== */
+
+  /* --- Primary --- */
+  --gunmetal: #2a3439; /* Gunmetal Gray — primary neutral / text */
+  --lime: #ccff00; /* Electric Lime — primary accent */
+
+  /* Gunmetal neutral scale, dark → light (sampled from the brand guide). */
+  --gunmetal-950: #0b0d0e;
+  --gunmetal-900: #15191c;
+  --gunmetal-800: #21272a;
+  --gunmetal-700: #2a3439; /* = brand Gunmetal Gray */
+  --gunmetal-600: #374146;
+  --gunmetal-500: #424f54;
+  --gunmetal-400: #4d5b63;
+
+  /* Accent states (derived from Electric Lime). */
+  --lime-strong: #b8e600; /* hover / pressed */
+  --lime-soft: #f2ffb3; /* subtle tint background */
+
+  /* --- Secondary --- */
+  --dark-blue: #24245c;
+  --pastel-red: #ff6f61;
+  --sky-blue: #00bfff;
+  --silver: #c0c0c0;
+  --white-smoke: #f5f5f5;
+
+  /* ===================================================================
+     Semantic tokens — use THESE in components, not the raw brand names,
+     so a palette tweak stays in one place.
+
+     The site is DARK by default (some sections may be light later).
+     =================================================================== */
+  --color-bg: var(--gunmetal-900); /* #15191C — deep gunmetal */
+  --color-surface: var(--gunmetal-800); /* raised panels */
+  --color-fg: #f2f4f5; /* near-white text */
+  --color-muted: #8b979d; /* secondary text on dark */
+  --color-border: rgba(255, 255, 255, 0.12);
+
+  --color-accent: var(--lime);
+  --color-accent-hover: var(--lime-strong);
+  --color-on-accent: var(--gunmetal); /* text/icons on a lime surface */
+
+  --color-danger: var(--pastel-red);
+  --color-info: var(--sky-blue);
+
+  /* Approx. height of the fixed navbar (pill + top gap) — sections use this to
+     inset their content below the bar while the background stays full-bleed. */
+  --nav-h: 4.5rem;
+
+  /* Layout container tokens (adopted from the PV Link Energy conventions) —
+     shared by the navbar, hero and every section so everything aligns. */
+  --max-width: 1440px; /* primary content max width */
+  --max-width-wide: 1760px; /* full-bleed / feature rows */
+  --max-width-text: 720px; /* readable prose measure */
+  --container-padding: clamp(1.25rem, calc(0.875rem + 1.25vw), 2rem); /* 20→32 */
+  --gap-section: clamp(5rem, 10vw, 10rem); /* vertical rhythm between sections */
+  --gap-section-header: clamp(2.5rem, 5vw, 5rem);
+
+  /* Frosted-glass surfaces (navbar, dropdowns) on the dark theme. */
+  --glass-bg: rgba(21, 25, 28, 0.55);
+  --glass-bg-strong: rgba(18, 21, 24, 0.82);
+  --glass-border: rgba(255, 255, 255, 0.12);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  /* Guard against stray horizontal overflow (full-bleed layers, transforms,
+     sub-pixel spill) so the page can't be panned left/right on mobile. `clip`
+     (not `hidden`) doesn't create a scroll container, so it preserves the
+     sticky globe stage. */
+  overflow-x: clip;
+}
+
+body {
+  font-family: var(--font-brand);
+  background: var(--color-bg);
+  color: var(--color-fg);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ---------------------------------------------------------------
+   Layout utilities — shared across navbar, hero and sections.
+   --------------------------------------------------------------- */
+.container {
+  width: 100%;
+  max-width: var(--max-width);
+  margin-inline: auto;
+  padding-inline: var(--container-padding);
+}
+
+.container-wide {
+  width: 100%;
+  max-width: var(--max-width-wide);
+  margin-inline: auto;
+  padding-inline: var(--container-padding);
+}
+
+.container-fluid {
+  width: 100%;
+  padding-inline: var(--container-padding);
+}
+
+.section {
+  padding-block: var(--gap-section);
+}
+
+/* RTL locales (fa, ar) — <html dir="rtl"> is set in the layout. Swap ALL three
+   font tokens to the self-hosted Vazirmatn so Persian/Arabic render with correct
+   letterforms and metrics. The mono token matters: monospace fonts carry no
+   Perso-Arabic glyphs, so mono-styled kickers/labels would otherwise fall back
+   to an uneven system font. */
+[dir="rtl"] {
+  --font-brand: var(--font-vazirmatn), "Noto Sans Arabic", system-ui, sans-serif;
+  --font-secondary: var(--font-vazirmatn), "Noto Sans Arabic", system-ui, sans-serif;
+  --font-mono: var(--font-vazirmatn), "Noto Sans Arabic", ui-monospace, monospace;
+}
+/* Perso-Arabic is a cursive script — any letter-spacing (tracking) breaks the
+   joins between letters, making words look shattered. Latin-tuned tracking is
+   set on many labels/headings, so reset it for all RTL text. */
+[dir="rtl"] * {
+  letter-spacing: normal !important;
+}
+
+/* Skip-to-content link — visually hidden until focused (keyboard users).
+   Honours logical inset so it flips correctly under RTL. */
+.skip-link {
+  position: fixed;
+  inset-block-start: 0.75rem;
+  inset-inline-start: 0.75rem;
+  z-index: 1000;
+  padding: 0.7rem 1.1rem;
+  border-radius: 0.5rem;
+  background: var(--lime);
+  color: #0f1416;
+  font-family: var(--font-secondary);
+  font-weight: 600;
+  font-size: 0.9375rem;
+  text-decoration: none;
+  transform: translateY(-150%);
+  transition: transform 0.2s ease;
+}
+.skip-link:focus-visible {
+  transform: translateY(0);
+  outline: 2px solid #0f1416;
+  outline-offset: 2px;
+}

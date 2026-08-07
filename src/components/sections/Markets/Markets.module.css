@@ -1,0 +1,238 @@
+/* Markets — tall section with a sticky viewport; scrolling through it drives the
+   horizontal card row (progress computed in JS from the section's position). */
+.markets {
+  position: relative;
+  z-index: 1;
+  height: 240vh;
+  background: #ffffff;
+  color: #161d20;
+}
+
+.sticky {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  /* Clear the navbar + ~40px breathing room above the title. */
+  padding-block: calc(var(--nav-h) + 2.5rem) 3rem;
+}
+
+.container {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  max-width: var(--max-width-wide);
+  margin-inline: auto;
+  padding-inline: var(--container-padding);
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 2rem;
+}
+
+.title {
+  margin: 0;
+  font-weight: 700;
+  font-size: clamp(2rem, 4.5vw, 3.5rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: #16211d;
+}
+
+.subtitle {
+  margin: 0;
+  max-width: 34ch;
+  text-align: end;
+  font-family: var(--font-secondary);
+  font-size: clamp(0.9rem, 1.15vw, 1.0625rem);
+  line-height: 1.5;
+  color: #56656b;
+}
+
+/* Progress bar (fills as the row scrolls) */
+.progressBar {
+  position: relative;
+  width: 100%;
+  height: 0.2rem;
+  margin-block: clamp(1.25rem, 3vh, 2rem);
+  background: rgba(22, 29, 32, 0.1);
+  overflow: hidden;
+  border-radius: 2px;
+}
+.progress {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, #6f9e00, #1f7a4d);
+  transform: scaleX(0);
+  transform-origin: left;
+  will-change: transform;
+}
+
+/* Slider (clipped; the wrapper is translated by JS) */
+.slider {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.wrapper {
+  display: flex;
+  gap: clamp(1rem, 1.6vw, 1.5rem);
+  height: 100%;
+  width: max-content;
+  will-change: transform;
+}
+
+/* Card */
+.block {
+  flex: 0 0 clamp(17rem, 27vw, 24rem);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: clamp(1.5rem, 2vw, 2rem);
+  border: 1px solid #e4e8ea;
+  border-radius: 0.9rem;
+  background: #f6f8f9;
+}
+
+.blockHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  font-family: var(--font-mono, var(--font-secondary));
+  font-size: 0.8125rem;
+  letter-spacing: 0.08em;
+}
+.num {
+  margin: 0;
+  font-weight: 600;
+  color: #16211d;
+}
+.tag {
+  margin: 0;
+  text-transform: uppercase;
+  color: #5c9a1e;
+}
+
+.body {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.icon {
+  display: block;
+  width: clamp(7rem, 13vw, 11rem);
+  height: auto;
+  aspect-ratio: 1;
+  object-fit: contain;
+}
+
+.blockFooter {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.blockTitle {
+  margin: 0;
+  font-size: clamp(1.25rem, 1.7vw, 1.6rem);
+  font-weight: 600;
+  color: #16211d;
+}
+.blockDesc {
+  margin: 0;
+  font-family: var(--font-secondary);
+  font-size: clamp(0.9rem, 1vw, 1rem);
+  line-height: 1.55;
+  color: #56656b;
+}
+
+@media (max-width: 720px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  .subtitle {
+    text-align: start;
+  }
+}
+
+/* Mobile/tablet: a plain native swipe carousel (no sticky, no scroll-driving),
+   so there's zero height math and therefore no possible "empty scroll". The JS
+   effect early-returns at this width, so no inline height is set here. */
+@media (max-width: 900px) {
+  .markets {
+    height: auto;
+    padding-block: clamp(3rem, 8vh, 6rem);
+  }
+  .sticky {
+    position: static;
+    height: auto;
+    overflow: visible;
+    padding-block: 0;
+  }
+  .container {
+    height: auto;
+  }
+  .progressBar {
+    display: none;
+  }
+  .slider {
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    /* bleed to the screen edges so cards can peek in from the sides */
+    margin-inline: calc(-1 * var(--container-padding));
+    /* comfortable left gutter so the first card isn't on the edge; scroll-padding
+       makes snap respect it so it doesn't snap flush */
+    padding-inline: calc(var(--container-padding) + 0.75rem) var(--container-padding);
+    scroll-padding-inline-start: calc(var(--container-padding) + 0.75rem);
+    /* breathing room above the cards + a little below for the scrollbar */
+    padding-block: 2.5rem 0.5rem;
+  }
+  .wrapper {
+    transform: none !important;
+    width: max-content;
+  }
+  .block {
+    flex: 0 0 min(78vw, 20rem);
+    height: auto;
+    min-height: 24rem;
+    scroll-snap-align: start;
+  }
+}
+
+/* Reduced motion: no sticky scroll — native horizontal swipe. */
+@media (prefers-reduced-motion: reduce) {
+  .markets {
+    height: auto;
+    padding-block: clamp(4rem, 9vh, 7rem);
+  }
+  .sticky {
+    position: static;
+    height: auto;
+    overflow: visible;
+  }
+  .container {
+    height: auto;
+  }
+  .slider {
+    overflow-x: auto;
+  }
+  .wrapper {
+    transform: none !important;
+    width: auto;
+  }
+  .block {
+    height: 26rem;
+  }
+}
