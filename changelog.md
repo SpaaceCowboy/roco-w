@@ -5,6 +5,25 @@ work should be added here in the same change that implements it.
 
 ## 2026-08-10
 
+### AlmaLinux 8 production-build compatibility
+
+#### Changed
+
+- Converted the Next.js configuration and its legacy-redirect dependency from
+  TypeScript to standard ESM so the configuration can load without the native
+  SWC binary on hosts using glibc 2.28.
+- Switched production builds from the default Turbopack builder to Webpack,
+  allowing Next.js to use its WASM compiler fallback when the native Linux SWC
+  package requires a newer glibc version.
+- Enabled Next.js standalone output for an isolated PM2 deployment that does
+  not depend on or modify cPanel's Node.js installation.
+
+#### Verification
+
+- `npm run lint` and `npm run typecheck`: passed.
+- Forced the SWC WebAssembly code path used by AlmaLinux 8 and completed the
+  Webpack production build successfully, generating all 232 routes.
+
 ### Homepage globe restoration
 
 #### Reverted

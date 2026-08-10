@@ -1,6 +1,5 @@
-import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
-import { legacyRedirects } from "./src/config/legacyRedirects";
+import { legacyRedirects } from "./src/config/legacyRedirects.mjs";
 
 // Point the plugin at our i18n request config (message loading per locale).
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
@@ -22,7 +21,9 @@ const securityHeaders = [
   },
 ];
 
-const nextConfig: NextConfig = {
+const nextConfig = {
+  // Produce a self-contained server bundle for VPS/PM2 deployments.
+  output: "standalone",
   // Don't advertise the framework.
   poweredByHeader: false,
   reactStrictMode: true,

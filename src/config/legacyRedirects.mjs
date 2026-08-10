@@ -1,10 +1,4 @@
-type LegacyRedirect = {
-  source: string;
-  destination: string;
-  permanent: true;
-};
-
-const permanent = (source: string, destination: string): LegacyRedirect => ({
+const permanent = (source, destination) => ({
   // Browsers send non-ASCII path segments percent-encoded. Next.js matches
   // redirect sources against that encoded pathname, so normalize every source
   // here while keeping the declarations below readable and auditable.
@@ -13,7 +7,7 @@ const permanent = (source: string, destination: string): LegacyRedirect => ({
   permanent: true,
 });
 
-const pageRedirects: LegacyRedirect[] = [
+const pageRedirects = [
   // English pages whose information architecture changed.
   permanent("/home", "/"),
   permanent("/home-2", "/"),
@@ -139,9 +133,9 @@ const marketSlugs = {
     stocks: "股票",
     indices: "指数",
   },
-} as const;
+};
 
-const marketRedirects: LegacyRedirect[] = Object.entries(marketSlugs).flatMap(
+const marketRedirects = Object.entries(marketSlugs).flatMap(
   ([locale, slugs]) => {
     const prefix = locale === "en" ? "" : `/${locale}`;
     return [
@@ -162,7 +156,7 @@ const englishBlogSlugs = [
   "leverage",
   "margin-call",
   "regulation",
-] as const;
+];
 
 const persianBlogSlugs = [
   "تعطیلی-بازار-فارکس",
@@ -226,9 +220,9 @@ const persianBlogSlugs = [
   "بهترین-بروکر-برای-ایرانیها",
   "تفاوت-صرافی-و-بروکر-در-بازار-فارکس",
   "بروکر-فارکس-چیست",
-] as const;
+];
 
-const blogRedirects: LegacyRedirect[] = [
+const blogRedirects = [
   permanent("/fa/وبلاگ", "/fa/blog"),
   permanent("/zh-hans/博客", "/zh-hans/blog"),
   ...englishBlogSlugs.map((slug) =>
@@ -243,7 +237,7 @@ const blogRedirects: LegacyRedirect[] = [
  * Explicit cutover redirects only. Personalized/authentication pages from the
  * old WordPress install are intentionally excluded and continue to return 404.
  */
-export const legacyRedirects: LegacyRedirect[] = [
+export const legacyRedirects = [
   ...pageRedirects,
   ...marketRedirects,
   ...blogRedirects,
