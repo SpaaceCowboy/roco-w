@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 import styles from "./Markets.module.css";
 
@@ -127,12 +128,13 @@ export function Markets() {
                   </div>
 
                   <div className={styles.body}>
-                    <img
+                    <Image
                       className={styles.icon}
                       src={`/home/market-icons/${key}.webp`}
                       alt=""
-                      loading="lazy"
-          decoding="async"
+                      width={640}
+                      height={640}
+                      sizes="(max-width: 900px) 112px, 176px"
                     />
                   </div>
 

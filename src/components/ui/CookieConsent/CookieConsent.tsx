@@ -3,6 +3,13 @@
 import { useCallback, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/Button/Button";
+import { Link } from "@/i18n/navigation";
+import {
+  CONSENT_OPEN_EVENT,
+  readConsent,
+  saveConsent,
+  useConsentChoice,
+} from "@/lib/consent";
 import styles from "./CookieConsent.module.css";
 
 /*
@@ -10,88 +17,44 @@ import styles from "./CookieConsent.module.css";
  *  - "Accept all" and "Reject all" carry equal weight (no dark-pattern nudge).
  *  - "Manage choices" expands per-category toggles; nothing non-essential is
  *    pre-ticked. Essential is always on and cannot be turned off.
+ *  - External market-data widgets have their own opt-in category and remain
+ *    blocked until it is enabled.
  *  - The choice persists in localStorage under a versioned key with a 365-day
- *    TTL; the banner re-shows after it expires or the version bumps.
+ *    TTL; the banner re-shows after it expires or the schema version bumps.
  *  - On save a `cookie-consent` CustomEvent fires so analytics/marketing loaders
  *    can react. This banner loads no third-party scripts itself.
  *  - A `cookie-consent:open` event reopens it (e.g. a footer "Cookie settings").
  */
 
-const STORAGE_KEY = "roco.cookieConsent.v1";
-const TTL_DAYS = 365;
-
-interface StoredChoice {
-  essential: true;
-  analytics: boolean;
-  marketing: boolean;
-  ts: string;
-  expires: string;
-}
-
-function readStored(): StoredChoice | null {
-  if (typeof window === "undefined") return null;
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw) as StoredChoice;
-    if (!parsed.expires || new Date(parsed.expires).getTime() < Date.now()) return null;
-    return parsed;
-  } catch {
-    return null;
-  }
-}
-
 export function CookieConsent() {
   const t = useTranslations("cookies");
-  const [open, setOpen] = useState(false);
+  const { ready, choice } = useConsentChoice();
+  const [forcedOpen, setForcedOpen] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   const [analytics, setAnalytics] = useState(false);
   const [marketing, setMarketing] = useState(false);
-
-  useEffect(() => {
-    const existing = readStored();
-    if (!existing) {
-      setOpen(true);
-      return;
-    }
-    setAnalytics(existing.analytics);
-    setMarketing(existing.marketing);
-  }, []);
+  const [externalMedia, setExternalMedia] = useState(false);
+  const open = ready && (forcedOpen || !choice);
 
   const save = useCallback((a: boolean, m: boolean) => {
-    if (typeof window !== "undefined") {
-      const stored: StoredChoice = {
-        essential: true,
-        analytics: a,
-        marketing: m,
-        ts: new Date().toISOString(),
-        expires: new Date(Date.now() + TTL_DAYS * 864e5).toISOString(),
-      };
-      try {
-        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(stored));
-      } catch {
-        /* private mode / quota — banner simply reappears next load */
-      }
-      window.dispatchEvent(new CustomEvent("cookie-consent", { detail: stored }));
-    }
+    saveConsent({ analytics: a, marketing: m, externalMedia });
     setAnalytics(a);
     setMarketing(m);
-    setOpen(false);
+    setForcedOpen(false);
     setShowDetails(false);
-  }, []);
+  }, [externalMedia]);
 
   useEffect(() => {
     const reopen = () => {
-      const existing = readStored();
-      if (existing) {
-        setAnalytics(existing.analytics);
-        setMarketing(existing.marketing);
-      }
-      setOpen(true);
+      const existing = readConsent();
+      setAnalytics(existing?.analytics ?? false);
+      setMarketing(existing?.marketing ?? false);
+      setExternalMedia(existing?.externalMedia ?? false);
+      setForcedOpen(true);
       setShowDetails(true);
     };
-    window.addEventListener("cookie-consent:open", reopen);
-    return () => window.removeEventListener("cookie-consent:open", reopen);
+    window.addEventListener(CONSENT_OPEN_EVENT, reopen);
+    return () => window.removeEventListener(CONSENT_OPEN_EVENT, reopen);
   }, []);
 
   if (!open) return null;
@@ -109,9 +72,9 @@ export function CookieConsent() {
         </h2>
         <p id="cookie-body" className={styles.body}>
           {t("body")}{" "}
-          <a className={styles.link} href="/legal-documents">
+          <Link className={styles.link} href="/legal-documents">
             {t("policy")}
-          </a>
+          </Link>
           .
         </p>
 
@@ -139,6 +102,20 @@ export function CookieConsent() {
               <span className={styles.choiceBody}>{t("analyticsBody")}</span>
             </label>
 
+            <label className={styles.choice} htmlFor="cookie-external-media">
+              <span className={styles.choiceHead}>
+                <span className={styles.choiceLabel}>{t("externalMediaLabel")}</span>
+                <input
+                  id="cookie-external-media"
+                  type="checkbox"
+                  className={styles.toggle}
+                  checked={externalMedia}
+                  onChange={(e) => setExternalMedia(e.target.checked)}
+                />
+              </span>
+              <span className={styles.choiceBody}>{t("externalMediaBody")}</span>
+            </label>
+
             <label className={styles.choice} htmlFor="cookie-marketing">
               <span className={styles.choiceHead}>
                 <span className={styles.choiceLabel}>{t("marketingLabel")}</span>
@@ -161,8 +138,34 @@ export function CookieConsent() {
           ) : (
             <Button label={t("manage")} size="sm" variant="secondary" onClick={() => setShowDetails(true)} className={styles.btn} />
           )}
-          <Button label={t("reject")} size="sm" variant="secondary" onClick={() => save(false, false)} className={styles.btn} />
-          <Button label={t("accept")} size="sm" variant="primary" onClick={() => save(true, true)} className={styles.btn} />
+          <Button
+            label={t("reject")}
+            size="sm"
+            variant="secondary"
+            onClick={() => {
+              setExternalMedia(false);
+              saveConsent({ analytics: false, marketing: false, externalMedia: false });
+              setAnalytics(false);
+              setMarketing(false);
+              setForcedOpen(false);
+              setShowDetails(false);
+            }}
+            className={styles.btn}
+          />
+          <Button
+            label={t("accept")}
+            size="sm"
+            variant="primary"
+            onClick={() => {
+              setExternalMedia(true);
+              saveConsent({ analytics: true, marketing: true, externalMedia: true });
+              setAnalytics(true);
+              setMarketing(true);
+              setForcedOpen(false);
+              setShowDetails(false);
+            }}
+            className={styles.btn}
+          />
         </div>
       </div>
     </div>

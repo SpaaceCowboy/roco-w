@@ -1,6 +1,7 @@
 "use client";
 
 import type { CSSProperties } from "react";
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Reveal } from "@/components/ui/Reveal/Reveal";
 import { Button } from "@/components/ui/Button/Button";
@@ -33,12 +34,15 @@ export function SocialTradingView() {
 
   return (
     <section className={styles.hero}>
-      <img
+      <Image
         className={styles.bg}
         src="/social-trading/hero-bg.webp"
         alt=""
         aria-hidden="true"
-        decoding="async"
+        width={2000}
+        height={1125}
+        sizes="100vw"
+        preload
       />
 
       <CornerMark className={`${styles.corner} ${styles.cornerTL}`} />

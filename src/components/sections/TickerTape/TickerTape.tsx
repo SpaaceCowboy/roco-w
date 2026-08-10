@@ -2,6 +2,8 @@
 
 import { useEffect, useRef } from "react";
 import { useLocale } from "next-intl";
+import { ExternalMediaPlaceholder } from "@/components/ui/CookieConsent/ExternalMediaPlaceholder";
+import { useConsentChoice } from "@/lib/consent";
 
 // Same widget the live rocobroker.com uses (TradingView "Ticker Tape"), themed
 // to blend with our dark UI. Symbols mirror theirs + Gold (metals are a listed
@@ -39,8 +41,11 @@ const TV_LOCALE: Record<string, string> = {
 export function TickerTape() {
   const locale = useLocale();
   const ref = useRef<HTMLDivElement>(null);
+  const { ready, choice } = useConsentChoice();
+  const allowed = ready && choice?.externalMedia === true;
 
   useEffect(() => {
+    if (!allowed) return;
     const el = ref.current;
     if (!el) return;
 
@@ -62,7 +67,11 @@ export function TickerTape() {
     return () => {
       el.innerHTML = "";
     };
-  }, [locale]);
+  }, [allowed, locale]);
 
+  if (!ready) {
+    return <div className="tradingview-widget-container" aria-hidden="true" />;
+  }
+  if (!allowed) return <ExternalMediaPlaceholder compact />;
   return <div className="tradingview-widget-container" ref={ref} aria-hidden="true" />;
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef } from "react";
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -104,13 +105,14 @@ export function MetaTraderView() {
           {/* Below the hairline: image left, text + CTA right. */}
           <div className={styles.introRow}>
             <figure className={styles.heroImage}>
-              <img
+              <Image
                 className={styles.heroImg}
                 src="/metatrader/hero.webp"
-                alt="MetaTrader 5 running on a laptop"
+                alt={t("heroImageAlt")}
                 width={1300}
                 height={975}
-                decoding="async"
+                sizes="(max-width: 900px) 100vw, 50vw"
+                preload
               />
             </figure>
             <div className={styles.introText}>
@@ -149,14 +151,13 @@ export function MetaTraderView() {
             {ADV.map((n) => (
               <li key={n} className={styles.gridItem}>
                 <div className={styles.advIcon}>
-                  <img
+                  <Image
                     className={styles.advIconImg}
                     src={`/metatrader/adv-${n}.webp`}
                     alt=""
-                    width={100}
-                    height={100}
-                    loading="lazy"
-                    decoding="async"
+                    width={240}
+                    height={240}
+                    sizes="100px"
                   />
                 </div>
                 <div className={styles.advBody}>

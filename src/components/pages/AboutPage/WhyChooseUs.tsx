@@ -18,6 +18,10 @@ const MICRO_R = "EST. 2014";
 const BARS = [3, 1, 2, 1, 1, 4, 1, 2, 3, 1, 1, 2, 1, 3, 1, 2, 1, 1, 4, 2];
 const BAR_GAP = 1.4;
 const BAR_TOTAL = BARS.reduce((a, w) => a + w + BAR_GAP, 0);
+const BAR_LAYOUT = BARS.map((width, index) => ({
+  width,
+  x: BARS.slice(0, index).reduce((total, previous) => total + previous + BAR_GAP, 0),
+}));
 
 /** Advantage icons (own, stroke-based). */
 function LeverageIcon() {
@@ -152,16 +156,17 @@ export function WhyChooseUs() {
           </span>
           <span className={styles.bars} aria-hidden="true">
             <svg viewBox={`0 0 ${BAR_TOTAL} 24`} preserveAspectRatio="none" width="100%" height="24">
-              {(() => {
-                let x = 0;
-                return BARS.map((w, i) => {
-                  const rect = (
-                    <rect key={i} x={x} y={0} width={w} height={24} fill="currentColor" opacity={0.35 + ((i * 37) % 55) / 100} />
-                  );
-                  x += w + BAR_GAP;
-                  return rect;
-                });
-              })()}
+              {BAR_LAYOUT.map(({ width, x }, i) => (
+                <rect
+                  key={i}
+                  x={x}
+                  y={0}
+                  width={width}
+                  height={24}
+                  fill="currentColor"
+                  opacity={0.35 + ((i * 37) % 55) / 100}
+                />
+              ))}
             </svg>
           </span>
           <span className={`${styles.microText} ${styles.microEnd}`}>

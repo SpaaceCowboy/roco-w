@@ -110,6 +110,7 @@ export function LegalView() {
               aria-labelledby={`tab-${active.id}`}
               className={styles.panel}
             >
+              <p className={styles.languageNotice}>{t("languageNotice")}</p>
               <div className={styles.panelHead}>
                 <div>
                   <h2 className={styles.panelTitle}>{t(`docs.${active.key}.name`)}</h2>

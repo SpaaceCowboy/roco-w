@@ -198,6 +198,15 @@
   letter-spacing: 0.02em;
   color: var(--color-muted);
 }
+.license a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+.license a:hover {
+  color: var(--color-text);
+}
 .copyright {
   margin: 0;
   font-family: var(--font-secondary);

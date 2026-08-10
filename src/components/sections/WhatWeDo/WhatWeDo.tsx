@@ -54,7 +54,6 @@ export function WhatWeDo() {
     update();
     mq.addEventListener("change", update);
     return () => mq.removeEventListener("change", update);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Mobile tap: toggle the tapped card (one open at a time).

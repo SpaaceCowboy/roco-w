@@ -1,0 +1,85 @@
+.placeholder {
+  display: flex;
+  min-height: inherit;
+  width: 100%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  padding: clamp(1.5rem, 4vw, 3rem);
+  text-align: center;
+  color: inherit;
+}
+
+.copy {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.title {
+  font-family: var(--font-secondary);
+  font-size: 0.95rem;
+  font-weight: 650;
+}
+
+.body {
+  max-width: 48ch;
+  margin: 0;
+  font-family: var(--font-secondary);
+  font-size: 0.85rem;
+  line-height: 1.55;
+  opacity: 0.72;
+}
+
+.button {
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  padding: 0.55rem 0.9rem;
+  background: transparent;
+  color: inherit;
+  font-family: var(--font-secondary);
+  font-size: 0.78rem;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.button:hover,
+.button:focus-visible {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+.compact {
+  min-height: 46px;
+  flex-direction: row;
+  justify-content: center;
+  gap: 0.9rem;
+  padding: 0.35rem var(--container-padding);
+}
+
+.compact .copy {
+  display: block;
+}
+
+.compact .title {
+  font-size: 0.76rem;
+}
+
+.compact .button {
+  flex: none;
+  padding: 0.35rem 0.65rem;
+  font-size: 0.7rem;
+}
+
+@media (max-width: 560px) {
+  .compact .title {
+    display: none;
+  }
+}

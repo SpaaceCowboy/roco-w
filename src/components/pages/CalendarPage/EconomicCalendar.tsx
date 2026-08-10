@@ -2,6 +2,8 @@
 
 import { useEffect, useRef } from "react";
 import { useLocale } from "next-intl";
+import { ExternalMediaPlaceholder } from "@/components/ui/CookieConsent/ExternalMediaPlaceholder";
+import { useConsentChoice } from "@/lib/consent";
 
 // Map our locales to TradingView's (falls back to en).
 const TV_LOCALE: Record<string, string> = {
@@ -22,8 +24,11 @@ const TV_LOCALE: Record<string, string> = {
 export function EconomicCalendar() {
   const locale = useLocale();
   const ref = useRef<HTMLDivElement>(null);
+  const { ready, choice } = useConsentChoice();
+  const allowed = ready && choice?.externalMedia === true;
 
   useEffect(() => {
+    if (!allowed) return;
     const el = ref.current;
     if (!el) return;
 
@@ -44,7 +49,9 @@ export function EconomicCalendar() {
     return () => {
       el.innerHTML = "";
     };
-  }, [locale]);
+  }, [allowed, locale]);
 
+  if (!ready) return <div className="tradingview-widget-container" aria-hidden="true" />;
+  if (!allowed) return <ExternalMediaPlaceholder />;
   return <div className="tradingview-widget-container" ref={ref} />;
 }

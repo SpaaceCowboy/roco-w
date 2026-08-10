@@ -22,7 +22,13 @@ export function Home() {
     <HomeScene
       hero={<Hero />}
       features={
-        <Features title={t("introTitle")} accent={t("introAccent")} big={big} cards={cards} />
+        <Features
+          title={t("introTitle")}
+          accent={t("introAccent")}
+          imageAlt={t("appImageAlt")}
+          big={big}
+          cards={cards}
+        />
       }
     />
   );

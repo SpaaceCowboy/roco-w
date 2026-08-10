@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef } from "react";
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -19,7 +20,7 @@ gsap.registerPlugin(ScrollTrigger);
  */
 export function MetaTrader({
   image = "/home/mt5-devices.webp",
-  alt = "MetaTrader 5 on desktop, tablet and mobile",
+  alt,
   width = 1600,
   height = 901,
 }: {
@@ -33,6 +34,7 @@ export function MetaTrader({
 } = {}) {
   const t = useTranslations("mt5");
   const rootRef = useRef<HTMLElement>(null);
+  const imageAlt = alt ?? t("imageAlt");
 
   const platforms = [
     {
@@ -76,7 +78,12 @@ export function MetaTrader({
     () => {
       const root = rootRef.current;
       if (!root) return;
-      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      if (
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
+        window.matchMedia("(max-width: 1024px)").matches
+      ) {
+        return;
+      }
 
       gsap.from(gsap.utils.toArray<HTMLElement>(`.${styles.card}`, root), {
         opacity: 0,
@@ -98,14 +105,13 @@ export function MetaTrader({
       <CornerMark className={`${styles.corner} ${styles.cornerBR}`} />
 
       <div className={styles.inner}>
-        <img
+        <Image
           className={styles.deviceImg}
           src={image}
-          alt={alt}
+          alt={imageAlt}
           width={width}
           height={height}
-          loading="lazy"
-          decoding="async"
+          sizes="(max-width: 768px) 92vw, 620px"
         />
         <header className={styles.header}>
           <h2 className={styles.title}>

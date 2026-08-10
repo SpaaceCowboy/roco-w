@@ -31,7 +31,7 @@ export function About() {
   const rootRef = useRef<HTMLElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  // Play the media video ONCE, forward, when it scrolls into view — then it
+  // Load and play the media video ONCE, forward, when it nears the viewport — then it
   // holds on the last frame (scrolling back keeps the end state). Forward-only
   // native playback decodes smoothly, so the clip stays high quality. Reduced
   // motion → just show the final frame, no motion.
@@ -42,27 +42,25 @@ export function About() {
     const media = root.querySelector<HTMLElement>("[data-about-media]");
     if (!media) return;
 
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      const toEnd = () => {
-        try {
-          video.currentTime = Math.max(0, video.duration - 0.05);
-        } catch {
-          /* ignore */
-        }
-      };
-      if (video.readyState >= 1) toEnd();
-      else video.addEventListener("loadedmetadata", toEnd, { once: true });
-      return;
-    }
+    // The poster is the reduced-motion presentation; do not download or decode
+    // the 1.4 MB video for visitors who have requested less motion.
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     let played = false;
+    const load = () => {
+      if (video.src) return;
+      video.src = "/home/about.mp4";
+      video.load();
+    };
     const onInteract = () => {
+      load();
       video.play().then(() => {
         played = true;
       }).catch(() => {});
     };
     const play = () => {
       if (played) return;
+      load();
       // Start directly (the browser begins playback once it has buffered).
       video.play().then(() => {
         played = true;
@@ -76,7 +74,7 @@ export function About() {
       ([entry]) => {
         if (entry.isIntersecting) play(); // forward-only; guarded by `played`
       },
-      { threshold: 0.2 },
+      { rootMargin: "300px 0px", threshold: 0.05 },
     );
     io.observe(media);
 
@@ -91,7 +89,12 @@ export function About() {
     () => {
       const root = rootRef.current;
       if (!root) return;
-      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      if (
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
+        window.matchMedia("(max-width: 1024px)").matches
+      ) {
+        return;
+      }
 
       const enter = (el: Element) => ({ trigger: el, start: "top 82%" as const });
       const rand = gsap.utils.random;
@@ -134,6 +137,7 @@ export function About() {
       if (title) {
         SplitText.create(title, {
           type: "lines",
+          aria: "none",
           mask: "lines",
           linesClass: "line",
           onSplit: (self) =>
@@ -236,11 +240,10 @@ export function About() {
           <video
             ref={videoRef}
             className={styles.mediaVideo}
-            src="/home/about.mp4"
             poster="/home/about-poster.webp"
             muted
             playsInline
-            preload="auto"
+            preload="none"
             aria-hidden="true"
           />
           <p className={styles.mediaText}>

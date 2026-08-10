@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
+import { legacyRedirects } from "./src/config/legacyRedirects";
 
 // Point the plugin at our i18n request config (message loading per locale).
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
@@ -34,6 +35,9 @@ const nextConfig: NextConfig = {
   },
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
+  },
+  async redirects() {
+    return legacyRedirects;
   },
 };
 

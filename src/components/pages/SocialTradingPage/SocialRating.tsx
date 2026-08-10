@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef } from "react";
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -45,14 +46,13 @@ export function SocialRating() {
       <div className={styles.inner}>
         <div className={styles.grid}>
           <figure className={`${styles.media} ${styles.reveal}`}>
-            <img
+            <Image
               className={styles.image}
               src="/social-trading/rating.webp"
               alt={`${t("rating.title")} ${t("rating.accent")}`}
               width={1400}
-              height={933}
-              loading="lazy"
-              decoding="async"
+              height={934}
+              sizes="(max-width: 900px) 100vw, 50vw"
             />
           </figure>
           <p className={`${styles.imgNote} ${styles.reveal}`}>{t("rating.note")}</p>

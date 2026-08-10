@@ -1,6 +1,6 @@
 "use client";
 
-import { createElement, useRef, type ReactNode } from "react";
+import { useCallback, useRef, type ReactNode } from "react";
 import gsap from "gsap";
 import { SplitText } from "gsap/SplitText";
 import { useGSAP } from "@gsap/react";
@@ -11,7 +11,7 @@ type Variant = "slide" | "flicker" | "blink";
 
 type Props = {
   children: ReactNode;
-  as?: keyof React.JSX.IntrinsicElements;
+  as?: "div" | "h1" | "h2" | "p" | "span";
   variant?: Variant;
   delay?: number;
   stagger?: number;
@@ -37,6 +37,9 @@ export function Reveal({
   className,
 }: Props) {
   const ref = useRef<HTMLElement>(null);
+  const setRef = useCallback((node: HTMLElement | null) => {
+    ref.current = node;
+  }, []);
 
   useGSAP(
     () => {
@@ -53,9 +56,28 @@ export function Reveal({
         return;
       }
 
+      // On mobile, reveal the semantic element as a whole. Avoiding character
+      // and line splitting removes dozens of generated nodes and synchronous
+      // layout measurements during the critical loading window.
+      if (window.matchMedia("(max-width: 1024px)").matches) {
+        gsap.fromTo(
+          el,
+          { opacity: 0, y: variant === "slide" ? 18 : 0 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: variant === "slide" ? 0.65 : 0.35,
+            ease: "power2.out",
+            delay,
+          },
+        );
+        return;
+      }
+
       if (variant === "slide") {
         SplitText.create(el, {
           type: "lines",
+          aria: "none",
           mask: "lines",
           autoSplit: true,
           linesClass: "line",
@@ -76,6 +98,7 @@ export function Reveal({
       const isRtl = getComputedStyle(el).direction === "rtl";
       SplitText.create(el, {
         type: isRtl ? "words" : "words,chars",
+        aria: "none",
         autoSplit: true,
         onSplit: (self) =>
           gsap.fromTo(
@@ -94,5 +117,19 @@ export function Reveal({
     { scope: ref },
   );
 
-  return createElement(as, { ref, className }, children);
+  // Keep the intrinsic elements explicit. Besides making the supported
+  // semantics clear, this lets React verify the ref without reading it while
+  // resolving a dynamic element during render.
+  switch (as) {
+    case "h1":
+      return <h1 ref={setRef} className={className}>{children}</h1>;
+    case "h2":
+      return <h2 ref={setRef} className={className}>{children}</h2>;
+    case "p":
+      return <p ref={setRef} className={className}>{children}</p>;
+    case "span":
+      return <span ref={setRef} className={className}>{children}</span>;
+    default:
+      return <div ref={setRef} className={className}>{children}</div>;
+  }
 }

@@ -3,24 +3,12 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/Button/Button";
+import { CONSENT_EVENT, readConsent } from "@/lib/consent";
 import styles from "./WelcomePromo.module.css";
 
 const REGISTER = "https://my.rocobroker.com/register";
 const DISMISS_KEY = "roco.welcomePromo.dismissed.v1";
-const CONSENT_KEY = "roco.cookieConsent.v1";
 const DELAY_MS = 20000; // ~20s after consent
-
-function hasConsent(): boolean {
-  if (typeof window === "undefined") return false;
-  try {
-    const raw = window.localStorage.getItem(CONSENT_KEY);
-    if (!raw) return false;
-    const parsed = JSON.parse(raw) as { expires?: string };
-    return !!parsed.expires && new Date(parsed.expires).getTime() >= Date.now();
-  } catch {
-    return false;
-  }
-}
 
 /**
  * WelcomePromo — a small bottom-end banner promoting the 40% deposit bonus. Shown
@@ -43,12 +31,12 @@ export function WelcomePromo() {
       timerRef.current = window.setTimeout(() => setShow(true), DELAY_MS);
     };
 
-    if (hasConsent()) {
+    if (readConsent()) {
       arm();
     } else {
       const onConsent = () => arm();
-      window.addEventListener("cookie-consent", onConsent);
-      return () => window.removeEventListener("cookie-consent", onConsent);
+      window.addEventListener(CONSENT_EVENT, onConsent);
+      return () => window.removeEventListener(CONSENT_EVENT, onConsent);
     }
     return () => {
       if (timerRef.current) window.clearTimeout(timerRef.current);

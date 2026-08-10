@@ -20,7 +20,9 @@ export function chaosBlink(
     maxGap?: number;
   } = {},
 ) {
-  const { base = 0.32, minDelay = 0, maxDelay = 2.5, minGap = 0.2, maxGap = 2 } = opts;
+  // Keep animated text above WCAG contrast thresholds throughout the shimmer.
+  // Decorative shapes may opt into a lower base explicitly at their call site.
+  const { base = 0.8, minDelay = 0, maxDelay = 2.5, minGap = 0.2, maxGap = 2 } = opts;
   const rand = gsap.utils.random;
 
   return Array.from(elements).map((el) =>

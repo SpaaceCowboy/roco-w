@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useSyncExternalStore } from "react";
 import styles from "./DotMatrix.module.css";
 
 type Props = {
@@ -12,6 +12,18 @@ type Props = {
   delay?: number; // seconds before the radial reveal starts
   speed?: number; // radial reveal speed (bigger = slower spread)
 };
+
+const MOBILE_QUERY = "(max-width: 1024px)";
+
+function subscribeToViewport(callback: () => void) {
+  const query = window.matchMedia(MOBILE_QUERY);
+  query.addEventListener("change", callback);
+  return () => query.removeEventListener("change", callback);
+}
+
+function getMobileSnapshot() {
+  return window.matchMedia(MOBILE_QUERY).matches;
+}
 
 function hexToRgb(hex: string): [number, number, number] {
   const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -37,11 +49,7 @@ export function DotMatrix({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   // null until measured. On mobile / small tablets we skip the WebGL grid and
   // paint a lightweight CSS dot background instead (one fewer WebGL context).
-  const [mobile, setMobile] = useState<boolean | null>(null);
-
-  useEffect(() => {
-    setMobile(window.matchMedia("(max-width: 1024px)").matches);
-  }, []);
+  const mobile = useSyncExternalStore(subscribeToViewport, getMobileSnapshot, () => null);
 
   useEffect(() => {
     if (mobile !== false) return; // only run WebGL once confirmed desktop

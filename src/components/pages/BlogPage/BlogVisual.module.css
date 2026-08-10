@@ -1,0 +1,90 @@
+.visual {
+  position: relative;
+  min-height: 240px;
+  overflow: hidden;
+  isolation: isolate;
+  color: #d7ff45;
+  background:
+    radial-gradient(circle at 78% 22%, color-mix(in srgb, currentColor 22%, transparent), transparent 27%),
+    linear-gradient(145deg, #182126, #0d1215 68%);
+}
+
+.variant1 { color: #92e6cf; }
+.variant2 { color: #ffc66d; }
+.variant3 { color: #aab7ff; }
+
+.grid {
+  position: absolute;
+  inset: 0;
+  opacity: .22;
+  background-image:
+    linear-gradient(color-mix(in srgb, currentColor 34%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, currentColor 34%, transparent) 1px, transparent 1px);
+  background-size: 32px 32px;
+  mask-image: linear-gradient(to bottom right, #000, transparent 76%);
+}
+
+.orbit,
+.orbitSmall {
+  position: absolute;
+  border: 1px dashed color-mix(in srgb, currentColor 55%, transparent);
+  border-radius: 50%;
+}
+
+.orbit {
+  width: 290px;
+  aspect-ratio: 1;
+  inset-block-start: -74px;
+  inset-inline-end: -48px;
+}
+
+.orbitSmall {
+  width: 155px;
+  aspect-ratio: 1;
+  inset-block-start: -6px;
+  inset-inline-end: 20px;
+}
+
+.signal {
+  position: absolute;
+  inset-inline: 8%;
+  inset-block-end: 26%;
+  display: flex;
+  height: 70px;
+  align-items: end;
+  gap: 7px;
+}
+
+.signal span {
+  flex: 1;
+  height: var(--h);
+  min-width: 2px;
+  border-radius: 999px 999px 0 0;
+  background: linear-gradient(to top, color-mix(in srgb, currentColor 18%, transparent), currentColor);
+  opacity: var(--o);
+}
+
+.code,
+.label {
+  position: absolute;
+  z-index: 1;
+  font: 700 .68rem/1 var(--font-mono);
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.code {
+  inset-block-start: 20px;
+  inset-inline-start: 22px;
+}
+
+.label {
+  inset-inline-start: 22px;
+  inset-block-end: 20px;
+  max-width: 70%;
+  color: #f1f4f5;
+}
+
+@media (max-width: 700px) {
+  .visual { min-height: 190px; }
+}

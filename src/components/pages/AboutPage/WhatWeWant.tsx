@@ -65,7 +65,6 @@ export function WhatWeWant() {
     update();
     mq.addEventListener("change", update);
     return () => mq.removeEventListener("change", update);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const onCardClick = (idx: number) => {

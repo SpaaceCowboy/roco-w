@@ -1,7 +1,10 @@
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { InstagramIcon, LinkedInIcon, WhatsAppIcon, MailIcon } from "./icons";
 import { CookieSettingsButton } from "@/components/ui/CookieConsent/CookieSettingsButton";
+import { COMPLIANCE, COMPLIANCE_MESSAGE_VALUES } from "@/config/compliance";
+import { CONTACT } from "@/config/contact";
 import styles from "./Footer.module.css";
 
 const MT5 = {
@@ -11,16 +14,6 @@ const MT5 = {
   mac: "https://www.metatrader5.com/en/download/mac",
   web: "https://www.metatrader5.com/en/terminal/web",
 };
-
-const WHATSAPP =
-  "https://api.whatsapp.com/send/?phone=%2B447723179486&text&type=phone_number&app_absent=0";
-const INSTAGRAM = "https://www.instagram.com/rocobroker/";
-const LINKEDIN = "https://www.linkedin.com/company/rocobroker/";
-const EMAIL = "support@rocobroker.com";
-const PHONE = "+447723179486";
-const OFFICES =
-  "147 Blv Svetog Petra Cetinjskog, Podgorica, Montenegro 81000 · Concord Business Center, 334 90th South St, New Cairo, Egypt";
-const REGISTERED = "Bonovo Road, Fomboni, Island of Mohéli, Comoros Union";
 
 /**
  * Footer — dark site footer modelled on rocobroker.com: brand + tagline and
@@ -42,7 +35,7 @@ export function Footer() {
 
   const quick = [
     { label: t("accounts"), href: "/accounts" },
-    { label: nav("metatrader5"), href: "#", soon: true },
+    { label: nav("metatrader5"), href: "/platforms/metatrader-5" },
     { label: nav("legalDocuments"), href: "/legal-documents" },
     { label: nav("forexTrading"), href: "/markets/forex" },
     { label: nav("commodities"), href: "/markets/commodities" },
@@ -53,10 +46,10 @@ export function Footer() {
   ];
 
   const social = [
-    { label: "Instagram", href: INSTAGRAM, Icon: InstagramIcon },
-    { label: "LinkedIn", href: LINKEDIN, Icon: LinkedInIcon },
-    { label: "WhatsApp", href: WHATSAPP, Icon: WhatsAppIcon },
-    { label: t("emailLabel"), href: `mailto:${EMAIL}`, Icon: MailIcon },
+    { label: "Instagram", href: CONTACT.social.instagram, Icon: InstagramIcon },
+    { label: "LinkedIn", href: CONTACT.social.linkedin, Icon: LinkedInIcon },
+    { label: "WhatsApp", href: CONTACT.whatsapp.url, Icon: WhatsAppIcon },
+    { label: t("emailLabel"), href: `mailto:${CONTACT.email}`, Icon: MailIcon },
   ];
 
   return (
@@ -104,15 +97,9 @@ export function Footer() {
           <nav className={styles.linkCol} aria-label={t("colLinks")}>
             <h3 className={styles.colTitle}>{t("colLinks")}</h3>
             <ul className={styles.links}>
-              {quick.map(({ label, href, soon }) => (
+              {quick.map(({ label, href }) => (
                 <li key={label}>
-                  {soon ? (
-                    <span className={styles.soon} aria-disabled="true">
-                      {label} <span className={styles.soonBadge}>{nav("soon")}</span>
-                    </span>
-                  ) : (
-                    <Link href={href}>{label}</Link>
-                  )}
+                  <Link href={href}>{label}</Link>
                 </li>
               ))}
             </ul>
@@ -123,22 +110,34 @@ export function Footer() {
             <h3 className={styles.colTitle}>{t("colContact")}</h3>
             <div className={styles.qrRow}>
               <figure className={styles.qr}>
-                <img src="/shared/qr-whatsapp.webp" alt={`${t("whatsapp")} QR code`} width={110} height={110} />
+                <Image
+                  src="/shared/qr-whatsapp.webp"
+                  alt={`${t("whatsapp")} QR code`}
+                  width={110}
+                  height={110}
+                  sizes="100px"
+                />
                 <figcaption>{t("whatsapp")}</figcaption>
               </figure>
               <figure className={styles.qr}>
-                <img src="/shared/qr-telegram.webp" alt={`${t("telegram")} QR code`} width={110} height={110} />
+                <Image
+                  src="/shared/qr-telegram.webp"
+                  alt={`${t("telegram")} QR code`}
+                  width={110}
+                  height={110}
+                  sizes="100px"
+                />
                 <figcaption>{t("telegram")}</figcaption>
               </figure>
             </div>
             <ul className={styles.contactList}>
               <li>
                 <span className={styles.contactLabel}>{t("emailLabel")}</span>
-                <a href={`mailto:${EMAIL}`}>{EMAIL}</a>
+                <a href={`mailto:${CONTACT.email}`}>{CONTACT.email}</a>
               </li>
               <li>
                 <span className={styles.contactLabel}>{t("phoneLabel")}</span>
-                <a href={`tel:${PHONE}`}>{PHONE}</a>
+                <a href={`tel:${CONTACT.phone.e164}`}>{CONTACT.phone.display}</a>
               </li>
             </ul>
           </div>
@@ -148,18 +147,23 @@ export function Footer() {
         <div className={styles.addresses}>
           <p>
             <span className={styles.contactLabel}>{t("officesLabel")}</span>
-            {OFFICES}
+            {CONTACT.offices.join(" · ")}
           </p>
           <p>
             <span className={styles.contactLabel}>{t("regLabel")}</span>
-            {REGISTERED}
+            {CONTACT.registeredAddress}
           </p>
         </div>
 
         {/* Legal + copyright */}
         <div className={styles.legal}>
           <p className={styles.risk}>{t("risk")}</p>
-          <p className={styles.license}>{t("license")}</p>
+          <p className={styles.license}>
+            {t("license", COMPLIANCE_MESSAGE_VALUES)}{" "}
+            <a href={COMPLIANCE.registryUrl} target="_blank" rel="noopener noreferrer">
+              {t("verifyLicense")}
+            </a>
+          </p>
           <p className={styles.copyright} suppressHydrationWarning>
             © {new Date().getFullYear()} ROCO Broker. {t("rights")}{" "}
             <CookieSettingsButton className={styles.cookieSettings} />

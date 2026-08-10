@@ -31,7 +31,7 @@ The composed blocks that make up the home page.
 The top-level view component for each non-home route (rendered by
 `src/app/[locale]/<route>/page.tsx`).
 
-- `MarketsPage`, `AccountsPage`, `ContactPage`, `LegalPage`, `FaqPage`
+- `MarketsPage`, `AccountsPage`, `ContactPage`, `LegalPage`, `FaqPage`, `BlogPage`
 
 ---
 
@@ -42,4 +42,5 @@ lives in `@/lib` (helpers), `@/config` (nav), `@/i18n` (routing), `@/app` (route
 
 - `lib/hooks/` — React hooks (`useLetterRotate`)
 - `lib/animation/` — GSAP / scroll helpers (`chaosBlink`, `smoothScroll`)
-- `lib/fonts.ts`, `lib/blog.ts` — standalone font config + blog-url helper
+- `lib/fonts.ts` — locale font config
+- `lib/blog.ts`, `lib/blogFeed.ts` — local article repository and RSS generation

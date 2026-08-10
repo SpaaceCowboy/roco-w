@@ -10,6 +10,7 @@ import { Reveal } from "@/components/ui/Reveal/Reveal";
 import { Button } from "@/components/ui/Button/Button";
 import { CornerMark } from "@/components/ui/CornerMark/CornerMark";
 import { chaosBlink } from "@/lib/animation/chaosBlink";
+import { ACCOUNT_COMMON_CONDITIONS } from "@/config/trading";
 import { DETAIL_ICONS } from "./benefitIcons";
 import styles from "./AccountsPage.module.css";
 
@@ -25,7 +26,7 @@ const DETAIL_MEDIA: Record<string, { video: string; poster: string }> = {
   cheetahStd: { video: "/accounts/cheetah.mp4", poster: "/accounts/cheetah-poster.webp" },
   cheetahNano: { video: "/accounts/nano-cheetah.mp4", poster: "/accounts/nano-cheetah-poster.webp" },
 };
-const COMMON = { leverage: "1:1000", stopOut: "40%", marginCall: "100%", minVolume: "0.01 Lots", maxVolume: "30 Lots" };
+const COMMON = ACCOUNT_COMMON_CONDITIONS;
 const ROW_KEYS = [
   "minDeposit", "maxDeposit", "maxBalance", "spread", "commission",
   "leverage", "stopOut", "marginCall", "minVolume", "maxVolume", "social",

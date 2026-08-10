@@ -4,7 +4,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { routing } from "@/i18n/routing";
 import { buildMetadata } from "@/lib/seo";
 import { FaqView } from "@/components/pages/FaqPage/FaqView";
-import { FAQ_KEYS } from "@/components/pages/FaqPage/keys";
+import { FAQ_ANSWER_VALUES, FAQ_KEYS } from "@/components/pages/FaqPage/keys";
 import { Footer } from "@/components/layout/Footer/Footer";
 
 export async function generateMetadata({
@@ -31,11 +31,17 @@ export default async function FaqPage({
   const faqLd = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    mainEntity: FAQ_KEYS.map((k) => ({
-      "@type": "Question",
-      name: t(`items.${k}.q`),
-      acceptedAnswer: { "@type": "Answer", text: t(`items.${k}.a`) },
-    })),
+    mainEntity: FAQ_KEYS.map((k) => {
+      const values = FAQ_ANSWER_VALUES[k];
+      return {
+        "@type": "Question",
+        name: t(`items.${k}.q`),
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: values ? t(`items.${k}.a`, values) : t(`items.${k}.a`),
+        },
+      };
+    }),
   };
 
   return (

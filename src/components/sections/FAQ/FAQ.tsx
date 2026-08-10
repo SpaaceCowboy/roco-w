@@ -2,9 +2,9 @@
 
 import { useId, useRef } from "react";
 import { useTranslations } from "next-intl";
-import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { chaosBlink } from "@/lib/animation/chaosBlink";
+import { PAYMENT_MESSAGE_VALUES } from "@/config/payments";
 import styles from "./FAQ.module.css";
 
 /** FAQ entries, in display order (content mirrors rocobroker.com). */
@@ -26,8 +26,13 @@ export function FAQ() {
     () => {
       const pill = pillRef.current;
       if (!pill) return;
-      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-      chaosBlink([pill], { base: 0.4, minDelay: 0, maxDelay: 1.5 });
+      if (
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
+        window.matchMedia("(max-width: 1024px)").matches
+      ) {
+        return;
+      }
+      chaosBlink([pill], { base: 0.8, minDelay: 0, maxDelay: 1.5 });
     },
     { scope: rootRef },
   );
@@ -71,7 +76,11 @@ export function FAQ() {
                 </label>
                 <div className={styles.panel}>
                   <div className={styles.panelInner}>
-                    <p className={styles.answer}>{t(`items.${key}.a`)}</p>
+                    <p className={styles.answer}>
+                      {key === "methods"
+                        ? t(`items.${key}.a`, PAYMENT_MESSAGE_VALUES)
+                        : t(`items.${key}.a`)}
+                    </p>
                   </div>
                 </div>
               </div>

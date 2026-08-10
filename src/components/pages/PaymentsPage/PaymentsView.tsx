@@ -1,7 +1,8 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
-import { useTranslations } from "next-intl";
+import Image from "next/image";
+import { useLocale, useTranslations } from "next-intl";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { DotMatrix } from "@/components/ui/DotMatrix/DotMatrix";
@@ -9,6 +10,11 @@ import { Reveal } from "@/components/ui/Reveal/Reveal";
 import { Button } from "@/components/ui/Button/Button";
 import { CornerMark } from "@/components/ui/CornerMark/CornerMark";
 import { chaosBlink } from "@/lib/animation/chaosBlink";
+import {
+  CRYPTO_PAYMENT_METHODS,
+  FIAT_PAYMENT_METHODS,
+  SUPPORTED_FIAT_COUNTRIES,
+} from "@/config/payments";
 import styles from "./PaymentsPage.module.css";
 
 const REGISTER = "https://my.rocobroker.com/register";
@@ -44,7 +50,7 @@ function MastercardIcon() {
 }
 function PspIcon() {
   return (
-    <svg viewBox="0 0 32 32" className={styles.brandGlyph} role="img" aria-label="Local payment provider">
+    <svg viewBox="0 0 32 32" className={styles.brandGlyph} aria-hidden="true">
       <path
         fill="#02111B"
         d="M16 3 3 9v2h26V9L16 3Zm-9 10v9H5v3h22v-3h-2v-9h-3v9h-4v-9h-3v9H9v-9H7Z"
@@ -57,40 +63,11 @@ function PspIcon() {
 type Method = {
   id: string;
   name: string;
-  networks?: string[];
+  networks?: readonly string[];
   image?: string;
   Icon?: () => React.JSX.Element;
 };
-const CRYPTO: Method[] = [
-  { id: "usdt", name: "USDT (Tether)", networks: ["TRC20", "ERC20", "BEP20"], image: "/payment-methods/usdt.webp" },
-  { id: "usdc", name: "USDC", networks: ["TRC20", "ERC20", "BEP20"], image: "/payment-methods/usdc.webp" },
-  { id: "btc", name: "Bitcoin (BTC)", networks: ["BTC"], image: "/payment-methods/btc.webp" },
-  { id: "eth", name: "Ethereum (ETH)", networks: ["ERC20"], image: "/payment-methods/eth.webp" },
-];
-const FIAT: Method[] = [
-  { id: "visa", name: "Visa", Icon: VisaIcon },
-  { id: "mc", name: "MasterCard", Icon: MastercardIcon },
-  { id: "psp", name: "Local PSP", Icon: PspIcon },
-];
-
-/** Supported fiat countries + currencies (data — verbatim from source). */
-const COUNTRIES: [string, string][] = [
-  ["Argentina", "USD/ARS"], ["Australia", "USD/AUS"], ["Brazil", "USD/BRL"],
-  ["Bangladesh", "USD/BDT"], ["Bolivia", "USD/BOB"], ["Cameroon", "USD/XAF"],
-  ["Canada", "USD/CAD"], ["Chile", "USD/CLP"], ["China", "USD/CNY"],
-  ["Colombia", "USD/COP"], ["Costa Rica", "USD/CRC"], ["Ivory Coast", "USD/XOF"],
-  ["Dominican Republic", "USD/DOP"], ["Ecuador", "USD"], ["Egypt", "USD/EGP"],
-  ["El Salvador", "USD/SVC"], ["Ghana", "USD/GHS"], ["Guatemala", "USD/GTQ"],
-  ["Honduras", "USD/HNL"], ["India", "USD/INR"], ["Indonesia", "USD/IDR"],
-  ["Japan", "USD/JPY"], ["Kenya", "USD/KES"], ["Malaysia", "USD/MYR"],
-  ["Mexico", "USD/MXN"], ["Nicaragua", "USD/NIO"], ["Nigeria", "USD/NGN"],
-  ["Panama", "USD"], ["Peru", "USD/PEN"], ["Paraguay", "USD/PYG"],
-  ["Philippines", "USD/PHP"], ["Singapore", "USD/SGD"], ["South Africa", "USD/ZAR"],
-  ["Tanzania", "USD/TZS"], ["Turkey", "USD/TRY"], ["Thailand", "USD/THB"],
-  ["Uganda", "USD/UGX"], ["Uruguay", "USD/UYU"], ["Venezuela", "USD/VES"],
-  ["Vietnam", "USD/VND"],
-];
-
+const CRYPTO: readonly Method[] = CRYPTO_PAYMENT_METHODS;
 /** Empty image slot — the user drops the real asset in later. */
 function ImageSlot({ label, className = "" }: { label: string; className?: string }) {
   return (
@@ -110,14 +87,23 @@ function ImageSlot({ label, className = "" }: { label: string; className?: strin
  */
 export function PaymentsView() {
   const t = useTranslations("paymentsPage");
+  const locale = useLocale();
   const rootRef = useRef<HTMLElement>(null);
   const [query, setQuery] = useState("");
 
+  const countries = useMemo(() => {
+    const names = new Intl.DisplayNames([locale], { type: "region" });
+    return SUPPORTED_FIAT_COUNTRIES.map(([region, currencies]) => [
+      names.of(region) ?? region,
+      currencies,
+    ] as const);
+  }, [locale]);
+
   const filteredCountries = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return COUNTRIES;
-    return COUNTRIES.filter(([c, cur]) => `${c} ${cur}`.toLowerCase().includes(q));
-  }, [query]);
+    if (!q) return countries;
+    return countries.filter(([c, cur]) => `${c} ${cur}`.toLowerCase().includes(q));
+  }, [countries, query]);
 
   useGSAP(
     () => {
@@ -141,7 +127,11 @@ export function PaymentsView() {
       micro: t("fiatMicro"),
       title: t("fiatTitle"),
       intro: t("fiatIntro"),
-      methods: FIAT,
+      methods: [
+        { ...FIAT_PAYMENT_METHODS.visa, Icon: VisaIcon },
+        { ...FIAT_PAYMENT_METHODS.mastercard, Icon: MastercardIcon },
+        { ...FIAT_PAYMENT_METHODS.localPsp, name: t("localPspName"), Icon: PspIcon },
+      ] satisfies Method[],
       image: "/payment-methods/fiat.webp",
     },
   ];
@@ -202,13 +192,14 @@ export function PaymentsView() {
 
                 {sec.image ? (
                   <figure className={`${styles.panelMedia} ${styles.mediaFrame}`}>
-                    <img
+                    <Image
                       className={styles.mediaImg}
                       src={sec.image}
                       alt=""
                       aria-hidden="true"
-                      loading="lazy"
-                      decoding="async"
+                      width={1200}
+                      height={sec.key === "fiat" ? 1057 : 900}
+                      sizes="(max-width: 900px) 100vw, 50vw"
                     />
                   </figure>
                 ) : (
@@ -222,12 +213,13 @@ export function PaymentsView() {
                   <article key={mth.id} className={styles.card}>
                     {mth.image ? (
                       <figure className={styles.cardMedia}>
-                        <img
+                        <Image
                           className={styles.cardMediaImg}
                           src={mth.image}
                           alt={mth.name}
-                          loading="lazy"
-                          decoding="async"
+                          width={900}
+                          height={600}
+                          sizes="(max-width: 600px) 100vw, 320px"
                         />
                       </figure>
                     ) : (

@@ -28,7 +28,12 @@ export function Accounts() {
     () => {
       const root = rootRef.current;
       if (!root) return;
-      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      if (
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
+        window.matchMedia("(max-width: 1024px)").matches
+      ) {
+        return;
+      }
 
       const cards = gsap.utils.toArray<HTMLElement>(`.${styles.card}`, root);
       gsap.from(cards, {

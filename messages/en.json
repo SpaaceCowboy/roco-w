@@ -1,7 +1,7 @@
 {
   "metadata": {
     "title": "RocoBroker",
-    "description": "RocoBroker — online trading and brokerage."
+    "description": "Trade forex, stocks, crypto, commodities and indices with ROCO Broker on MetaTrader 5."
   },
   "nav": {
     "blog": "Blog",
@@ -30,7 +30,11 @@
     "aboutUs": "About us",
     "contactUs": "Contact Us",
     "legalDocuments": "Legal Documents",
-    "soon": "Soon"
+    "soon": "Soon",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "mobileMenu": "Mobile navigation",
+    "homeLabel": "RocoBroker home"
   },
   "hero": {
     "title": "Rewrite Trade Rules",
@@ -43,7 +47,8 @@
     "payments": "Payment methods",
     "experience": "Market experience",
     "introTitle": "Trade Every Market.",
-    "introAccent": "Effortlessly."
+    "introAccent": "Effortlessly.",
+    "appImageAlt": "RocoBroker trading app"
   },
   "about": {
     "kicker": "Who We Are",
@@ -134,7 +139,7 @@
       "deposit": "No Limit",
       "leverage": "1:1000",
       "spread": "Raw Spread",
-      "commission": "8$",
+      "commission": "$8",
       "note": "For professional traders who value speed and precision."
     },
     "metaLabel": "Pick your edge",
@@ -150,7 +155,9 @@
     "downloadFor": "Download for",
     "web": "Web",
     "terminal": "Terminal",
-    "titleAccent": "Every Device"
+    "titleAccent": "Every Device",
+    "imageAlt": "MetaTrader 5 on desktop, tablet and mobile",
+    "officeImageAlt": "ROCO team collaborating in a modern office"
   },
   "whatWeDo": {
     "title": "What We",
@@ -193,7 +200,7 @@
       },
       "methods": {
         "q": "What deposit and withdrawal methods do you offer?",
-        "a": "Methods include Rial via TCPAY, plus BTC, ETH, USDT, and USDC on various networks. Additional methods will be added soon."
+        "a": "Methods include Iranian Rial via {rialProvider}, plus BTC, ETH, USDT, and USDC on various networks. Additional methods will be added soon."
       },
       "withdrawTime": {
         "q": "How long does it take to process my withdrawal request?",
@@ -227,7 +234,8 @@
     "whatsapp": "WhatsApp",
     "telegram": "Telegram",
     "risk": "Forex trading involves significant risks, including high volatility and leverage that can amplify both gains and losses. ROCO does not serve residents of the USA or North Korea.",
-    "license": "Licensed under MISA registration HT01024109, License BFX2024190.",
+    "license": "{companyName} — company registration {registrationNumber}; {regulatorShortName} licence {licenseNumber}.",
+    "verifyLicense": "Verify on the MISA register",
     "rights": "All Rights Reserved.",
     "cookieSettings": "Cookie settings"
   },
@@ -445,6 +453,9 @@
     "deptMarketing": "Marketing Department",
     "deptHr": "HR Department",
     "submit": "Contact us now",
+    "sending": "Sending…",
+    "success": "Your message was sent. Our team will contact you shortly.",
+    "sendError": "We couldn't send your message. Please try again or contact us through one of the channels shown here.",
     "restriction": "ROCO does not provide services to residents of the USA or North Korea.",
     "errRequired": "This field is required",
     "errEmail": "Enter a valid email address"
@@ -452,6 +463,7 @@
   "legal": {
     "title": "Legal Documents",
     "overview": "The agreements and disclosures that govern your ROCO account. View or download each document below.",
+    "languageNotice": "The PDF documents are currently available in English only.",
     "view": "View document",
     "docs": {
       "clientAgreement": {
@@ -502,7 +514,7 @@
       },
       "methods": {
         "q": "What deposit and withdrawal methods do you offer?",
-        "a": "Rial via TCPAY, and BTC, ETH, USDT, USDC on various networks. More methods are coming soon."
+        "a": "Iranian Rial via {rialProvider}, plus BTC, ETH, USDT, and USDC on various networks. More methods are coming soon."
       },
       "withdrawTime": {
         "q": "How long does it take to process my withdrawal request?",
@@ -526,11 +538,11 @@
       },
       "orderClosed": {
         "q": "Why was my order closed?",
-        "a": "Orders close when they reach the margin call level (0%) or the stop-out level (40%)."
+        "a": "A margin call is triggered at {marginCallLevel}. Automatic position closure can begin at the {stopOutLevel} stop-out level."
       },
       "regulated": {
         "q": "Is your broker regulated?",
-        "a": "Yes, we are regulated under Mwali (Union of Comoros) with registration number HT0004400 and license number BFX40440."
+        "a": "{companyName} is listed by {regulatorName} as an active authorised brokerage company under licence {licenseNumber}. Company registration: {registrationNumber}."
       },
       "demo": {
         "q": "Do you offer a demo account?",
@@ -538,7 +550,7 @@
       },
       "iranianRials": {
         "q": "Can I deposit using Iranian Rials?",
-        "a": "No, but you can deposit Rials via Top Change and convert them to USD."
+        "a": "Yes. Iranian Rial deposits are available through {rialProvider}."
       },
       "depositMissing": {
         "q": "Why is my deposit not showing in my account?",
@@ -628,10 +640,12 @@
       "psp": "Local payment gateways"
     },
     "searchPlaceholder": "Search a country or currency",
-    "noResults": "No matches found"
+    "noResults": "No matches found",
+    "localPspName": "Local payment provider"
   },
   "calendarPage": {
     "title": "Economic Calendar",
+    "metaDescription": "Track high-impact economic events with ROCO's live calendar and plan entries, exits and risk with clearer market context.",
     "lead": "Maximize Your Trading",
     "leadAccent": "Potential",
     "sub": "Don't let the market catch you off guard. Make the economic calendar a regular part of your trading routine and start planning your trades with confidence. By anticipating key events and understanding their potential impact, you'll be better prepared to take advantage of market opportunities while managing risk effectively.",
@@ -649,10 +663,12 @@
   },
   "mt5Page": {
     "title": "MetaTrader 5",
+    "metaDescription": "Trade forex, stocks, commodities, crypto and indices on MetaTrader 5 across desktop, web and mobile with ROCO Broker.",
     "lead": "Trade efficiently, effectively,",
     "leadAccent": "and confidently",
     "sub": "MetaTrader 5 is designed for traders who want to take their trading to the next level. Whether you're a beginner or an experienced professional, MT5 offers everything you need to trade efficiently, effectively, and confidently in any market environment.",
     "cta": "Open an account",
+    "heroImageAlt": "MetaTrader 5 running on a laptop",
     "advantagesTitle": "Advantages of MetaTrader 5",
     "adv1t": "User-Friendly",
     "adv1d": "Experience seamless navigation and intuitive design that empowers traders of all levels.",
@@ -711,6 +727,7 @@
   "aboutPage": {
     "kicker": "+12 Years financial market experience",
     "title": "Who We Are",
+    "teamImageAlt": "The ROCO Broker team",
     "b1label": "Global brand",
     "b1text": "ROCO is a trusted global financial trading brand offering secure, innovative services across various markets.",
     "b2label": "Full support",
@@ -744,7 +761,7 @@
     "ctaText": "Join thousands of traders worldwide.",
     "ctaBtn": "Open an account",
     "regLabel": "Regulatory information",
-    "regNote": "ROCO Broker Ltd is a financial brokerage company regulated by Comoros Union, Mwali International Services Authority (MISA) under registration number HT01024109 and License number BFX2024190.",
+    "regNote": "{companyName} is listed by {regulatorName} as an active authorised brokerage company under licence {licenseNumber}. Company registration: {registrationNumber}.",
     "regRestriction": "ROCO does not provide services to residents of the USA and North Korea."
   },
   "notFound": {
@@ -753,6 +770,7 @@
   },
   "partnershipPage": {
     "title": "Partnership",
+    "metaDescription": "Join ROCO's introducing-broker program, refer traders with dedicated links and earn competitive commissions with multilingual support.",
     "lead": "Become ROCO's",
     "leadAccent": "Ambassador worldwide",
     "sub": "With our IB plans, become ROCO's Ambassador worldwide! If you have a network of traders or an interest in connecting people with top-tier financial services, becoming an IB with ROCO is an excellent opportunity to grow your income and build a flexible, independent business.",
@@ -778,13 +796,51 @@
     "adv3": "Extensive support",
     "ringMicro": "In 7 simple steps"
   },
+  "blogPage": {
+    "eyebrow": "Market intelligence",
+    "title": "ROCO Insights",
+    "metaDescription": "Explore ROCO Broker articles on forex fundamentals, technical and fundamental analysis, market events, trading costs and risk management.",
+    "lead": "Clear explanations for better-informed market decisions—from core trading concepts to analysis and risk.",
+    "searchLabel": "Search",
+    "searchPlaceholder": "Search articles, topics or tags",
+    "allCategories": "All categories",
+    "featured": "Featured insight",
+    "latest": "Latest articles",
+    "readArticle": "Read article",
+    "minuteRead": "min read",
+    "results": "articles",
+    "noResults": "No matching articles",
+    "noResultsHint": "Try another search term or clear the active filters.",
+    "clearFilters": "Clear filters",
+    "previous": "Previous",
+    "next": "Next",
+    "page": "Page",
+    "tagsLabel": "Popular tags",
+    "fallbackNotice": "Articles are currently available in English.",
+    "backToBlog": "Back to insights",
+    "published": "Published",
+    "updated": "Updated",
+    "by": "By",
+    "contents": "In this article",
+    "related": "Related insights",
+    "recent": "Recent articles",
+    "educationalNotice": "This material is for educational purposes only and does not constitute investment advice. Trading leveraged products involves significant risk.",
+    "share": "Share",
+    "copyLink": "Copy link",
+    "copied": "Link copied"
+  },
   "cookies": {
     "heading": "Cookies on this site",
-    "body": "We use essential cookies to make this site work. With your permission, we'd also use analytics and marketing cookies to improve the site and measure our campaigns.",
+    "body": "We use essential storage to make this site work. With your permission, we also load external market data and use analytics and marketing storage.",
     "policy": "Cookie & Privacy Policy",
     "essentialLabel": "Essential",
     "essentialMeta": "Always active",
     "essentialBody": "Required for the site to function — loading, your preferences, and security. These can't be turned off.",
+    "externalMediaLabel": "External market data",
+    "externalMediaBody": "Loads TradingView widgets. When enabled, your IP address and this page's URL are shared with TradingView to deliver market data.",
+    "externalBlockedTitle": "External market data is off",
+    "externalBlockedBody": "Enable external market data in Cookie settings to load this TradingView widget.",
+    "openSettings": "Cookie settings",
     "analyticsLabel": "Analytics",
     "analyticsBody": "Anonymous statistics that show which pages are useful — no personal data, no cross-site tracking.",
     "marketingLabel": "Marketing",

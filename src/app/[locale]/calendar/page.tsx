@@ -17,7 +17,7 @@ export async function generateMetadata({
     locale,
     path: "/calendar",
     title: t("title"),
-    description: t("sub"),
+    description: t("metaDescription"),
   });
 }
 

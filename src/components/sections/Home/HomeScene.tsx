@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, type ReactNode } from "react";
+import { useTranslations } from "next-intl";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SplitText } from "gsap/SplitText";
@@ -29,6 +30,7 @@ gsap.registerPlugin(ScrollTrigger, SplitText);
  * with momentum; the Features section then forms a 3-column grid around it.
  */
 export function HomeScene({ hero, features }: { hero: ReactNode; features: ReactNode }) {
+  const t = useTranslations("mt5");
   const rootRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLDivElement>(null);
   const featuresRef = useRef<HTMLDivElement>(null);
@@ -42,7 +44,9 @@ export function HomeScene({ hero, features }: { hero: ReactNode; features: React
       const featEl = featuresRef.current;
       const planet = planetRef.current;
       if (!root || !heroEl || !featEl || !planet) return;
-      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        return;
+      }
 
       // --- Planet keeps its initial size (no scroll resize) — it only spins.
       //     Held at its starting position via the CSS transform on .planetLayer. ---
@@ -79,6 +83,7 @@ export function HomeScene({ hero, features }: { hero: ReactNode; features: React
       if (featTitle) {
         SplitText.create(featTitle, {
           type: "lines",
+          aria: "none",
           mask: "lines",
           linesClass: "line",
           onSplit: (self) => {
@@ -148,7 +153,7 @@ export function HomeScene({ hero, features }: { hero: ReactNode; features: React
         <Accounts />
         <MetaTrader
           image="/home/roco-office.webp"
-          alt="ROCO team collaborating in a modern office"
+          alt={t("officeImageAlt")}
           width={1424}
           height={800}
         />

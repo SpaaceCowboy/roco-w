@@ -1,3 +1,4 @@
+import Image from "next/image";
 import styles from "./Home.module.css";
 
 type Stat = { value: string; label: string };
@@ -11,11 +12,13 @@ type Stat = { value: string; label: string };
 export function Features({
   title,
   accent,
+  imageAlt,
   big,
   cards,
 }: {
   title: string;
   accent: string;
+  imageAlt: string;
   big: Stat;
   cards: Stat[];
 }) {
@@ -30,12 +33,13 @@ export function Features({
           <div className={styles.sideLeft}>
             <div className={styles.cardOuter} data-feature-card data-side="left">
               <article className={styles.bigCard}>
-                <img
+                <Image
                   className={styles.bigPhone}
                   src="/home/phone-app.webp"
-                  alt="RocoBroker trading app"
-                  loading="lazy"
-          decoding="async"
+                  alt={imageAlt}
+                  width={2600}
+                  height={5284}
+                  sizes="(max-width: 900px) 128px, 200px"
                 />
                 {/* Subtext top-left, big number bottom-left. */}
                 <span className={styles.bigLabel}>{big.label}</span>

@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 /**
  * Global 404 — the fallback for paths that never reach the localized
  * `[locale]/not-found.tsx` (e.g. a non-prefixed deep path). It renders its own
@@ -39,7 +41,7 @@ export default function GlobalNotFound() {
           <p style={{ maxWidth: "42ch", margin: "1.25rem auto 1.75rem", opacity: 0.7 }}>
             The page you&apos;re looking for doesn&apos;t exist or has moved.
           </p>
-          <a
+          <Link
             href="/"
             style={{
               display: "inline-block",
@@ -52,7 +54,7 @@ export default function GlobalNotFound() {
             }}
           >
             Back to home
-          </a>
+          </Link>
         </div>
       </body>
     </html>

@@ -1,6 +1,7 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Home } from "@/components/sections/Home/Home";
 import { SITE_URL, OG_IMAGE } from "@/lib/seo";
+import { CONTACT } from "@/config/contact";
 
 // Home page — the layout supplies its metadata (canonical/hreflang/OG for "/").
 export default async function HomePage({
@@ -22,10 +23,11 @@ export default async function HomePage({
     logo: `${SITE_URL}/brand/RokoLogo.svg`,
     image: `${SITE_URL}${OG_IMAGE}`,
     description: t("description"),
-    email: "support@rocobroker.com",
+    email: CONTACT.email,
+    telephone: CONTACT.phone.e164,
     sameAs: [
-      "https://www.instagram.com/rocobroker/",
-      "https://www.linkedin.com/company/rocobroker/",
+      CONTACT.social.instagram,
+      CONTACT.social.linkedin,
     ],
     areaServed: "Worldwide",
     knowsAbout: [

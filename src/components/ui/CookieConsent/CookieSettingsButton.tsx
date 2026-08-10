@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { openConsentSettings } from "@/lib/consent";
 
 /** Reopens the cookie consent banner (footer link). */
 export function CookieSettingsButton({ className }: { className?: string }) {
@@ -9,7 +10,7 @@ export function CookieSettingsButton({ className }: { className?: string }) {
     <button
       type="button"
       className={className}
-      onClick={() => window.dispatchEvent(new CustomEvent("cookie-consent:open"))}
+      onClick={openConsentSettings}
     >
       {t("cookieSettings")}
     </button>

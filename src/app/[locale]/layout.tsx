@@ -4,7 +4,7 @@ import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { isRtl, routing } from "@/i18n/routing";
 import { SITE_URL, OG_IMAGE, OG_IMAGE_WIDTH, OG_IMAGE_HEIGHT, localizedUrl, languageAlternates } from "@/lib/seo";
-import { montserrat, openSans, vazirmatn } from "@/lib/fonts";
+import { montserrat, notoSansSC, openSans, vazirmatn } from "@/lib/fonts";
 import { Header } from "@/components/layout/Header/Header";
 import { SmoothScroll } from "@/components/layout/SmoothScroll/SmoothScroll";
 import { CookieConsent } from "@/components/ui/CookieConsent/CookieConsent";
@@ -71,7 +71,7 @@ export default async function LocaleLayout({
     <html
       lang={locale}
       dir={isRtl(locale) ? "rtl" : "ltr"}
-      className={`${montserrat.variable} ${openSans.variable} ${vazirmatn.variable}`}
+      className={`${montserrat.variable} ${openSans.variable} ${vazirmatn.variable} ${notoSansSC.variable}`}
     >
       <body>
         <NextIntlClientProvider>

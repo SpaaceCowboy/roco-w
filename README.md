@@ -1,11 +1,8 @@
 # RocoBroker
 
-Marketing site for RocoBroker, built with **Next.js (App Router)** and modeled on the
-PV Link Energy site. Multilingual via **next-intl** (6 languages, incl. RTL). The **blog stays
-on WordPress** — this app only links out to it.
-
-> Status: **foundation/scaffold only.** No page layouts or designs yet — those are built
-> section by section.
+Production marketing site and native educational blog for RocoBroker, built with
+**Next.js App Router**. The complete interface is multilingual via **next-intl**
+(six languages, including RTL Arabic and Persian).
 
 ---
 
@@ -19,7 +16,7 @@ on WordPress** — this app only links out to it.
 | Styling    | Plain CSS / CSS Modules (no Tailwind) — like PV     |
 | Brand font | Montserrat (`next/font/google`)                    |
 | Hosting    | Vercel (planned)                                   |
-| Blog       | External — WordPress + WPML at `blog.rocobroker.com` |
+| Blog       | Native, file-backed, statically generated            |
 
 ## Getting started
 
@@ -43,15 +40,20 @@ src/
   app/
     [locale]/             # every page lives here; [locale] = en | de | ru | ar | fa | zh-hans
       layout.tsx          # root layout: sets <html lang dir>, loads font + i18n provider
-      page.tsx            # home (placeholder for now)
-    globals.css           # baseline styles + brand tokens (colours are placeholders)
+      page.tsx            # home
+      blog/               # index, article pages, and localized RSS feed
+    globals.css           # global baseline + brand and locale font tokens
   i18n/
     routing.ts            # list of locales, default locale, which are RTL
     request.ts            # loads the right messages/*.json per request
     navigation.ts         # locale-aware <Link>, useRouter, etc.
   lib/
-    fonts.ts              # Montserrat setup
-    blog.ts               # builds the external blog.rocobroker.com URL per language
+    fonts.ts              # locale-aware next/font setup
+    blog.ts               # native blog repository and content queries
+  content/blog/
+    posts.json            # sanitized local article library
+scripts/
+  import-wordpress-blog.mjs # repeatable one-time legacy content importer
 ```
 
 ---
@@ -105,32 +107,24 @@ mirrors the layout for free.
 ### Fonts & scripts — important
 
 Montserrat is the brand font but it only covers **Latin + Cyrillic** (English, German, Russian).
-It has **no** Arabic, Persian or Chinese glyphs. Those currently fall back to the stack in
-`globals.css` (`--font-brand`). When we style the `ar` / `fa` / `zh-hans` pages we should add
-dedicated script fonts via `next/font/google`, e.g.:
-
-- Arabic → **Noto Sans Arabic** or **Cairo**
-- Persian → **Vazirmatn**
-- Chinese (Simplified) → **Noto Sans SC**
+It has **no** Arabic, Persian or Chinese glyphs. Locale token overrides therefore use
+**Vazirmatn** for Arabic/Persian and **Noto Sans SC** for Simplified Chinese.
 
 ---
 
 ## The blog
 
-The blog is **not** part of this app. It stays on WordPress + WPML at
-**`blog.rocobroker.com`**, where editors keep posting/translating exactly as they do today.
-The site's "Blog" link opens that WordPress site in a new tab.
+The blog is part of this application at `/blog` and every localized equivalent. It provides:
 
-`src/lib/blog.ts` builds the right URL for the visitor's language, e.g. a German visitor goes to
-`blog.rocobroker.com/de/`. Usage:
+- search, category and tag filtering, pagination, featured and related posts;
+- statically generated article pages, metadata, BlogPosting schema and breadcrumbs;
+- article table of contents, recent posts, sharing, educational-risk notices and RSS;
+- 69 sanitized legacy articles stored locally in `src/content/blog/posts.json`—eight English
+  and 61 Persian. German, Russian, Arabic and Chinese use localized interface copy with an
+  explicit English-content notice until translated articles are supplied.
 
-```tsx
-import { blogUrl } from "@/lib/blog";
-
-<a href={blogUrl(locale)} target="_blank" rel="noopener">
-  {t("nav.blog")}
-</a>
-```
+The production application never calls WordPress. `scripts/import-wordpress-blog.mjs` is a
+repeatable migration utility that can refresh the local source file during an editorial import.
 
 ---
 
@@ -139,7 +133,8 @@ import { blogUrl } from "@/lib/blog";
 **Add a new language**
 1. Add the code to `locales` in `src/i18n/routing.ts` (and to `rtlLocales` if it's RTL).
 2. Create `messages/<code>.json` (copy `en.json`, translate the values).
-3. Add its blog path to `localeToBlogPath` in `src/lib/blog.ts`.
+3. Add translated `blogPage` interface messages. Add native article content when available;
+   otherwise the repository deliberately falls back to English with a visible notice.
 
 **Add a new page** — create `src/app/[locale]/<name>/page.tsx`. It automatically exists in every
 language. Add any new text keys to every `messages/*.json`.
@@ -168,5 +163,8 @@ Gunmetal has a dark→light neutral scale `--gunmetal-950 … --gunmetal-400`; l
 ## Deployment (planned)
 
 - App → **Vercel**, domain `rocobroker.com` / `www`.
-- WordPress blog → its own host at `blog.rocobroker.com`.
 - Turn **Cloudflare proxying ON** (currently DNS-only, which exposes the origin IP).
+- Configure `RESEND_API_KEY` and `CONTACT_EMAIL_FROM` in Vercel so the contact
+  endpoint can deliver messages. The sender address must use a verified domain;
+  `CONTACT_EMAIL_TO` is optional and defaults to the canonical support address.
+  See `.env.example` for the expected values.

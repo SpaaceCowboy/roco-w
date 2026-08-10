@@ -142,6 +142,14 @@
   -webkit-backdrop-filter: blur(14px);
   backdrop-filter: blur(14px);
 }
+.honeypot {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
 .fields {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -204,8 +212,24 @@ select.input {
   cursor: pointer;
   appearance: none;
 }
+.status {
+  min-height: 1.5rem;
+  margin-block-start: 0.9rem;
+  font-family: var(--font-secondary);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+.status p {
+  margin: 0;
+}
+.statusSuccess {
+  color: var(--color-accent);
+}
+.statusError {
+  color: var(--color-danger);
+}
 .restriction {
-  margin: 1.25rem 0 0;
+  margin: 0.35rem 0 0;
   font-family: var(--font-secondary);
   font-size: 0.8rem;
   line-height: 1.5;

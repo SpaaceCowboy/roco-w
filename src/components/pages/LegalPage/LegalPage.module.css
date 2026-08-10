@@ -108,6 +108,16 @@
   -webkit-backdrop-filter: blur(14px);
   backdrop-filter: blur(14px);
 }
+.languageNotice {
+  margin: 0;
+  padding: 0.75rem clamp(1.25rem, 2vw, 1.75rem);
+  border-block-end: 1px solid var(--glass-border);
+  background: color-mix(in srgb, var(--color-accent) 9%, transparent);
+  font-family: var(--font-secondary);
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--color-fg);
+}
 .panelHead {
   display: flex;
   align-items: flex-start;

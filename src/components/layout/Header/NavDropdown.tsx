@@ -1,10 +1,9 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import type { NavChild } from "@/config/nav";
-import { blogUrl } from "@/lib/blog";
 import { useLetterRotate } from "@/lib/hooks/useLetterRotate";
 import styles from "./Header.module.css";
 
@@ -18,7 +17,6 @@ type Props = {
 /** Desktop top-level item that reveals a dropdown of children on hover/focus. */
 export function NavDropdown({ labelKey, items, href }: Props) {
   const t = useTranslations("nav");
-  const locale = useLocale();
   const [open, setOpen] = useState(false);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { ref, start } = useLetterRotate<HTMLSpanElement>();
@@ -88,13 +86,13 @@ export function NavDropdown({ labelKey, items, href }: Props) {
                 </span>
               );
             }
-            if (c.external || c.isBlog) {
+            if (c.external) {
               return (
                 <a
                   key={c.key}
                   role="menuitem"
                   className={styles.dropItem}
-                  href={c.isBlog ? blogUrl(locale) : c.href}
+                  href={c.href}
                   target="_blank"
                   rel="noopener noreferrer"
                 >

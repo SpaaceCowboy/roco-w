@@ -150,6 +150,14 @@ a {
   --font-secondary: var(--font-vazirmatn), "Noto Sans Arabic", system-ui, sans-serif;
   --font-mono: var(--font-vazirmatn), "Noto Sans Arabic", ui-monospace, monospace;
 }
+
+/* Controlled CJK typography for Simplified Chinese instead of an
+   OS-dependent system fallback. */
+[lang="zh-hans"] {
+  --font-brand: var(--font-noto-sans-sc), "Noto Sans SC", system-ui, sans-serif;
+  --font-secondary: var(--font-noto-sans-sc), "Noto Sans SC", system-ui, sans-serif;
+  --font-mono: var(--font-noto-sans-sc), ui-monospace, monospace;
+}
 /* Perso-Arabic is a cursive script — any letter-spacing (tracking) breaks the
    joins between letters, making words look shattered. Latin-tuned tracking is
    set on many labels/headings, so reset it for all RTL text. */

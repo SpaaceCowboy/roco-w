@@ -55,7 +55,6 @@ export function Globe({
   useEffect(() => {
     const mount = mountRef.current;
     if (!mount) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     let disposed = false;
     let cleanup = () => {};
@@ -493,5 +492,11 @@ export function Globe({
     };
   }, [spinRef]);
 
-  return <div ref={mountRef} className={`${styles.globe3d} ${className}`.trim()} />;
+  return (
+    <div
+      ref={mountRef}
+      className={`${styles.globe3d} ${className}`.trim()}
+      aria-hidden="true"
+    />
+  );
 }

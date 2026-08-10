@@ -353,12 +353,26 @@
   transform: translateY(-4px) rotate(-45deg);
 }
 
+.hamburger:focus-visible,
+.mobileLink:focus-visible,
+.mobileText:focus-visible,
+.mobileToggle:focus-visible,
+.mobileParent:focus-visible,
+.mobileChild:focus-visible,
+.mobileCta:focus-visible,
+.accordionTop:focus-visible,
+.langItem:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
 .mobilePanelWrap {
   margin: 0.5rem 1.25rem 0;
   max-height: 0;
   opacity: 0;
+  visibility: hidden;
   overflow: hidden;
-  transition: max-height 0.4s ease, opacity 0.3s ease;
+  transition: max-height 0.4s ease, opacity 0.3s ease, visibility 0s linear 0.4s;
 }
 
 .mobilePanelOpen {
@@ -366,7 +380,9 @@
      language switch) is reachable; the panel scrolls internally past that. */
   max-height: calc(100dvh - 6rem);
   opacity: 1;
+  visibility: visible;
   overflow-y: auto;
+  transition-delay: 0s;
   overscroll-behavior: contain;
   /* Firefox */
   scrollbar-width: thin;

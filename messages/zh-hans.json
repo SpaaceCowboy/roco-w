@@ -1,7 +1,7 @@
 {
   "metadata": {
     "title": "RocoBroker",
-    "description": "RocoBroker — 在线交易与经纪服务。"
+    "description": "通过 ROCO Broker 在 MetaTrader 5 上交易外汇、股票、加密货币、商品和指数。"
   },
   "nav": {
     "blog": "博客",
@@ -30,10 +30,14 @@
     "aboutUs": "关于我们",
     "contactUs": "联系我们",
     "legalDocuments": "法律文件",
-    "soon": "即将上线"
+    "soon": "即将上线",
+    "openMenu": "打开菜单",
+    "closeMenu": "关闭菜单",
+    "mobileMenu": "移动导航",
+    "homeLabel": "RocoBroker 首页"
   },
   "hero": {
-    "title": "重新制定贸易规则",
+    "title": "重写交易规则",
     "subtext": "交易<w>外汇、股票、加密货币</w><g>等等 —— 尽在一个账户。</g>",
     "tradeNow": "立即交易"
   },
@@ -42,8 +46,9 @@
     "instruments": "交易品种",
     "payments": "支付方式",
     "experience": "市场经验",
-    "introTitle": "交易每一个市场。",
-    "introAccent": "轻而易举。"
+    "introTitle": "交易全球市场。",
+    "introAccent": "轻而易举。",
+    "appImageAlt": "RocoBroker 交易应用"
   },
   "about": {
     "kicker": "关于我们",
@@ -134,10 +139,10 @@
       "deposit": "无限制",
       "leverage": "1:1000",
       "spread": "原始点差",
-      "commission": "8$",
+      "commission": "$8",
       "note": "适合重视速度与精准的专业交易者。"
     },
-    "metaLabel": "选择你的优势",
+    "metaLabel": "选择您的优势",
     "metaA": "适合各个级别",
     "metaB": "杠杆高达 1:1000",
     "metaText": "美分账户用于试水，原始点差适合专业交易者——一次登录，随时切换级别。"
@@ -150,7 +155,9 @@
     "downloadFor": "下载适用于",
     "web": "网页",
     "terminal": "终端",
-    "titleAccent": "适配每一台设备"
+    "titleAccent": "适配每一台设备",
+    "imageAlt": "电脑、平板电脑和手机上的 MetaTrader 5",
+    "officeImageAlt": "ROCO 团队在现代办公室协作"
   },
   "whatWeDo": {
     "title": "我们",
@@ -192,19 +199,19 @@
         "a": "没有最低入金金额。"
       },
       "methods": {
-        "q": "你们提供哪些入金和出金方式？",
-        "a": "方式包括通过 TCPAY 的里亚尔，以及在多种网络上的 BTC、ETH、USDT 和 USDC。更多方式即将上线。"
+        "q": "ROCO 提供哪些入金和出金方式？",
+        "a": "方式包括通过 {rialProvider} 使用伊朗里亚尔，以及在多种网络上的 BTC、ETH、USDT 和 USDC。更多方式即将上线。"
       },
       "withdrawTime": {
         "q": "出金申请需要多长时间处理？",
         "a": "出金在同一个工作日内处理。"
       },
       "commissions": {
-        "q": "你们的佣金和点差是多少？",
+        "q": "ROCO 的佣金和点差是多少？",
         "a": "Lion 账户：点差从 1.2 点起，无佣金。Cheetah 账户：原始点差，每手收取 8 美元佣金。"
       },
       "islamic": {
-        "q": "你们提供伊斯兰（免隔夜利息）账户吗？",
+        "q": "ROCO 是否提供伊斯兰（免隔夜利息）账户？",
         "a": "目前暂无伊斯兰账户，但即将推出。"
       },
       "scalping": {
@@ -227,7 +234,8 @@
     "whatsapp": "WhatsApp",
     "telegram": "Telegram",
     "risk": "外汇交易涉及重大风险，包括高波动性和杠杆，可能同时放大盈利与亏损。ROCO 不向美国或朝鲜居民提供服务。",
-    "license": "受 MISA 注册 HT01024109、牌照 BFX2024190 监管。",
+    "license": "{companyName} — 公司注册号 {registrationNumber}；{regulatorShortName} 牌照 {licenseNumber}。",
+    "verifyLicense": "在 MISA 名录中验证",
     "rights": "版权所有。",
     "cookieSettings": "Cookie 设置"
   },
@@ -325,7 +333,7 @@
       },
       "a4": {
         "t": "复制或提供",
-        "d": "社交交易让你跟随并复制顶尖交易者——或成为他人跟随的提供者。"
+        "d": "社交交易让您跟随并复制顶尖交易者——或成为他人跟随的提供者。"
       }
     },
     "lion": {
@@ -445,6 +453,9 @@
     "deptMarketing": "市场部",
     "deptHr": "人力资源部",
     "submit": "立即联系",
+    "sending": "正在发送…",
+    "success": "您的留言已发送。我们的团队将尽快与您联系。",
+    "sendError": "留言发送失败。请重试，或通过本页显示的其他渠道联系我们。",
     "restriction": "ROCO 不向美国或朝鲜居民提供服务。",
     "errRequired": "此字段为必填项",
     "errEmail": "请输入有效的电子邮箱"
@@ -452,6 +463,7 @@
   "legal": {
     "title": "法律文件",
     "overview": "规范您 ROCO 账户的各项协议与披露。可在下方查看或下载每份文件。",
+    "languageNotice": "PDF 文件目前仅提供英文版本。",
     "view": "查看文件",
     "docs": {
       "clientAgreement": {
@@ -501,19 +513,19 @@
         "a": "没有最低入金金额。"
       },
       "methods": {
-        "q": "你们提供哪些入金和出金方式？",
-        "a": "通过 TCPAY 的里亚尔，以及在多种网络上的 BTC、ETH、USDT、USDC。更多方式即将上线。"
+        "q": "ROCO 提供哪些入金和出金方式？",
+        "a": "通过 {rialProvider} 使用伊朗里亚尔，以及在多种网络上的 BTC、ETH、USDT、USDC。更多方式即将上线。"
       },
       "withdrawTime": {
         "q": "出金申请需要多长时间处理？",
         "a": "出金在同一个工作日内处理。"
       },
       "commissions": {
-        "q": "你们的佣金和点差是多少？",
+        "q": "ROCO 的佣金和点差是多少？",
         "a": "Lion 账户：点差从 1.2 点起，无佣金。Cheetah 账户：原始点差，每手 8 美元佣金。"
       },
       "islamic": {
-        "q": "你们提供伊斯兰（免隔夜利息）账户吗？",
+        "q": "ROCO 是否提供伊斯兰（免隔夜利息）账户？",
         "a": "目前暂无伊斯兰账户，但即将推出。"
       },
       "scalping": {
@@ -526,19 +538,19 @@
       },
       "orderClosed": {
         "q": "为什么我的订单被平仓？",
-        "a": "当达到追加保证金水平（0%）或强平水平（40%）时，订单会被平仓。"
+        "a": "当保证金水平达到 {marginCallLevel} 时会触发追加保证金通知；当达到 {stopOutLevel} 强平水平时，系统可能开始自动平仓。"
       },
       "regulated": {
-        "q": "你们的经纪商受监管吗？",
-        "a": "是的，我们受 Mwali（科摩罗联盟）监管，注册号 HT0004400，牌照号 BFX40440。"
+        "q": "ROCO Broker 是否受到监管？",
+        "a": "{companyName} 已被 {regulatorName} 列为持有 {licenseNumber} 牌照的有效授权经纪公司。公司注册号：{registrationNumber}。"
       },
       "demo": {
-        "q": "你们提供模拟账户吗？",
+        "q": "ROCO 是否提供模拟账户？",
         "a": "可以，您可通过用户面板激活含 10,000 美元虚拟资金的模拟账户。"
       },
       "iranianRials": {
         "q": "可以用伊朗里亚尔入金吗？",
-        "a": "不可以，但您可通过 Top Change 存入里亚尔并兑换为美元。"
+        "a": "可以。您可通过 {rialProvider} 存入伊朗里亚尔。"
       },
       "depositMissing": {
         "q": "为什么我的入金没有到账？",
@@ -549,7 +561,7 @@
         "a": "可以，您可在 MetaTrader 5 上使用智能交易系统（EA），其表现由您负责。"
       },
       "education": {
-        "q": "你们提供教育资源吗？",
+        "q": "ROCO 是否提供教育资源？",
         "a": "可以，我们的教育板块正在开发中，将包含文章、视频和网络研讨会。"
       },
       "leverage": {
@@ -561,11 +573,11 @@
         "a": "可以，您可用如 0.01 手（微手）等小手数交易。"
       },
       "cashback": {
-        "q": "你们的经纪商提供返现吗？",
+        "q": "ROCO 是否提供返现？",
         "a": "不提供。"
       },
       "dailyAnalysis": {
-        "q": "你们提供每日分析或经济新闻吗？",
+        "q": "ROCO 是否提供每日分析或财经新闻？",
         "a": "我们通过 Telegram 和 Instagram 渠道分享每日市场分析与经济新闻。"
       }
     },
@@ -628,13 +640,15 @@
       "psp": "本地支付网关"
     },
     "searchPlaceholder": "搜索国家或货币",
-    "noResults": "未找到匹配项"
+    "noResults": "未找到匹配项",
+    "localPspName": "本地支付服务商"
   },
   "calendarPage": {
     "title": "财经日历",
-    "lead": "释放你的交易",
+    "metaDescription": "通过 ROCO 财经日历跟踪重要经济事件，更清晰地规划入场、离场和风险管理。",
+    "lead": "释放您的交易",
     "leadAccent": "潜能",
-    "sub": "别让市场打你个措手不及。把财经日历纳入日常交易流程，自信地规划你的交易。通过预判关键事件并理解其潜在影响，你将更有准备地把握市场机会，同时有效管理风险。",
+    "sub": "别让市场打您个措手不及。把财经日历纳入日常交易流程，自信地规划您的交易。通过预判关键事件并理解其潜在影响，您将更有准备地把握市场机会，同时有效管理风险。",
     "cta": "开设账户",
     "widgetLabel": "实时财经事件",
     "advantagesTitle": "ROCO 财经日历的优势",
@@ -649,10 +663,12 @@
   },
   "mt5Page": {
     "title": "MetaTrader 5",
+    "metaDescription": "通过 MetaTrader 5 在电脑、网页和手机上交易外汇、股票、商品、加密货币和指数。",
     "lead": "高效、有效",
     "leadAccent": "且自信地交易",
-    "sub": "MetaTrader 5 专为希望将交易提升到新高度的交易者而设计。无论你是新手还是资深专业人士，MT5 都能提供在任何市场环境中高效、有效、自信交易所需的一切。",
+    "sub": "MetaTrader 5 专为希望将交易提升到新高度的交易者而设计。无论您是新手还是资深专业人士，MT5 都能提供在任何市场环境中高效、有效、自信交易所需的一切。",
     "cta": "开设账户",
+    "heroImageAlt": "笔记本电脑上的 MetaTrader 5 平台",
     "advantagesTitle": "MetaTrader 5 的优势",
     "adv1t": "易于使用",
     "adv1d": "流畅的导航与直观的设计，赋能各级别交易者。",
@@ -661,7 +677,7 @@
     "adv3t": "多资产交易",
     "adv3d": "交易外汇、股票、大宗商品和指数等多种资产类别。",
     "adv4t": "强大分析工具",
-    "adv4d": "强大的分析功能，助你提升交易、稳居市场。",
+    "adv4d": "强大的分析功能，助您提升交易、稳居市场。",
     "adv5t": "改进的订单",
     "adv5d": "更先进的订单类型。",
     "adv6t": "市场深度",
@@ -674,7 +690,7 @@
   "promotionsPage": {
     "title": "促销活动",
     "lead": "我们是一个团队！",
-    "leadAccent": "给你的简单奖励！",
+    "leadAccent": "给您的简单奖励！",
     "statsEyebrow": "优惠一览",
     "stat1": "首次入金奖金",
     "stat2": "最高奖金发放",
@@ -695,22 +711,23 @@
     "depositAccent": "40% 存款奖金",
     "motivTitle": "激励奖金",
     "motivSubtitle": "如何获得",
-    "motiv1": "如果你的交易账户出现 $500 亏损",
-    "motiv2": "我们的一位专家将联系你，安排你的专属辅导课程",
-    "motiv3": "享受你的免费辅导课程！",
-    "motiv4": "我们随时帮助你保持正轨、取得成功！",
+    "motiv1": "如果您的交易账户出现 $500 亏损",
+    "motiv2": "我们的一位专家将联系您，安排您的专属辅导课程",
+    "motiv3": "享受您的免费辅导课程！",
+    "motiv4": "我们随时帮助您保持正轨、取得成功！",
     "loyaltyTitle": "忠诚奖金",
     "loyaltySubtitle": "如何领取",
     "loy1": "开设账户（如果还没有，请先注册）。",
     "loy2": "累计交易 100 手（EUR/USD）。",
-    "loy3": "看着你的 $50 奖金到账——就这么简单！",
-    "loy4": "就是这么简单。开始交易，享受你的奖励！",
-    "bannerTitle": "开始交易，领取你的奖励",
+    "loy3": "看着您的 $50 奖金到账——就这么简单！",
+    "loy4": "就是这么简单。开始交易，享受您的奖励！",
+    "bannerTitle": "开始交易，领取您的奖励",
     "bannerCta": "开设账户"
   },
   "aboutPage": {
     "kicker": "12 年以上金融市场经验",
     "title": "关于我们",
+    "teamImageAlt": "ROCO Broker 团队",
     "b1label": "全球品牌",
     "b1text": "ROCO 是值得信赖的全球金融交易品牌，在多种市场提供安全、创新的服务。",
     "b2label": "全面支持",
@@ -737,14 +754,14 @@
     "why3t": "客户支持",
     "why3d": "360 度全天候支持",
     "why4t": "风险管理",
-    "why4d": "内置工具助你管理风险敞口",
+    "why4d": "内置工具助您管理风险敞口",
     "statLeftDesc": "在全球金融市场的多年经验。",
     "statLeftMicro": "自 2014 年值得信赖——为世界各地每一位交易者提供安全、创新的交易。",
     "statRightDesc": "全年每天提供多语言客户支持。",
     "ctaText": "加入全球数千名交易者。",
     "ctaBtn": "开设账户",
     "regLabel": "监管信息",
-    "regNote": "ROCO Broker Ltd 是一家金融经纪公司，受科摩罗联盟莫埃利国际服务管理局（MISA）监管，注册号 HT01024109，牌照号 BFX2024190。",
+    "regNote": "{companyName} 已被 {regulatorName} 列为持有 {licenseNumber} 牌照的有效授权经纪公司。公司注册号：{registrationNumber}。",
     "regRestriction": "ROCO 不向美国和朝鲜居民提供服务。"
   },
   "notFound": {
@@ -753,38 +770,77 @@
   },
   "partnershipPage": {
     "title": "合作伙伴",
+    "metaDescription": "加入 ROCO 介绍经纪人计划，通过专属链接推荐交易者，在多语言支持下赚取佣金。",
     "lead": "成为 ROCO 的",
     "leadAccent": "全球大使",
-    "sub": "通过我们的 IB 计划，成为 ROCO 的全球大使！如果你拥有交易者网络，或有兴趣将人们与一流金融服务连接，成为 ROCO 的 IB 是提升收入、打造灵活独立事业的绝佳机会。",
+    "sub": "通过我们的 IB 计划，成为 ROCO 的全球大使！如果您拥有交易者网络，或有兴趣将人们与一流金融服务连接，成为 ROCO 的 IB 是提升收入、打造灵活独立事业的绝佳机会。",
     "cta": "加入成为 IB",
     "stepsKicker": "运作方式",
     "s1t": "注册 ROCO",
-    "s1d": "几分钟内创建你的 ROCO 账户。",
+    "s1d": "几分钟内创建您的 ROCO 账户。",
     "s2t": "升级为 IB",
-    "s2d": "将你的账户切换为介绍经纪人。",
+    "s2d": "将您的账户切换为介绍经纪人。",
     "s3t": "获得我们的批准",
-    "s3d": "我们的团队审核并激活你的 IB 身份。",
-    "s4t": "激励你的人脉",
+    "s3d": "我们的团队审核并激活您的 IB 身份。",
+    "s4t": "激励您的人脉",
     "s4d": "分享交易者为何选择 ROCO。",
     "s5t": "提供推荐码/链接",
-    "s5d": "分发你专属的推荐码和链接。",
+    "s5d": "分发您专属的推荐码和链接。",
     "s6t": "让他们开设 Lion 账户",
-    "s6d": "让你的推荐人开设 Lion 账户。",
-    "s7t": "现在——享受你的收入！",
-    "s7d": "当你的人脉交易时赚取佣金。",
+    "s6d": "让您的推荐人开设 Lion 账户。",
+    "s7t": "现在——享受您的收入！",
+    "s7d": "当您的人脉交易时赚取佣金。",
     "advTitle": "成为 ROCO 大使的优势",
     "adv1": "有竞争力的佣金",
     "adv2": "可靠可信的经纪商",
     "adv3": "全面的支持",
     "ringMicro": "只需 7 个简单步骤"
   },
+  "blogPage": {
+    "eyebrow": "市场知识",
+    "title": "ROCO 洞察",
+    "metaDescription": "阅读 ROCO Broker 关于外汇基础、技术与基本面分析、市场事件、交易成本及风险管理的文章。",
+    "lead": "从交易基础到分析与风险，以清晰讲解帮助您做出更有依据的市场决策。",
+    "searchLabel": "搜索",
+    "searchPlaceholder": "搜索文章、主题或标签",
+    "allCategories": "全部分类",
+    "featured": "精选洞察",
+    "latest": "最新文章",
+    "readArticle": "阅读文章",
+    "minuteRead": "分钟阅读",
+    "results": "篇文章",
+    "noResults": "未找到匹配文章",
+    "noResultsHint": "请尝试其他搜索词或清除当前筛选条件。",
+    "clearFilters": "清除筛选",
+    "previous": "上一页",
+    "next": "下一页",
+    "page": "第",
+    "tagsLabel": "热门标签",
+    "fallbackNotice": "文章目前仅提供英文版本。",
+    "backToBlog": "返回洞察",
+    "published": "发布于",
+    "updated": "更新于",
+    "by": "作者",
+    "contents": "本文内容",
+    "related": "相关洞察",
+    "recent": "最新文章",
+    "educationalNotice": "本材料仅供教育用途，不构成投资建议。杠杆产品交易涉及重大风险。",
+    "share": "分享",
+    "copyLink": "复制链接",
+    "copied": "链接已复制"
+  },
   "cookies": {
     "heading": "本网站的 Cookie",
-    "body": "我们使用必要的 Cookie 使本网站正常运行。在您允许的情况下，我们还会使用分析和营销 Cookie 来改进网站并衡量我们的活动。",
+    "body": "我们使用必要的存储来确保网站正常运行。在获得您的同意后，我们还会加载外部市场数据，并使用分析和营销存储。",
     "policy": "Cookie 与隐私政策",
     "essentialLabel": "必要",
     "essentialMeta": "始终启用",
-    "essentialBody": "网站运行所必需——加载、你的偏好和安全。无法关闭。",
+    "essentialBody": "网站运行所必需——加载、您的偏好和安全。无法关闭。",
+    "externalMediaLabel": "外部市场数据",
+    "externalMediaBody": "加载 TradingView 小工具。启用后，您的 IP 地址和本页面网址将与 TradingView 共享，以提供市场数据。",
+    "externalBlockedTitle": "外部市场数据已关闭",
+    "externalBlockedBody": "请在 Cookie 设置中启用外部市场数据，以加载此 TradingView 小工具。",
+    "openSettings": "Cookie 设置",
     "analyticsLabel": "分析",
     "analyticsBody": "匿名统计，显示哪些页面有用——无个人数据，无跨站跟踪。",
     "marketingLabel": "营销",

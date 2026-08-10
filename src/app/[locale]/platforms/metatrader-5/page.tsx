@@ -17,7 +17,7 @@ export async function generateMetadata({
     locale,
     path: "/platforms/metatrader-5",
     title: t("title"),
-    description: t("sub"),
+    description: t("metaDescription"),
   });
 }
 

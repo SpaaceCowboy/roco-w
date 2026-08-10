@@ -21,7 +21,7 @@ export function Header() {
       <div className={styles.desktop}>
         <div className={styles.padding}>
           <div className={styles.desktopWrap}>
-            <Link href="/" className={styles.logo} aria-label="RocoBroker home">
+            <Link href="/" className={styles.logo} aria-label={t("homeLabel")}>
               <Logo />
             </Link>
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, type CSSProperties } from "react";
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -10,6 +11,7 @@ import { Button } from "@/components/ui/Button/Button";
 import { CornerMark } from "@/components/ui/CornerMark/CornerMark";
 import { PageBackground } from "@/components/ui/PageBackground/PageBackground";
 import { chaosBlink } from "@/lib/animation/chaosBlink";
+import { COMPLIANCE_MESSAGE_VALUES } from "@/config/compliance";
 import { WhatWeWant } from "./WhatWeWant";
 import { WhyChooseUs } from "./WhyChooseUs";
 import styles from "./AboutPage.module.css";
@@ -105,13 +107,14 @@ export function AboutView() {
           </Reveal>
 
           <figure className={styles.media}>
-            <img
+            <Image
               className={styles.mediaImg}
               src="/about/team.webp"
-              alt="The ROCO Broker team"
+              alt={t("teamImageAlt")}
               width={900}
               height={900}
-              decoding="async"
+              sizes="(max-width: 900px) 90vw, 480px"
+              preload
             />
             {/* Floating glass stat card over the left of the image (parallax). */}
             <div ref={cardRef} className={styles.card}>
@@ -146,12 +149,13 @@ export function AboutView() {
           <div className={styles.track}>
             {PARTNERS.concat(PARTNERS).map((p, i) => (
               <span key={i} className={styles.logo}>
-                <img
+                <Image
                   className={styles.logoImg}
                   src={p.src}
                   alt={p.name}
-                  loading="lazy"
-                  decoding="async"
+                  width={440}
+                  height={204}
+                  sizes="220px"
                 />
               </span>
             ))}
@@ -175,7 +179,7 @@ export function AboutView() {
         {/* Regulatory note */}
         <div className={styles.regNote}>
           <span className={styles.regLabel}>{t("regLabel")}</span>
-          <p className={styles.regText}>{t("regNote")}</p>
+          <p className={styles.regText}>{t("regNote", COMPLIANCE_MESSAGE_VALUES)}</p>
           <p className={styles.regText}>{t("regRestriction")}</p>
         </div>
       </div>

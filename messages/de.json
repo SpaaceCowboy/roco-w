@@ -1,7 +1,7 @@
 {
   "metadata": {
     "title": "RocoBroker",
-    "description": "RocoBroker — Online-Trading und Brokerage."
+    "description": "Handeln Sie Forex, Aktien, Krypto, Rohstoffe und Indizes mit ROCO Broker auf MetaTrader 5."
   },
   "nav": {
     "blog": "Blog",
@@ -30,10 +30,14 @@
     "aboutUs": "Über uns",
     "contactUs": "Kontakt",
     "legalDocuments": "Rechtliche Dokumente",
-    "soon": "Bald"
+    "soon": "Bald",
+    "openMenu": "Menü öffnen",
+    "closeMenu": "Menü schließen",
+    "mobileMenu": "Mobile Navigation",
+    "homeLabel": "RocoBroker-Startseite"
   },
   "hero": {
-    "title": "Handelsregeln neu schreiben",
+    "title": "Handelsregeln neu gedacht",
     "subtext": "Handeln Sie <w>Forex, Aktien, Krypto</w> <g>und mehr — alles über ein Konto.</g>",
     "tradeNow": "Jetzt handeln"
   },
@@ -42,8 +46,9 @@
     "instruments": "Handelsinstrumente",
     "payments": "Zahlungsmethoden",
     "experience": "Markterfahrung",
-    "introTitle": "Handle jeden Markt.",
-    "introAccent": "Mühelos."
+    "introTitle": "Handeln Sie auf jedem Markt.",
+    "introAccent": "Mühelos.",
+    "appImageAlt": "RocoBroker-Trading-App"
   },
   "about": {
     "kicker": "Wer wir sind",
@@ -134,7 +139,7 @@
       "deposit": "Kein Limit",
       "leverage": "1:1000",
       "spread": "Raw Spread",
-      "commission": "8$",
+      "commission": "$8",
       "note": "Für professionelle Trader, die Geschwindigkeit und Präzision schätzen."
     },
     "metaLabel": "Wählen Sie Ihren Vorteil",
@@ -150,7 +155,9 @@
     "downloadFor": "Herunterladen für",
     "web": "Web",
     "terminal": "Terminal",
-    "titleAccent": "jedes Gerät"
+    "titleAccent": "jedes Gerät",
+    "imageAlt": "MetaTrader 5 auf Desktop, Tablet und Smartphone",
+    "officeImageAlt": "Das ROCO-Team bei der Zusammenarbeit in einem modernen Büro"
   },
   "whatWeDo": {
     "title": "Was Wir",
@@ -193,7 +200,7 @@
       },
       "methods": {
         "q": "Welche Ein- und Auszahlungsmethoden bieten Sie an?",
-        "a": "Zu den Methoden gehören Rial über TCPAY sowie BTC, ETH, USDT und USDC in verschiedenen Netzwerken. Weitere Methoden folgen in Kürze."
+        "a": "Zu den Methoden gehören iranische Rial über {rialProvider} sowie BTC, ETH, USDT und USDC in verschiedenen Netzwerken. Weitere Methoden folgen in Kürze."
       },
       "withdrawTime": {
         "q": "Wie lange dauert die Bearbeitung meiner Auszahlung?",
@@ -227,7 +234,8 @@
     "whatsapp": "WhatsApp",
     "telegram": "Telegram",
     "risk": "Der Forexhandel ist mit erheblichen Risiken verbunden, einschließlich hoher Volatilität und Hebelwirkung, die sowohl Gewinne als auch Verluste verstärken können. ROCO bedient keine Einwohner der USA oder Nordkoreas.",
-    "license": "Lizenziert unter MISA-Registrierung HT01024109, Lizenz BFX2024190.",
+    "license": "{companyName} — Unternehmensregistrierung {registrationNumber}; {regulatorShortName}-Lizenz {licenseNumber}.",
+    "verifyLicense": "Im MISA-Register prüfen",
     "rights": "Alle Rechte vorbehalten.",
     "cookieSettings": "Cookie-Einstellungen"
   },
@@ -445,6 +453,9 @@
     "deptMarketing": "Marketing-Abteilung",
     "deptHr": "HR-Abteilung",
     "submit": "Jetzt kontaktieren",
+    "sending": "Wird gesendet…",
+    "success": "Ihre Nachricht wurde gesendet. Unser Team meldet sich in Kürze bei Ihnen.",
+    "sendError": "Ihre Nachricht konnte nicht gesendet werden. Versuchen Sie es erneut oder nutzen Sie einen der hier aufgeführten Kontaktwege.",
     "restriction": "ROCO bietet keine Dienste für Einwohner der USA oder Nordkoreas an.",
     "errRequired": "Dieses Feld ist erforderlich",
     "errEmail": "Geben Sie eine gültige E-Mail-Adresse ein"
@@ -452,6 +463,7 @@
   "legal": {
     "title": "Rechtliche Dokumente",
     "overview": "Die Vereinbarungen und Offenlegungen, die Ihr ROCO-Konto regeln. Ansehen oder herunterladen.",
+    "languageNotice": "Die PDF-Dokumente sind derzeit nur auf Englisch verfügbar.",
     "view": "Dokument ansehen",
     "docs": {
       "clientAgreement": {
@@ -502,7 +514,7 @@
       },
       "methods": {
         "q": "Welche Ein- und Auszahlungsmethoden bieten Sie an?",
-        "a": "Rial über TCPAY sowie BTC, ETH, USDT, USDC in verschiedenen Netzwerken. Weitere folgen bald."
+        "a": "Iranische Rial über {rialProvider} sowie BTC, ETH, USDT und USDC in verschiedenen Netzwerken. Weitere folgen bald."
       },
       "withdrawTime": {
         "q": "Wie lange dauert die Bearbeitung meiner Auszahlung?",
@@ -526,11 +538,11 @@
       },
       "orderClosed": {
         "q": "Warum wurde meine Order geschlossen?",
-        "a": "Orders schließen beim Margin-Call-Level (0 %) oder Stop-Out-Level (40 %)."
+        "a": "Ein Margin Call wird bei {marginCallLevel} ausgelöst. Die automatische Positionsschließung kann beim Stop-Out-Level von {stopOutLevel} beginnen."
       },
       "regulated": {
         "q": "Ist Ihr Broker reguliert?",
-        "a": "Ja, reguliert unter Mwali (Union der Komoren), Registrierung HT0004400, Lizenz BFX40440."
+        "a": "{companyName} wird von der {regulatorName} als aktives, zugelassenes Maklerunternehmen unter der Lizenz {licenseNumber} geführt. Unternehmensregistrierung: {registrationNumber}."
       },
       "demo": {
         "q": "Bieten Sie ein Demokonto an?",
@@ -538,7 +550,7 @@
       },
       "iranianRials": {
         "q": "Kann ich in iranischen Rial einzahlen?",
-        "a": "Nein, aber Sie können Rial über Top Change einzahlen und in USD umwandeln."
+        "a": "Ja. Einzahlungen in iranischen Rial sind über {rialProvider} möglich."
       },
       "depositMissing": {
         "q": "Warum wird meine Einzahlung nicht angezeigt?",
@@ -628,10 +640,12 @@
       "psp": "Lokale Zahlungsgateways"
     },
     "searchPlaceholder": "Land oder Währung suchen",
-    "noResults": "Keine Treffer gefunden"
+    "noResults": "Keine Treffer gefunden",
+    "localPspName": "Lokaler Zahlungsdienstleister"
   },
   "calendarPage": {
     "title": "Wirtschaftskalender",
+    "metaDescription": "Verfolgen Sie wichtige Wirtschaftstermine im ROCO-Kalender und planen Sie Einstiege, Ausstiege und Risiken mit mehr Marktkontext.",
     "lead": "Maximieren Sie Ihr",
     "leadAccent": "Handelspotenzial",
     "sub": "Lassen Sie sich vom Markt nicht überraschen. Machen Sie den Wirtschaftskalender zu einem festen Bestandteil Ihrer Trading-Routine und planen Sie Ihre Trades mit Zuversicht. Indem Sie wichtige Ereignisse antizipieren und ihre potenziellen Auswirkungen verstehen, sind Sie besser vorbereitet, um Marktchancen zu nutzen und Risiken effektiv zu steuern.",
@@ -649,10 +663,12 @@
   },
   "mt5Page": {
     "title": "MetaTrader 5",
+    "metaDescription": "Handeln Sie Forex, Aktien, Rohstoffe, Krypto und Indizes mit MetaTrader 5 auf Desktop, Web und Mobilgeräten.",
     "lead": "Handeln Sie effizient, effektiv",
     "leadAccent": "und mit Zuversicht",
     "sub": "MetaTrader 5 ist für Trader konzipiert, die ihr Trading auf die nächste Stufe heben möchten. Ob Anfänger oder erfahrener Profi – MT5 bietet alles, was Sie brauchen, um in jedem Marktumfeld effizient, effektiv und mit Zuversicht zu handeln.",
     "cta": "Konto eröffnen",
+    "heroImageAlt": "MetaTrader 5 auf einem Laptop",
     "advantagesTitle": "Vorteile von MetaTrader 5",
     "adv1t": "Benutzerfreundlich",
     "adv1d": "Nahtlose Navigation und intuitives Design, das Trader aller Erfahrungsstufen unterstützt.",
@@ -711,6 +727,7 @@
   "aboutPage": {
     "kicker": "+12 Jahre Erfahrung an den Finanzmärkten",
     "title": "Wer wir sind",
+    "teamImageAlt": "Das Team von ROCO Broker",
     "b1label": "Globale Marke",
     "b1text": "ROCO ist eine vertrauenswürdige globale Handelsmarke, die sichere, innovative Dienste über verschiedene Märkte hinweg bietet.",
     "b2label": "Voller Support",
@@ -744,7 +761,7 @@
     "ctaText": "Schließen Sie sich Tausenden Tradern weltweit an.",
     "ctaBtn": "Konto eröffnen",
     "regLabel": "Regulatorische Informationen",
-    "regNote": "ROCO Broker Ltd ist ein Finanzmaklerunternehmen, das von der Comoros Union, Mwali International Services Authority (MISA), unter der Registrierungsnummer HT01024109 und der Lizenznummer BFX2024190 reguliert wird.",
+    "regNote": "{companyName} wird von der {regulatorName} als aktives, zugelassenes Maklerunternehmen unter der Lizenz {licenseNumber} geführt. Unternehmensregistrierung: {registrationNumber}.",
     "regRestriction": "ROCO bietet keine Dienstleistungen für Einwohner der USA und Nordkoreas an."
   },
   "notFound": {
@@ -753,6 +770,7 @@
   },
   "partnershipPage": {
     "title": "Partnerschaft",
+    "metaDescription": "Werden Sie ROCO-Introducing-Broker, empfehlen Sie Trader über eigene Links und verdienen Sie Provisionen mit mehrsprachigem Support.",
     "lead": "Werden Sie ROCOs",
     "leadAccent": "Botschafter weltweit",
     "sub": "Werden Sie mit unseren IB-Plänen zum weltweiten Botschafter von ROCO! Wenn Sie ein Netzwerk von Tradern haben oder Menschen mit erstklassigen Finanzdienstleistungen verbinden möchten, ist ein IB bei ROCO eine hervorragende Gelegenheit, Ihr Einkommen zu steigern und ein flexibles, unabhängiges Geschäft aufzubauen.",
@@ -778,13 +796,51 @@
     "adv3": "Umfangreicher Support",
     "ringMicro": "In 7 einfachen Schritten"
   },
+  "blogPage": {
+    "eyebrow": "Marktwissen",
+    "title": "ROCO Insights",
+    "metaDescription": "Entdecken Sie Artikel von ROCO Broker zu Forex-Grundlagen, technischer und fundamentaler Analyse, Marktereignissen, Handelskosten und Risiko.",
+    "lead": "Klare Erklärungen für fundiertere Marktentscheidungen – von Handelsgrundlagen bis zu Analyse und Risiko.",
+    "searchLabel": "Suchen",
+    "searchPlaceholder": "Artikel, Themen oder Tags suchen",
+    "allCategories": "Alle Kategorien",
+    "featured": "Ausgewählter Beitrag",
+    "latest": "Neueste Artikel",
+    "readArticle": "Artikel lesen",
+    "minuteRead": "Min. Lesezeit",
+    "results": "Artikel",
+    "noResults": "Keine passenden Artikel",
+    "noResultsHint": "Versuchen Sie einen anderen Suchbegriff oder löschen Sie die aktiven Filter.",
+    "clearFilters": "Filter löschen",
+    "previous": "Zurück",
+    "next": "Weiter",
+    "page": "Seite",
+    "tagsLabel": "Beliebte Tags",
+    "fallbackNotice": "Die Artikel sind derzeit auf Englisch verfügbar.",
+    "backToBlog": "Zurück zu Insights",
+    "published": "Veröffentlicht",
+    "updated": "Aktualisiert",
+    "by": "Von",
+    "contents": "In diesem Artikel",
+    "related": "Ähnliche Beiträge",
+    "recent": "Neueste Artikel",
+    "educationalNotice": "Dieses Material dient ausschließlich Bildungszwecken und stellt keine Anlageberatung dar. Der Handel mit Hebelprodukten ist mit erheblichen Risiken verbunden.",
+    "share": "Teilen",
+    "copyLink": "Link kopieren",
+    "copied": "Link kopiert"
+  },
   "cookies": {
     "heading": "Cookies auf dieser Website",
-    "body": "Wir verwenden essenzielle Cookies, damit diese Website funktioniert. Mit Ihrer Erlaubnis nutzen wir auch Analyse- und Marketing-Cookies, um die Website zu verbessern und unsere Kampagnen zu messen.",
+    "body": "Wir verwenden notwendige Speicherungen, damit diese Website funktioniert. Mit Ihrer Einwilligung laden wir außerdem externe Marktdaten und verwenden Analyse- und Marketing-Speicherungen.",
     "policy": "Cookie- & Datenschutzrichtlinie",
     "essentialLabel": "Essenziell",
     "essentialMeta": "Immer aktiv",
     "essentialBody": "Erforderlich, damit die Website funktioniert – Laden, Ihre Einstellungen und Sicherheit. Diese können nicht deaktiviert werden.",
+    "externalMediaLabel": "Externe Marktdaten",
+    "externalMediaBody": "Lädt TradingView-Widgets. Bei Aktivierung werden Ihre IP-Adresse und die URL dieser Seite zur Bereitstellung der Marktdaten an TradingView übermittelt.",
+    "externalBlockedTitle": "Externe Marktdaten sind deaktiviert",
+    "externalBlockedBody": "Aktivieren Sie externe Marktdaten in den Cookie-Einstellungen, um dieses TradingView-Widget zu laden.",
+    "openSettings": "Cookie-Einstellungen",
     "analyticsLabel": "Analyse",
     "analyticsBody": "Anonyme Statistiken, die zeigen, welche Seiten nützlich sind – keine personenbezogenen Daten, kein seitenübergreifendes Tracking.",
     "marketingLabel": "Marketing",

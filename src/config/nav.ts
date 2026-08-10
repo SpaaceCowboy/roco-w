@@ -3,15 +3,13 @@
  * namespace in messages/<locale>.json; the numbered order (1.0, 2.0, …) is
  * derived from array position. Items with `children` render a hover dropdown.
  *
- * NOTE: internal hrefs are placeholders — those pages don't exist yet, so they
- * 404 until built. They mirror the live site's IA (children flattened: the
- * live "Tools → Platforms → MetaTrader 5" 3-level nest is collapsed).
+ * Internal hrefs point to native application routes. The old site's three-level
+ * "Tools → Platforms → MetaTrader 5" hierarchy is intentionally flattened.
  */
 export type NavChild = {
   key: string; // i18n key under "nav"
   href: string; // internal path (locale-prefixed) OR external URL
   external?: boolean;
-  isBlog?: boolean; // resolve href at render via blogUrl(locale) → WordPress
   soon?: boolean; // page not built yet → render as an inactive "soon" item
 };
 
@@ -46,9 +44,13 @@ export const NAV_ITEMS: NavItem[] = [
       { key: "paymentMethods", href: "/payment-methods" },
     ],
   },
-  // FAQ is a direct link (the old "Resources" dropdown held Blog + FAQ; there's
-  // no blog, so it collapses to a single FAQ entry).
-  { key: "faq", href: "/faq" },
+  {
+    key: "resources",
+    children: [
+      { key: "blog", href: "/blog" },
+      { key: "faq", href: "/faq" },
+    ],
+  },
   {
     key: "tools",
     children: [
