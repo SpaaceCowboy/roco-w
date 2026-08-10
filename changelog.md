@@ -5,6 +5,14 @@ work should be added here in the same change that implements it.
 
 ## 2026-08-10
 
+### Deployment handoff documentation
+
+#### Added
+
+- Added `currentstate.md` with the deployed commit, isolated VPS runtime and
+  PM2 state, unchanged cPanel/mail/WordPress services, pending redirect-loop
+  verification, safe resume commands, and the remaining cutover sequence.
+
 ### AlmaLinux 8 production-build compatibility
 
 #### Changed
