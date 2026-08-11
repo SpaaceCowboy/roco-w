@@ -34,10 +34,13 @@ export function Header() {
                   items={item.children ?? []}
                 />
               ))}
+            </nav>
+
+            <div className={styles.actions}>
               <LanguageSwitcher />
               <NavCta label={t(CTA_LOGIN.key)} href={CTA_LOGIN.href!} external variant="login" />
               <NavCta label={t(CTA_JOIN.key)} href={CTA_JOIN.href!} external variant="join" />
-            </nav>
+            </div>
           </div>
         </div>
       </div>
