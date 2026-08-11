@@ -3,6 +3,53 @@
 This file records changes made during the launch-readiness remediation. New
 work should be added here in the same change that implements it.
 
+## 2026-08-11
+
+### tawk.to live chat
+
+#### Added
+
+- Added the tawk.to live chat widget carried over from the WordPress site,
+  mounted once in the locale layout so it survives client-side navigation. The
+  embed is injected directly rather than through `next/script`, because the
+  `Tawk_API` globals must exist before the remote script executes and
+  `next/script` gives no ordering guarantee within a strategy bucket.
+- Pinned the chat bubble to the inline end of the viewport, so it mirrors to the
+  bottom left in Arabic and Persian.
+- Added `NEXT_PUBLIC_TAWK_PROPERTY_ID` and `NEXT_PUBLIC_TAWK_WIDGET_ID`, plus
+  optional per-locale widget overrides for the case where a locale is given its
+  own dashboard widget (widget language is a dashboard setting, not a runtime
+  option). With no property ID configured the component renders nothing and logs
+  in development only.
+- Added a load-failure listener and a 15-second timeout warning, so a dead
+  vendor script degrades to a missing widget instead of a broken page.
+
+#### Changed
+
+- Moved the welcome promo from the inline end to the inline start of the
+  viewport so it no longer shares a corner with the chat bubble.
+
+#### Compliance note
+
+- The chat widget loads for every visitor ahead of any cookie-consent choice,
+  and tawk.to sets its own visitor cookies at that point. This is the only
+  third-party script on the site that runs ungated; the cookie policy text in
+  `messages/*.json` still describes TradingView only and needs updating.
+
+### Header layout
+
+#### Changed
+
+- Rebuilt the desktop header as a three-track grid — logo at the inline start,
+  navigation centred, language switcher and CTAs at the inline end — replacing
+  the previous single right-hand cluster. The two side tracks are each `1fr`, so
+  the navigation holds the true centre of the bar regardless of how wide the CTA
+  labels render in a given locale.
+
+#### Verification
+
+- `npx tsc --noEmit` and `npm run build`: passed, all routes generated.
+
 ## 2026-08-10
 
 ### Deployment handoff documentation

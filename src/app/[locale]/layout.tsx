@@ -9,6 +9,7 @@ import { Header } from "@/components/layout/Header/Header";
 import { SmoothScroll } from "@/components/layout/SmoothScroll/SmoothScroll";
 import { CookieConsent } from "@/components/ui/CookieConsent/CookieConsent";
 import { WelcomePromo } from "@/components/ui/WelcomePromo/WelcomePromo";
+import { LiveChat } from "@/components/ui/LiveChat/LiveChat";
 import "../globals.css";
 
 // Dark brand chrome colour for mobile browser UI / installed PWA.
@@ -83,6 +84,7 @@ export default async function LocaleLayout({
           {children}
           <CookieConsent />
           <WelcomePromo />
+          <LiveChat />
         </NextIntlClientProvider>
       </body>
     </html>

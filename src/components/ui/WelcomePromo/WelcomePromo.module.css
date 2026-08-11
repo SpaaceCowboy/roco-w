@@ -1,8 +1,10 @@
-/* Welcome promo — small fixed bottom-end banner (video left, copy + CTA right). */
+/* Welcome promo — small fixed bottom-start banner (video left, copy + CTA right).
+   Sits on the opposite corner from the tawk.to chat bubble, which is pinned to
+   the inline end (see src/components/ui/LiveChat/LiveChat.tsx). */
 .promo {
   position: fixed;
   inset-block-end: clamp(1rem, 2.5vw, 1.75rem);
-  inset-inline-end: clamp(1rem, 2.5vw, 1.75rem);
+  inset-inline-start: clamp(1rem, 2.5vw, 1.75rem);
   z-index: 190;
   display: flex;
   width: min(100% - 2rem, 25rem);
