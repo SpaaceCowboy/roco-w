@@ -1,136 +1,181 @@
 # Current Deployment State
 
-Last updated: 2026-08-10 (Asia/Tehran)
+Last updated: 2026-08-12 (Asia/Tehran)
 
-This is the handoff point for the RocoBroker Next.js deployment. It records
-what is running, what has deliberately not been changed, and the first checks
-to perform when work resumes.
+The Next.js site is serving over HTTPS at `https://next.rocobroker.com`, proxied
+by the existing Apache. WordPress still serves the production apex. Nothing
+about cPanel, mail, DNS or the WordPress virtual host has been reconfigured.
 
 ## Source state
 
 - Repository: `git@github.com:SpaaceCowboy/roco-w.git`
 - Branch: `main`
-- Deployed compatibility commit: `5b60573a083264a9233559fe5ae6cc569b902980`
-- Commit title: `fix: support AlmaLinux production builds`
-- The compatibility commit is pushed to GitHub and pulled on the VPS.
-- All implementation and deployment-documentation changes are recorded in
-  `changelog.md`.
-- The production build uses Webpack so Next.js can fall back to its SWC WASM
-  compiler on AlmaLinux 8/glibc 2.28.
-- Next.js standalone output is enabled.
-
-## Existing server services left untouched
-
-- VPS: Liquid Web AlmaLinux 8.10 at `69.167.169.231`
-- Hostname: `host1.rocobroker.com`
-- Apache (`httpd`), Exim, and Dovecot remain active.
-- The existing cPanel/WHM installation, email service, DNS, SSL, and WordPress
-  virtual host have not been reconfigured or removed.
-- The existing cPanel Node.js 16 installation under
-  `/opt/cpanel/ea-nodejs16` has not been modified.
-- No public Apache reverse proxy or production-domain cutover has been made.
+- Deployed commit: `dbe74c3`
+- Production builds use Webpack so Next.js can fall back to its SWC WASM
+  compiler on AlmaLinux 8 / glibc 2.28. Standalone output is enabled.
+- All implementation changes are recorded in `changelog.md`.
 
 ## Isolated Next.js runtime
 
-- Service account: `rocoweb`
-- Application checkout: `/opt/rocobroker-next`
-- Dedicated Node.js runtime: `/opt/node-v22.23.2-linux-x64`
-- Stable runtime symlink: `/opt/rocobroker-node`
-- Node.js version: `v22.23.2`
-- User-local PM2 installation: `/home/rocoweb/.local`
-- PM2 home: `/home/rocoweb/.pm2`
-- PM2 version: `7.0.3`
-- PM2 must be invoked with `HOME`, `PM2_HOME`, and `PATH` set explicitly, and
-  from a directory accessible to `rocoweb` (for example `/home/rocoweb`).
-- Git operations in the application checkout must run as `rocoweb`; running
-  them as root triggers Git's dubious-ownership protection.
+- Service account: `rocoweb`; checkout `/opt/rocobroker-next`
+- Node.js `v22.23.2` at `/opt/node-v22.23.2-linux-x64`, stable symlink
+  `/opt/rocobroker-node` — always reference the symlink, never the versioned
+  path, or a Node upgrade breaks boot
+- PM2 `7.0.3`, user-local at `/home/rocoweb/.local`, `PM2_HOME=/home/rocoweb/.pm2`
+- Bound privately to `127.0.0.1:3100`, `NODE_ENV=production`, not on a public
+  interface and not opened in CSF
+- Git operations in the checkout must run as `rocoweb`; as root they trip Git's
+  dubious-ownership protection
 
-## Build and process state
+## Process management — systemd owns PM2
 
-- `npm ci` completed successfully.
-- The production standalone build completed after the AlmaLinux compatibility
-  fix.
-- Static assets were prepared for the standalone bundle under
-  `/opt/rocobroker-next/.next/standalone`.
-- PM2 application name: `rocobroker-next`
-- PM2 process ID at launch: `0`
-- PM2 mode: `fork`, one instance
-- PM2 reported the application as `online` with zero restarts.
-- The application is bound privately to `127.0.0.1:3100` with
-  `NODE_ENV=production`.
-- It is not directly exposed by CSF or bound to a public network interface.
+`/etc/systemd/system/pm2-rocoweb.service` is enabled and owns the PM2 daemon.
 
-## Last observed HTTP response
+- Start and stop the service with `systemctl start|stop|restart pm2-rocoweb`,
+  **not** `pm2 start`. Starting a second daemon by hand splits ownership of
+  `PM2_HOME`, after which systemd cannot adopt it: `pm2 resurrect` finds the
+  daemon already running, exits without forking, never writes
+  `/home/rocoweb/.pm2/pm2.pid`, and the unit fails with `result 'protocol'`.
+  Recovery is `pm2 save`, `pm2 kill`, `systemctl reset-failed pm2-rocoweb`,
+  `systemctl start pm2-rocoweb`.
+- `pm2 restart rocobroker-next` for an app-level restart is fine — it works
+  through the systemd-owned daemon.
+- The unit's `Environment=PATH` must contain `/opt/rocobroker-node/bin`;
+  `ExecStart` runs pm2's JS entry point through a `#!/usr/bin/env node` shebang.
 
-The following command reached the application:
+## Application logs are not in journald
 
-```bash
-curl -I http://127.0.0.1:3100/
+`journalctl -u pm2-rocoweb` shows only PM2's own CLI output. The application's
+stdout and stderr go to PM2's log files. An erroring app looks perfectly healthy
+in journald.
+
+```
+/home/rocoweb/.pm2/logs/rocobroker-next-error.log
+/home/rocoweb/.pm2/logs/rocobroker-next-out.log
 ```
 
-It returned `HTTP/1.1 307 Temporary Redirect`, included the expected security
-headers and locale alternate links, set `NEXT_LOCALE=en`, internally rewrote
-to `/en`, and returned `Location: /`.
+Log rotation is **not yet configured** — see remaining work.
 
-This may be HEAD-only locale canonicalization, but it has not yet been proven
-safe. Do not configure Apache or switch the production domain until a normal
-GET request confirms there is no redirect loop.
+## Configuration and secrets
 
-## First task when resuming
+`/opt/rocobroker-next/.env.production`, mode `600`, owned by `rocoweb`, ignored
+by Git. It is read twice:
 
-Run these read-only checks on the VPS:
+- at **build** time from the project root, which is when `NEXT_PUBLIC_*` values
+  are inlined into the client bundle — a runtime-only value will never reach the
+  browser;
+- at **runtime** from `.next/standalone`, because the standalone server calls
+  `process.chdir(__dirname)`.
 
-```bash
-curl -sS -o /dev/null \
-  -w 'root: %{http_code} redirect=%{redirect_url}\n' \
-  http://127.0.0.1:3100/
+`.next` is regenerated by every build, so the runtime copy is a symlink that
+must be recreated on each deploy. Missing it fails silently: the site looks
+healthy while every contact submission fails.
 
-curl -sS -o /dev/null \
-  -w 'english: %{http_code} redirect=%{redirect_url}\n' \
-  http://127.0.0.1:3100/en
+## Contact form
 
-curl -sS -L --max-redirs 5 -o /dev/null \
-  -w 'followed: %{http_code} final=%{url_effective}\n' \
-  http://127.0.0.1:3100/
+Mail goes to Exim on this host over SMTP to `127.0.0.1:25`, delivering to a
+local mailbox. There is no third-party sender and no API key. The earlier Resend
+integration was removed — the deployment had no account, and adding one would
+have meant merging SPF records on a domain already carrying production mail.
 
-runuser -u rocoweb -- env \
-  HOME="/home/rocoweb" \
-  PM2_HOME="/home/rocoweb/.pm2" \
-  PATH="/home/rocoweb/.local/bin:/opt/rocobroker-node/bin:/usr/bin:/bin" \
-  pm2 logs rocobroker-next --lines 30 --nostream
+Failure codes: `503` the MTA is unreachable, `502` the MTA refused the message,
+`429` the per-IP brake, `403` not a same-origin browser submission.
+
+## Apache reverse proxy
+
+Serving `next.rocobroker.com` only. cPanel regenerates `httpd.conf`, so the
+configuration lives in userdata includes, never in `httpd.conf` directly:
+
+```
+/etc/apache2/conf.d/userdata/std/2_4/rocobrok/next.rocobroker.com/proxy.conf
+/etc/apache2/conf.d/userdata/ssl/2_4/rocobrok/next.rocobroker.com/proxy.conf
 ```
 
-Review these results before proceeding. If normal GET requests work, the next
-stages are:
+Apply changes with `/scripts/ensure_vhost_includes --user=rocobrok`, then
+`apachectl configtest`, and only then `systemctl reload httpd`. The cPanel user
+is `rocobrok` (truncated to 8 characters), not `rocobroker`.
 
-1. Save the PM2 process list and configure boot persistence for the `rocoweb`
-   PM2 home.
-2. Test the site from the operator's computer through an SSH local tunnel.
-3. Plan and verify the Apache reverse-proxy virtual-host change separately.
-4. Only after full verification, perform the intentional domain cutover and
-   later retire the old WordPress site without touching mail services.
+Two directives are load-bearing:
+
+- `ProxyPreserveHost On` — the app derives canonical and hreflang URLs from the
+  `Host` header.
+- `ProxyPass /.well-known !` **before** the catch-all — otherwise ACME challenges
+  are proxied to Next.js and AutoSSL renewals fail.
+
+SELinux is disabled on this host, so `httpd_can_network_connect` does not apply.
+`proxy_module` and `proxy_http_module` are both loaded.
+
+## Deploy procedure
+
+```bash
+systemctl stop pm2-rocoweb
+cd /opt/rocobroker-next
+runuser -u rocoweb -- git pull
+runuser -u rocoweb -- env PATH=/opt/rocobroker-node/bin:/usr/bin:/bin npm ci
+runuser -u rocoweb -- env PATH=/opt/rocobroker-node/bin:/usr/bin:/bin npm run build
+runuser -u rocoweb -- cp -r .next/static .next/standalone/.next/static
+runuser -u rocoweb -- cp -r public .next/standalone/public
+runuser -u rocoweb -- ln -sfn /opt/rocobroker-next/.env.production \
+  /opt/rocobroker-next/.next/standalone/.env.production
+systemctl start pm2-rocoweb
+```
+
+Then verify both, not just the first:
+
+```bash
+curl -sS -L --max-redirs 5 -o /dev/null -w 'root: %{http_code}\n' \
+  http://127.0.0.1:3100/
+
+curl -sS -o /dev/null -w 'contact: %{http_code}\n' \
+  -X POST http://127.0.0.1:3100/api/contact \
+  -H 'Content-Type: application/json' -H 'Sec-Fetch-Site: same-origin' \
+  -d '{"name":"Probe","email":"probe@example.com","subject":"probe","message":"probe","department":"support","locale":"en"}'
+```
+
+A `200` on the contact probe sends a real email. `503` means the env symlink
+step was missed.
+
+## Remaining work
+
+1. **Log rotation.** `pm2 install pm2-logrotate`. PM2 log files grow unbounded
+   on a host that also runs cPanel, Exim and WordPress; filling the disk would
+   take mail and Apache down with it.
+2. **Cookie policy.** tawk.to loads for every visitor before any consent choice
+   and sets its own cookies. The policy text in `messages/*.json` still
+   describes TradingView only. Treat as blocking for public launch.
+3. **Apex cutover.** Three things have to be right together:
+   - The apex vhost's `ServerAlias` carries `mail.`, `webmail.`, `cpanel.`,
+     `autodiscover.` and friends. A blanket `ProxyPass /` there would send
+     webmail and cPanel logins to Next.js. The proxy must be conditioned on
+     `Host` being `rocobroker.com` or `www.rocobroker.com`.
+   - The switch must be atomic: `src/config/legacyRedirects.mjs` assumes the old
+     WordPress URLs stop being served by WordPress at the same moment Next.js
+     starts serving them.
+   - Port 80 on the apex should redirect to HTTPS rather than proxy, keeping
+     `/.well-known` local, so the app is unreachable over plain HTTP.
+4. **Origin lockdown**, after the apex is orange-clouded in Cloudflare. Allow
+   Cloudflare's ranges in CSF and remove `443` from `TCP_IN`; leave `80` open or
+   AutoSSL renewals fail for every domain on the host, including mail. Until
+   this is done, `cf-connecting-ip` is forgeable by anyone reaching the origin
+   directly, so the contact rate limit is a brake on casual abuse, not a
+   boundary. Keep a second SSH session open while applying it.
+5. **Unrelated but outstanding:** `bo.`, `my.` and `webtrading.rocobroker.com`
+   have self-signed origin certificates that expired 2026-05-16. AutoSSL cannot
+   fix them because they resolve to Cloudflare rather than this host. Harmless
+   while Cloudflare SSL mode is Flexible or Full; switching to Full (strict)
+   would break the client portal and webtrader immediately.
 
 ## Safe process controls
 
-Check the application:
-
 ```bash
+systemctl status pm2-rocoweb --no-pager
+
 cd /home/rocoweb
 runuser -u rocoweb -- env \
-  HOME="/home/rocoweb" \
-  PM2_HOME="/home/rocoweb/.pm2" \
-  PATH="/home/rocoweb/.local/bin:/opt/rocobroker-node/bin:/usr/bin:/bin" \
+  HOME=/home/rocoweb PM2_HOME=/home/rocoweb/.pm2 \
+  PATH=/home/rocoweb/.local/bin:/opt/rocobroker-node/bin:/usr/bin:/bin \
   pm2 status
 ```
 
-If the Next.js process must be stopped, this affects only the new private app
-and does not stop Apache, WordPress, cPanel, Exim, or Dovecot:
-
-```bash
-cd /home/rocoweb
-runuser -u rocoweb -- env \
-  HOME="/home/rocoweb" \
-  PM2_HOME="/home/rocoweb/.pm2" \
-  PATH="/home/rocoweb/.local/bin:/opt/rocobroker-node/bin:/usr/bin:/bin" \
-  pm2 stop rocobroker-next
-```
+Stopping the app affects only this private service. Apache, WordPress, cPanel,
+Exim and Dovecot are untouched by it.
