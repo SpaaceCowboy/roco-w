@@ -3,6 +3,69 @@
 This file records changes made during the launch-readiness remediation. New
 work should be added here in the same change that implements it.
 
+## 2026-08-12
+
+### Contact endpoint hardening
+
+#### Fixed
+
+- Rejected non-browser submissions to `POST /api/contact`. The same-origin check
+  previously treated a *missing* `Origin` header as same-origin, so any client
+  that simply omitted the header — `curl`, a script — passed straight through.
+  A request must now present either a matching `Origin` or `Sec-Fetch-Site:
+  same-origin`.
+
+#### Added
+
+- Added a per-IP rate limit of 5 submissions per 10 minutes, returning 429 with
+  a `Retry-After` header. The limiter is in-process and dependency-free, which
+  suits the single standalone server under PM2; the module documents why it must
+  move to Redis before PM2 cluster mode or a second host.
+- Added a distinct rate-limited state to the contact form so the visitor is told
+  to wait rather than being shown the generic delivery failure, with copy in all
+  six locales.
+- Added one structured log line per submission — id, department, locale,
+  provider status, attempt count and latency — for both success and failure. The
+  id is the same value used as the Resend idempotency key and is now returned to
+  the client, so a "nobody answered me" report can be traced end to end. No
+  message bodies, addresses or IPs are logged.
+- Added a single retry on transient provider failures (408, 429, 5xx, network
+  errors and timeouts). The idempotency key is stable across both attempts, so a
+  retry after a timeout cannot deliver the same enquiry twice.
+
+#### Verification
+
+- Against a production build: `curl` with no browser headers → 403; a forged
+  cross-origin header → 403; the sixth submission inside the window → 429 with
+  `Retry-After: 600`.
+
+### Risk disclosure prominence
+
+#### Changed
+
+- Rewrote the footer risk warning in all six locales to state that leverage
+  magnifies losses as well as gains, that the entire deposit can be lost, and
+  that the products are not suitable for every investor — the previous text
+  mentioned volatility and leverage only.
+- Moved the warning into its own bounded block with an accent rule and
+  full-strength text, separating it from the copyright fine print, and linked it
+  to `risk-disclosure.pdf`. Marked up as `role="note"` so assistive technology
+  announces it as an aside.
+
+#### Pending
+
+- The wording and its five translations still need compliance sign-off and a
+  native-speaker review before they are treated as final.
+
+### Header breakpoint
+
+#### Changed
+
+- Lowered the desktop/mobile swap from 1240px to 1140px. The old value existed
+  because the single right-hand cluster needed the room; the centred grid does
+  not, so 1280×800 laptops keep the full navigation. Still to be checked
+  visually in German and Russian, the widest locales.
+
 ## 2026-08-11
 
 ### tawk.to live chat

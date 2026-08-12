@@ -581,10 +581,14 @@
   padding-block-start: 0.5rem;
 }
 
-/* Breakpoint: swap desktop ⇄ mobile. Raised to 1240px so the mobile menu
-   takes over *before* the packed desktop bar (logo + 6 dropdowns + language +
-   2 CTAs) can overflow — the row needs ~1100–1200px depending on locale. */
-@media (max-width: 1240px) {
+/* Breakpoint: swap desktop ⇄ mobile. Was 1240px, when the whole row (logo +
+   6 dropdowns + language + 2 CTAs) was one right-hand cluster sized by its
+   widest locale. The grid split removed the padding that cluster needed, so a
+   1280×800 laptop — which sat just above the old cutoff in German and Russian —
+   now keeps the desktop bar. VERIFY VISUALLY in de/ru before trusting it: they
+   are the widest locales, and the failure mode is a cramped or wrapping row
+   between 1140px and 1240px rather than a clean overflow. */
+@media (max-width: 1140px) {
   .desktop {
     display: none;
   }

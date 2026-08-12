@@ -157,7 +157,24 @@ export function Footer() {
 
         {/* Legal + copyright */}
         <div className={styles.legal}>
-          <p className={styles.risk}>{t("risk")}</p>
+          {/* Risk disclosure. Deliberately the highest-contrast text in the
+              footer and set apart from the copyright fine print — a leveraged
+              product warning that reads as fine print is the thing regulators
+              object to. `role="note"` so screen readers announce it as an
+              aside rather than body copy. */}
+          <div className={styles.riskBlock} role="note" aria-labelledby="footer-risk">
+            <p className={styles.risk} id="footer-risk">
+              {t("risk")}
+            </p>
+            <a
+              className={styles.riskLink}
+              href="/documents/risk-disclosure.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {t("riskLink")}
+            </a>
+          </div>
           <p className={styles.license}>
             {t("license", COMPLIANCE_MESSAGE_VALUES)}{" "}
             <a href={COMPLIANCE.registryUrl} target="_blank" rel="noopener noreferrer">

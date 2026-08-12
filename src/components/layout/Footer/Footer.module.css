@@ -183,13 +183,41 @@
   gap: 0.75rem;
   padding-block-start: clamp(1.5rem, 3vh, 2.25rem);
 }
+/* Risk disclosure — set off from the surrounding legal text by a leading rule
+   and a slightly raised surface, so it reads as a warning rather than filler. */
+.riskBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.875rem 1rem;
+  border-inline-start: 3px solid var(--color-accent);
+  border-radius: 0.375rem;
+  background: color-mix(in srgb, var(--color-fg) 4%, transparent);
+}
+
 .risk {
   margin: 0;
   max-width: 100ch;
   font-family: var(--font-secondary);
   font-size: 0.8125rem;
   line-height: 1.6;
-  color: color-mix(in srgb, var(--color-muted) 85%, transparent);
+  /* Full-strength muted, not faded further — this is the one piece of legal
+     copy that must stay comfortably readable. */
+  color: var(--color-muted);
+}
+
+.riskLink {
+  font-family: var(--font-secondary);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.riskLink:hover {
+  color: var(--color-fg);
 }
 .license {
   margin: 0;
