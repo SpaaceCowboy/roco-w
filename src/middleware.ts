@@ -17,7 +17,32 @@ export default function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  return handleI18nRouting(request);
+  const response = handleI18nRouting(request);
+
+  // next-intl rewrites to an absolute URL built from the server's own origin.
+  // Behind a TLS-terminating proxy that origin is wrong twice over: the scheme
+  // comes from `x-forwarded-proto` (https) while the listener is plain http, and
+  // the host is the bind address rather than the public one. Next.js compares
+  // that origin against its own, decides the target is external, and tries to
+  // *proxy* to it over TLS — which fails the handshake and 500s.
+  //
+  // The header must stay an absolute URL — Next.js throws `Invalid URL` on a
+  // bare path here — so the scheme is corrected back to the one this process is
+  // actually listening on, which makes the target self-recognisable again.
+  const rewrite = response.headers.get("x-middleware-rewrite");
+  if (rewrite && request.headers.get("x-forwarded-proto")) {
+    try {
+      const target = new URL(rewrite);
+      if (target.protocol === "https:") {
+        target.protocol = "http:";
+        response.headers.set("x-middleware-rewrite", target.toString());
+      }
+    } catch {
+      // Not a URL we can normalise; leave it for Next.js to handle.
+    }
+  }
+
+  return response;
 }
 
 export const config = {

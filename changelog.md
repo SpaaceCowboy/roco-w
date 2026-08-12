@@ -5,6 +5,32 @@ work should be added here in the same change that implements it.
 
 ## 2026-08-12
 
+### Locale rewrite behind a TLS-terminating proxy
+
+#### Fixed
+
+- Fixed a 500 on every page served through Apache. next-intl rewrites to an
+  absolute URL built from the server's own origin; behind a proxy that
+  terminates TLS, the scheme came from `x-forwarded-proto` (https) while the
+  process listens on plain http, so Next.js no longer recognised the target as
+  itself, treated the rewrite as external, and tried to proxy to its own port
+  over TLS — failing the handshake with `EPROTO: wrong version number`. The
+  middleware now corrects the scheme back to the one the process is listening
+  on, which makes the target self-recognisable and the rewrite internal again.
+- Dropping `X-Forwarded-Proto` at the proxy would also have avoided this, but
+  every canonical and hreflang URL would then be emitted as `http://`. The
+  header is kept and the rewrite corrected instead, so links stay `https://`.
+- Reducing the rewrite to a bare path — the form Next.js emits in development —
+  is not an option: it throws `Invalid URL` in a production build.
+
+#### Verification
+
+- Against a production standalone build with `Host` and `X-Forwarded-Proto: https`
+  set as Apache sends them: `/` 200, all five prefixed locales 200, `/en` 307 to
+  `/`, `/metatrader-5` 308 to `/platforms/metatrader-5`, root following to 200,
+  direct unproxied access still 200, hreflang links still `https://`, and no
+  errors logged.
+
 ### Client IP behind Cloudflare
 
 #### Fixed
