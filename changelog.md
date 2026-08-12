@@ -5,6 +5,32 @@ work should be added here in the same change that implements it.
 
 ## 2026-08-12
 
+### Client IP behind Cloudflare
+
+#### Fixed
+
+- Took the client IP from `cf-connecting-ip` before falling back to
+  `x-forwarded-for`. The old code took the first entry of `x-forwarded-for` and
+  its comment justified trusting it on the grounds that "our reverse proxy
+  overwrites the header" — but the proxy is Apache `mod_proxy`, which *appends*
+  rather than replaces, so the first entry was whatever the caller sent. Any
+  caller could rotate that value and get a fresh bucket, making the per-IP
+  contact rate limit a no-op the moment the site took public traffic.
+  Cloudflare sets `cf-connecting-ip` on every proxied request and strips any
+  client-supplied value, so it is the trustworthy source for traffic that
+  arrives through Cloudflare.
+- Corrected the comment, which described an nginx deployment this project does
+  not have, and now records that both headers remain forgeable by anyone who
+  reaches the origin directly — so the origin has to stop accepting unproxied
+  traffic before this counts as more than a brake on casual abuse.
+
+#### Verification
+
+- Against a production standalone build: six submissions with distinct
+  `CF-Connecting-IP` values were all admitted; six from the same value returned
+  429 on the sixth; and further requests from that value with a rotating,
+  spoofed `X-Forwarded-For` stayed 429.
+
 ### Contact delivery moved to the local MTA
 
 #### Changed

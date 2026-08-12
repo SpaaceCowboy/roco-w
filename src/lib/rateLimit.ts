@@ -60,11 +60,21 @@ export function rateLimit(key: string, limit: number, windowMs: number): RateLim
 }
 
 /**
- * Client IP from the proxy headers nginx sets. Trusting `x-forwarded-for` is
- * only safe because the app is never exposed directly — it always sits behind
- * our own reverse proxy, which overwrites the header.
+ * Client IP from the proxy chain in front of this app: Cloudflare, then Apache
+ * `mod_proxy` on the same host, then here.
+ *
+ * `cf-connecting-ip` is preferred because Cloudflare sets it on every proxied
+ * request and strips any value the client tries to supply. `x-forwarded-for` is
+ * only a fallback: Apache's `mod_proxy` *appends* to that header rather than
+ * replacing it, so its first entry is whatever the caller sent. Both headers are
+ * forgeable by anyone who reaches the origin directly — which is why the origin
+ * must only accept proxied traffic. Until then this is a brake on casual abuse,
+ * not a boundary, and the module comment above says as much.
  */
 export function clientIp(request: Request): string {
+  const cloudflare = request.headers.get("cf-connecting-ip")?.trim();
+  if (cloudflare) return cloudflare;
+
   const forwarded = request.headers.get("x-forwarded-for");
   if (forwarded) {
     const first = forwarded.split(",")[0]?.trim();
