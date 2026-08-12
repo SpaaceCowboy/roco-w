@@ -5,6 +5,29 @@ work should be added here in the same change that implements it.
 
 ## 2026-08-12
 
+### Locale routing redirect loop
+
+#### Fixed
+
+- Fixed an infinite redirect on the unprefixed default-locale root (`/`) in
+  production builds. Next.js 16 re-invokes the middleware on its own internal
+  rewrites: next-intl rewrote `/` to `/en`, Next fed `/en` back through the
+  middleware, and `localePrefix: "as-needed"` then correctly stripped the
+  default-locale prefix and redirected to `/` — two individually correct steps
+  composing into a cycle. The middleware now passes re-entrant invocations
+  through untouched, identifying them by the `x-next-intl-locale` header
+  next-intl stamps on its rewrite. Only production builds were affected; the
+  development server does not re-invoke, which is why this reached the VPS.
+
+#### Verification
+
+- Against a production standalone build: `/` 200, `/en` 307 to `/` and
+  terminating, all five prefixed locales 200, `fa` rendering `dir="rtl"`,
+  `Accept-Language` and `NEXT_LOCALE` detection reaching `/de`, `/fa` and `/ru`,
+  `Host: rocobroker.com` 200 so the pending Apache reverse proxy will work, and
+  `/metatrader-5` still 308 to `/platforms/metatrader-5`.
+- `npx tsc --noEmit` and `npm run lint`: passed.
+
 ### Contact endpoint hardening
 
 #### Fixed
