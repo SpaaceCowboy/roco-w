@@ -5,6 +5,49 @@ work should be added here in the same change that implements it.
 
 ## 2026-08-12
 
+### Contact delivery moved to the local MTA
+
+#### Changed
+
+- Replaced the Resend HTTP API with SMTP to the mail server already running on
+  this host, which delivers to a local mailbox. The site had no Resend account
+  and getting one would have meant adding DKIM and SPF records to a domain that
+  already carries production mail through Exim — merging into the existing SPF
+  record, since a second `v=spf1` record invalidates both and would break all
+  outbound mail. Handing a message to a third party over the internet so it can
+  deliver back to a mailbox on the same machine was the wrong shape.
+- Narrowed the retry policy. SMTP has no idempotency key, so once the MTA has
+  accepted the DATA there is no way to ask whether an enquiry was already taken.
+  Only failures at the connection stage (`command: "CONN"`) are retried, where
+  nothing was handed over and a duplicate is impossible; envelope and DATA
+  failures are reported after a single attempt rather than risk delivering the
+  same enquiry twice. Every message carries a `Message-ID` derived from the
+  submission id, so a duplicate is identifiable in the mailbox if one occurs.
+- Split the failure codes that were previously both configuration errors: 503
+  now means the MTA is unreachable and the send path is down, 502 means the MTA
+  was reached and refused this message. The form treats both as a generic
+  delivery failure, as before.
+- STARTTLS is disabled deliberately. The connection never leaves the loopback
+  interface, and Exim's certificate is issued for the mail hostname, so a
+  handshake against `127.0.0.1` fails name verification.
+
+#### Added
+
+- Added `nodemailer` — Node has no SMTP client in the standard library, and it
+  is the long-established option.
+- Added optional `SMTP_HOST` and `SMTP_PORT`, both defaulting to the loopback
+  MTA. `RESEND_API_KEY` is no longer used and can be removed from deployments.
+
+#### Verification
+
+- Against a production standalone build, with an SMTP sink standing in for
+  Exim: a valid submission returned 200 with `status=250 attempts=1` and the
+  expected `From`, `To`, `Reply-To` and `Message-ID` headers, and an RFC 2047
+  encoded subject; the MTA being down returned 503 after two connection
+  attempts; the MTA returning returned 200 on the next submission; a bare `curl`
+  still returned 403; and a filled honeypot still returned 200 without sending.
+- `npx tsc --noEmit` and `npm run lint`: passed.
+
 ### Locale routing redirect loop
 
 #### Fixed

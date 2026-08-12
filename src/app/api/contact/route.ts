@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import nodemailer from "nodemailer";
 import { CONTACT } from "@/config/contact";
 import { clientIp, rateLimit } from "@/lib/rateLimit";
 
@@ -8,9 +9,30 @@ export const runtime = "nodejs";
 const RATE_LIMIT = 5;
 const RATE_WINDOW_MS = 10 * 60_000;
 
-/** Transient provider failures worth one more attempt. */
-const RETRY_STATUSES = new Set([408, 429, 500, 502, 503, 504]);
 const RETRY_DELAY_MS = 400;
+
+/**
+ * Mail goes to the MTA on this host (Exim, under cPanel), which delivers to a
+ * local mailbox. No third-party sender, no API credential, and no SPF/DKIM
+ * changes to a domain that already carries production mail.
+ *
+ * STARTTLS is skipped deliberately: the connection never leaves the loopback
+ * interface, and Exim's certificate is issued for the mail hostname, so a TLS
+ * handshake against 127.0.0.1 fails name verification. Encrypting a loopback
+ * socket buys nothing anyway.
+ */
+const SMTP_HOST = process.env.SMTP_HOST ?? "127.0.0.1";
+const SMTP_PORT = Number(process.env.SMTP_PORT ?? 25);
+
+const transport = nodemailer.createTransport({
+  host: SMTP_HOST,
+  port: SMTP_PORT,
+  secure: false,
+  ignoreTLS: true,
+  connectionTimeout: 10_000,
+  greetingTimeout: 10_000,
+  socketTimeout: 15_000,
+});
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const DEPARTMENTS = new Set(["support", "marketing", "hr"]);
@@ -55,50 +77,70 @@ function isSameOrigin(request: Request): boolean {
   return request.headers.get("sec-fetch-site") === "same-origin";
 }
 
+type DeliveryResult = {
+  ok: boolean;
+  /** SMTP reply code, for the log line. Null when we never got a reply. */
+  status: number | null;
+  attempts: number;
+  /** True when the MTA could not be reached at all, as opposed to rejecting us. */
+  unreachable: boolean;
+};
+
+/** Leading reply code of an SMTP response line ("250 OK id=1ab…" -> 250). */
+function replyCode(response: string | undefined): number | null {
+  const match = /^(\d{3})/.exec(response ?? "");
+  return match ? Number(match[1]) : null;
+}
+
 /**
- * Hand the message to Resend, retrying once on a transient failure. The
- * idempotency key is stable across both attempts, so a retry after a timeout
- * cannot deliver the enquiry twice.
+ * Hand the message to the local MTA.
+ *
+ * Retry policy is deliberately narrower than the previous HTTP one. SMTP has no
+ * idempotency key: once Exim has accepted the DATA there is no way to ask "did
+ * you already take this one?", so a blind retry can deliver the same enquiry
+ * twice. Only a failure to *establish the connection* is retried — at that point
+ * nothing was handed over, so a second attempt cannot duplicate. Every other
+ * failure is reported after a single attempt, and the stable Message-ID lets a
+ * duplicate be spotted in the mailbox if one ever does occur.
  */
 async function deliver(
-  payload: unknown,
-  apiKey: string,
+  message: nodemailer.SendMailOptions,
   submissionId: string,
-): Promise<{ ok: boolean; status: number | null; attempts: number }> {
+): Promise<DeliveryResult> {
   let lastStatus: number | null = null;
 
   for (let attempt = 1; attempt <= 2; attempt += 1) {
     try {
-      const response = await fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-          "Content-Type": "application/json",
-          "Idempotency-Key": `contact/${submissionId}`,
-          "User-Agent": "RocoBroker-Website/1.0",
-        },
-        body: JSON.stringify(payload),
-        signal: AbortSignal.timeout(12_000),
-      });
-
-      lastStatus = response.status;
-      if (response.ok) return { ok: true, status: response.status, attempts: attempt };
-      if (!RETRY_STATUSES.has(response.status)) {
-        return { ok: false, status: response.status, attempts: attempt };
-      }
+      const info = await transport.sendMail(message);
+      return {
+        ok: true,
+        status: replyCode(info.response) ?? 250,
+        attempts: attempt,
+        unreachable: false,
+      };
     } catch (error) {
-      // Network error or the 12s timeout — retryable, and never logged with a body.
-      lastStatus = null;
+      const { code, command } = error as { code?: string; command?: string };
+      lastStatus = (error as { responseCode?: number }).responseCode ?? null;
+
+      // Never log the message, the addresses, or the visitor's IP.
       console.error(
-        `[contact] submission=${submissionId} attempt=${attempt} transport error:`,
-        error instanceof Error ? error.message : "unknown",
+        `[contact] submission=${submissionId} attempt=${attempt} smtp error:`,
+        `${code ?? "unknown"}/${command ?? "none"}`,
       );
+
+      // `command: "CONN"` means the failure happened while establishing the
+      // connection — nothing was handed over, so retrying cannot duplicate.
+      // Anything later (envelope or DATA) may or may not have been accepted, so
+      // it is reported after one attempt rather than risking a second delivery.
+      if (command !== "CONN") {
+        return { ok: false, status: lastStatus, attempts: attempt, unreachable: false };
+      }
     }
 
     if (attempt === 1) await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY_MS));
   }
 
-  return { ok: false, status: lastStatus, attempts: 2 };
+  return { ok: false, status: lastStatus, attempts: 2, unreachable: true };
 }
 
 export async function POST(request: Request) {
@@ -149,12 +191,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false }, { status: 400 });
   }
 
-  const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) {
-    console.error("Contact delivery is not configured: RESEND_API_KEY is missing.");
-    return NextResponse.json({ ok: false }, { status: 503 });
-  }
-
   const submissionId =
     typeof body.submissionId === "string" && /^[a-zA-Z0-9-]{8,64}$/.test(body.submissionId)
       ? body.submissionId
@@ -172,29 +208,37 @@ export async function POST(request: Request) {
     message,
   ].join("\n");
 
+  const from = process.env.CONTACT_EMAIL_FROM ?? "ROCO Website <website@rocobroker.com>";
   const startedAt = Date.now();
   const result = await deliver(
     {
-      from: process.env.CONTACT_EMAIL_FROM ?? "ROCO Website <website@rocobroker.com>",
-      to: [process.env.CONTACT_EMAIL_TO ?? CONTACT.email],
-      reply_to: email,
+      from,
+      to: process.env.CONTACT_EMAIL_TO ?? CONTACT.email,
+      replyTo: email,
       subject: `[Website contact · ${departmentLabel}] ${subject}`,
       text: emailText,
+      // Derived from the submission id, so the same enquiry always carries the
+      // same Message-ID and a duplicate is identifiable in the mailbox.
+      messageId: `<contact.${submissionId}@rocobroker.com>`,
     },
-    apiKey,
     submissionId,
   );
 
   // One line per submission, success or failure, carrying the same id the
-  // visitor's confirmation shows and the Resend idempotency key uses — so a
-  // "I never got a reply" report can be traced end to end. Never the message.
+  // visitor's confirmation shows and the Message-ID embeds — so a "I never got
+  // a reply" report can be traced end to end. Never the message.
   const summary =
     `[contact] submission=${submissionId} department=${department} locale=${locale} ` +
     `status=${result.status ?? "none"} attempts=${result.attempts} ms=${Date.now() - startedAt}`;
 
   if (!result.ok) {
     console.error(`${summary} outcome=failed`);
-    return NextResponse.json({ ok: false, submissionId }, { status: 502 });
+    // Unreachable MTA is an infrastructure fault, not a rejected message: 503
+    // says "the send path is down", 502 says "the MTA refused this one".
+    return NextResponse.json(
+      { ok: false, submissionId },
+      { status: result.unreachable ? 503 : 502 },
+    );
   }
 
   console.info(`${summary} outcome=delivered`);
