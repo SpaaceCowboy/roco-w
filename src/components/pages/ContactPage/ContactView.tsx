@@ -33,7 +33,7 @@ function PhoneIcon(p: SVGProps<SVGSVGElement>) {
  * without exposing provider credentials to the browser.
  */
 type FieldName = "name" | "email" | "subject" | "department" | "message";
-type FormStatus = "idle" | "submitting" | "success" | "error";
+type FormStatus = "idle" | "submitting" | "success" | "error" | "rateLimited";
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export function ContactView() {
@@ -60,7 +60,7 @@ export function ContactView() {
   );
   const set = (name: FieldName, v: string) => {
     setValues((s) => ({ ...s, [name]: v }));
-    if (status === "success" || status === "error") setStatus("idle");
+    if (status === "success" || status === "error" || status === "rateLimited") setStatus("idle");
   };
   const blur = (name: FieldName) => setTouched((s) => ({ ...s, [name]: true }));
 
@@ -100,6 +100,12 @@ export function ContactView() {
           website,
         }),
       });
+      // 429 is the per-IP submission brake, not a delivery failure — tell the
+      // visitor to wait rather than sending them to the fallback channels.
+      if (response.status === 429) {
+        setStatus("rateLimited");
+        return;
+      }
       if (!response.ok) throw new Error(`Contact request failed with ${response.status}`);
 
       setValues({ name: "", email: "", subject: "", department: "", message: "" });
@@ -254,6 +260,9 @@ export function ContactView() {
               <div className={styles.status} aria-live="polite" aria-atomic="true">
                 {status === "success" && (
                   <p className={styles.statusSuccess} role="status">{t("success")}</p>
+                )}
+                {status === "rateLimited" && (
+                  <p className={styles.statusError} role="alert">{t("tooMany")}</p>
                 )}
                 {status === "error" && (
                   <p className={styles.statusError} role="alert">{t("sendError")}</p>

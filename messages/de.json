@@ -456,6 +456,7 @@
     "sending": "Wird gesendet…",
     "success": "Ihre Nachricht wurde gesendet. Unser Team meldet sich in Kürze bei Ihnen.",
     "sendError": "Ihre Nachricht konnte nicht gesendet werden. Versuchen Sie es erneut oder nutzen Sie einen der hier aufgeführten Kontaktwege.",
+    "tooMany": "Sie haben bereits mehrere Nachrichten gesendet. Bitte warten Sie einige Minuten, bevor Sie es erneut versuchen, oder kontaktieren Sie uns über einen der hier aufgeführten Kanäle.",
     "restriction": "ROCO bietet keine Dienste für Einwohner der USA oder Nordkoreas an.",
     "errRequired": "Dieses Feld ist erforderlich",
     "errEmail": "Geben Sie eine gültige E-Mail-Adresse ein"
