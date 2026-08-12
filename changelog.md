@@ -5,6 +5,18 @@ work should be added here in the same change that implements it.
 
 ## 2026-08-12
 
+### Live chat script tag
+
+#### Fixed
+
+- Dropped the `crossorigin="*"` attribute from the tawk.to script tag. `*` is
+  not a valid value for that attribute, and an invalid keyword falls back to
+  `anonymous`, which turned a plain third-party script load into a CORS request.
+  It worked only because tawk.to sends `access-control-allow-origin: *`; the day
+  they tighten that header the widget would have failed with a symptom pointing
+  nowhere near the cause. A script tag needs no CORS here, and the existing load
+  and error listeners fire either way.
+
 ### Locale rewrite behind a TLS-terminating proxy
 
 #### Fixed

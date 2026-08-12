@@ -86,7 +86,12 @@ export function LiveChat() {
     script.async = true;
     script.src = `https://embed.tawk.to/${TAWK_PROPERTY_ID}/${widgetId}`;
     script.charset = "UTF-8";
-    script.setAttribute("crossorigin", "*");
+    // No `crossorigin` attribute: `*` is not a valid value for it, and an
+    // invalid keyword falls back to `anonymous`, which turns this into a CORS
+    // request. That only works while tawk.to keeps sending
+    // `access-control-allow-origin: *` — the day they tighten it the widget
+    // breaks for a reason that looks nothing like the cause. A plain script tag
+    // needs no CORS, and the load/error listeners below fire either way.
     script.dataset.widgetId = widgetId;
     script.addEventListener("load", () => {
       window.clearTimeout(timer);
