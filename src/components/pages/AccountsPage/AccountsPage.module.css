@@ -295,6 +295,13 @@
   background: color-mix(in srgb, var(--color-accent) 13%, transparent);
 }
 
+/* Mobile gets a purpose-built single-account view instead of a compressed
+   desktop comparison matrix. Hidden by default and enabled at the breakpoint
+   where the matrix would otherwise need horizontal scrolling. */
+.mobileComparison {
+  display: none;
+}
+
 /* ---- Per-account detail: media panel (image + floating glass boxes) + text.
    The Nano variant mirrors the Standard one. ---- */
 .details {
@@ -507,6 +514,169 @@
   }
   .detailMedia {
     min-height: clamp(18rem, 60vw, 24rem);
+  }
+}
+@media (max-width: 720px) {
+  .matrixWrap {
+    display: none;
+  }
+
+  .mobileComparison {
+    display: block;
+  }
+
+  .mobileAccountPicker {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.4rem;
+    margin-block-end: 0.65rem;
+    padding: 0.35rem;
+    border: 1px solid var(--glass-border);
+    border-radius: 0.75rem;
+    background: color-mix(in srgb, var(--color-surface) 72%, transparent);
+  }
+
+  .mobileAccountOption {
+    min-width: 0;
+    min-height: 3rem;
+    padding: 0.6rem 0.35rem;
+    border: 1px solid transparent;
+    border-radius: 0.55rem;
+    background: transparent;
+    color: var(--color-muted);
+    font-family: var(--font-brand);
+    font-size: clamp(0.66rem, 3vw, 0.78rem);
+    font-weight: 650;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+    cursor: pointer;
+    transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+  }
+
+  .mobileAccountOptionActive {
+    border-color: var(--color-accent);
+    background: var(--color-accent);
+    color: var(--color-on-accent);
+  }
+
+  .mobileAccountOption:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  .mobileAccountCard {
+    overflow: hidden;
+    border: 1px solid var(--glass-border);
+    border-radius: 1rem;
+    background: color-mix(in srgb, var(--color-surface) 58%, var(--color-bg));
+    box-shadow: 0 24px 60px -44px rgba(0, 0, 0, 0.8);
+  }
+
+  .mobileAccountHead {
+    display: grid;
+    gap: 0.9rem;
+    padding: 1.25rem;
+    background:
+      radial-gradient(90% 130% at 100% 0%, color-mix(in srgb, var(--color-accent) 11%, transparent), transparent 68%),
+      var(--color-bg);
+  }
+
+  [data-family="cheetah"] .mobileAccountHead {
+    background:
+      radial-gradient(90% 130% at 100% 0%, color-mix(in srgb, #7ee0ff 13%, transparent), transparent 68%),
+      var(--color-bg);
+  }
+
+  .mobileAccountHeading {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .mobileAccountCount {
+    flex: none;
+    font-family: var(--font-mono, var(--font-secondary));
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    color: var(--color-accent);
+    direction: ltr;
+    unicode-bidi: isolate;
+  }
+
+  [data-family="cheetah"] .mobileAccountCount {
+    color: #7ee0ff;
+  }
+
+  .mobileAccountName {
+    margin: 0;
+    font-size: clamp(1.45rem, 7vw, 2rem);
+    line-height: 1;
+    text-align: end;
+    color: var(--color-fg);
+  }
+
+  .mobileAccountTag {
+    margin: 0;
+    padding: 0.75rem 0.85rem;
+    border: 1px solid var(--glass-border);
+    border-radius: 0.6rem;
+    background: color-mix(in srgb, var(--color-surface) 62%, transparent);
+    font-family: var(--font-secondary);
+    font-size: 0.82rem;
+    line-height: 1.5;
+    color: var(--color-muted);
+  }
+
+  .mobileAccountTagCents {
+    border-color: color-mix(in srgb, var(--color-accent) 48%, var(--glass-border));
+    color: var(--color-accent);
+  }
+
+  .mobileAccountCta {
+    width: 100%;
+    min-height: 2.75rem;
+  }
+
+  .mobileAccountRows {
+    margin: 0;
+  }
+
+  .mobileAccountRow {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(7.5rem, auto);
+    align-items: center;
+    gap: 1rem;
+    min-height: 3.35rem;
+    padding: 0.8rem 1.1rem;
+    border-block-start: 1px solid color-mix(in srgb, var(--color-border) 58%, transparent);
+  }
+
+  .mobileAccountRow:nth-child(even) {
+    background: color-mix(in srgb, var(--color-surface) 42%, transparent);
+  }
+
+  .mobileAccountRow dt,
+  .mobileAccountRow dd {
+    margin: 0;
+  }
+
+  .mobileAccountRow dt {
+    font-family: var(--font-secondary);
+    font-size: 0.82rem;
+    line-height: 1.35;
+    color: var(--color-muted);
+  }
+
+  .mobileAccountRow dd {
+    font-family: var(--font-mono, var(--font-secondary));
+    font-size: 0.88rem;
+    font-weight: 650;
+    line-height: 1.35;
+    text-align: end;
+    color: var(--color-fg);
+    unicode-bidi: plaintext;
   }
 }
 @media (max-width: 560px) {

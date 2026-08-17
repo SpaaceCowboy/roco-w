@@ -174,6 +174,7 @@ function Family({
 }) {
   const t = useTranslations("accountsPage");
   const [hover, setHover] = useState<number | null>(null);
+  const [activeVariant, setActiveVariant] = useState(0);
 
   const v = (x: string) => (VALUE_TOKENS.has(x) ? t(`values.${x}`) : x);
   const cellValue = (va: Variant, row: string): string => {
@@ -243,6 +244,49 @@ function Family({
               </Fragment>
             );
           })}
+        </div>
+      </div>
+
+      {/* Mobile comparison: one account at a time. The desktop matrix is useful
+          when all columns fit, but forcing that grid into a phone viewport makes
+          both the row labels and the neighbouring accounts hard to follow. */}
+      <div className={styles.mobileComparison} data-family={family} data-rise>
+        <div className={styles.mobileAccountPicker} role="group" aria-label={title}>
+          {variants.map((va, i) => (
+            <button
+              key={va.name}
+              type="button"
+              className={`${styles.mobileAccountOption} ${activeVariant === i ? styles.mobileAccountOptionActive : ""}`}
+              aria-pressed={activeVariant === i}
+              onClick={() => setActiveVariant(i)}
+            >
+              {va.name}
+            </button>
+          ))}
+        </div>
+
+        <div className={styles.mobileAccountCard}>
+          <div className={styles.mobileAccountHead}>
+            <div className={styles.mobileAccountHeading}>
+              <span className={styles.mobileAccountCount}>
+                {String(activeVariant + 1).padStart(2, "0")} / {String(variants.length).padStart(2, "0")}
+              </span>
+              <h3 className={styles.mobileAccountName}>{variants[activeVariant].name}</h3>
+            </div>
+            <p className={`${styles.mobileAccountTag} ${variants[activeVariant].cents ? styles.mobileAccountTagCents : ""}`}>
+              {variants[activeVariant].cents ? t("centsNote") : t(`${family}.tag`)}
+            </p>
+            <Button label={t("cta")} href={REGISTER} external size="md" className={styles.mobileAccountCta} />
+          </div>
+
+          <dl className={styles.mobileAccountRows}>
+            {ROW_KEYS.map((row) => (
+              <div key={row} className={styles.mobileAccountRow}>
+                <dt>{t(`labels.${row}`)}</dt>
+                <dd>{cellValue(variants[activeVariant], row)}</dd>
+              </div>
+            ))}
+          </dl>
         </div>
       </div>
 
