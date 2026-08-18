@@ -1,112 +1,106 @@
 "use client";
 
 import { useEffect } from "react";
-import { useLocale } from "next-intl";
-import { isRtl, type Locale } from "@/i18n/routing";
-import { TAWK_PROPERTY_ID, widgetIdForLocale } from "@/config/chat";
 
 /*
- * tawk.to live chat, mounted once in the locale layout so the widget survives
- * client-side navigation.
+ * Temporary LiveChat.com test. The component stays mounted in the locale layout
+ * so the widget survives client-side navigation.
  *
- * CONSENT: this loads on every page for every visitor, before any cookie-consent
- * choice is made — tawk.to sets its own visitor cookies (__tawkuuid and friends)
- * at that point. That is a deliberate product decision, but it is the one place
- * on the site where a third party runs ungated, so it needs a line in the cookie
- * policy and a look at the next privacy review. Gating it later means moving the
- * injection behind a category in `@/lib/consent`.
- *
- * The embed is injected by hand rather than via next/script because the
- * `Tawk_API` globals must exist before the remote script executes, and
- * next/script gives no ordering guarantee between an inline config block and a
- * src script in the same strategy bucket.
+ * CONSENT: like the previous tawk.to integration, this loads before a visitor
+ * makes a cookie-consent choice. Revisit that decision before making this
+ * provider permanent.
  */
 
-type TawkApi = {
-  customStyle?: unknown;
-  switchWidget?: (ids: { propertyId: string; widgetId: string }, cb?: () => void) => void;
+type LiveChatWidgetApi = {
+  _q: unknown[][];
+  _h: ((...args: unknown[]) => unknown) | null;
+  _v: string;
+  on: (...args: unknown[]) => unknown;
+  once: (...args: unknown[]) => unknown;
+  off: (...args: unknown[]) => unknown;
+  get: (...args: unknown[]) => unknown;
+  call: (...args: unknown[]) => unknown;
+  init: () => void;
 };
 
 declare global {
   interface Window {
-    Tawk_API?: TawkApi;
-    Tawk_LoadStart?: Date;
+    __lc?: {
+      license?: number;
+      integration_name?: string;
+      product_name?: string;
+      asyncInit?: boolean;
+    };
+    LiveChatWidget?: LiveChatWidgetApi;
   }
 }
 
-const SCRIPT_ID = "tawk-embed";
-const LOAD_TIMEOUT_MS = 15_000;
+const LICENSE_ID = 19903719;
+const SCRIPT_ID = "livechat-tracking";
 
 export function LiveChat() {
-  const locale = useLocale() as Locale;
-  const rtl = isRtl(locale);
-  const widgetId = widgetIdForLocale(locale);
-
   useEffect(() => {
-    if (!TAWK_PROPERTY_ID) {
-      // Loud in dev, silent in prod: a missing chat widget must never break a page.
-      if (process.env.NODE_ENV !== "production") {
-        console.error(
-          "[LiveChat] NEXT_PUBLIC_TAWK_PROPERTY_ID is unset — live chat is disabled.",
-        );
-      }
+    window.__lc = window.__lc ?? {};
+    window.__lc.license = LICENSE_ID;
+    window.__lc.integration_name = "manual_onboarding";
+    window.__lc.product_name = "livechat";
+
+    if (window.LiveChatWidget || document.getElementById(SCRIPT_ID)) {
       return;
     }
 
-    const api: TawkApi = (window.Tawk_API = window.Tawk_API ?? {});
-    const existing = document.getElementById(SCRIPT_ID) as HTMLScriptElement | null;
-
-    // Already injected: only act if this locale maps to a different widget.
-    if (existing) {
-      if (existing.dataset.widgetId !== widgetId && typeof api.switchWidget === "function") {
-        api.switchWidget({ propertyId: TAWK_PROPERTY_ID, widgetId });
-        existing.dataset.widgetId = widgetId;
+    const queue: unknown[][] = [];
+    const enqueue = (command: unknown[]) => {
+      if (widget._h) {
+        return widget._h(...command);
       }
-      return;
-    }
+      return queue.push(command);
+    };
 
-    // Must be assigned before the embed runs — tawk.to reads it once at startup.
-    // Mirrors to the leading corner in Arabic/Persian.
-    const visibility = { position: rtl ? "bl" : "br", xOffset: 24, yOffset: 24 };
-    api.customStyle = {
-      visibility: {
-        desktop: visibility,
-        mobile: { ...visibility, xOffset: 12, yOffset: 12 },
+    const widget: LiveChatWidgetApi = {
+      _q: queue,
+      _h: null,
+      _v: "2.0",
+      on: (...args) => enqueue(["on", args]),
+      once: (...args) => enqueue(["once", args]),
+      off: (...args) => enqueue(["off", args]),
+      get: (...args) => {
+        if (!widget._h) {
+          throw new Error("[LiveChatWidget] You can't use getters before load.");
+        }
+        return enqueue(["get", args]);
+      },
+      call: (...args) => enqueue(["call", args]),
+      init: () => {
+        const script = document.createElement("script");
+        script.id = SCRIPT_ID;
+        script.async = true;
+        script.type = "text/javascript";
+        script.src = "https://cdn.livechatinc.com/tracking.js";
+        document.head.appendChild(script);
       },
     };
-    window.Tawk_LoadStart = new Date();
 
-    const startedAt = Date.now();
-    const timer = window.setTimeout(() => {
-      console.warn(`[LiveChat] tawk.to embed still not loaded after ${LOAD_TIMEOUT_MS}ms`);
-    }, LOAD_TIMEOUT_MS);
+    window.LiveChatWidget = widget;
 
-    const script = document.createElement("script");
-    script.id = SCRIPT_ID;
-    script.async = true;
-    script.src = `https://embed.tawk.to/${TAWK_PROPERTY_ID}/${widgetId}`;
-    script.charset = "UTF-8";
-    // No `crossorigin` attribute: `*` is not a valid value for it, and an
-    // invalid keyword falls back to `anonymous`, which turns this into a CORS
-    // request. That only works while tawk.to keeps sending
-    // `access-control-allow-origin: *` — the day they tighten it the widget
-    // breaks for a reason that looks nothing like the cause. A plain script tag
-    // needs no CORS, and the load/error listeners below fire either way.
-    script.dataset.widgetId = widgetId;
-    script.addEventListener("load", () => {
-      window.clearTimeout(timer);
-      if (process.env.NODE_ENV !== "production") {
-        console.debug(`[LiveChat] tawk.to embed loaded in ${Date.now() - startedAt}ms`);
-      }
-    });
-    script.addEventListener("error", () => {
-      window.clearTimeout(timer);
-      console.warn("[LiveChat] tawk.to embed failed to load");
-    });
+    if (!window.__lc.asyncInit) {
+      widget.init();
+    }
+  }, []);
 
-    document.body.appendChild(script);
-    return () => window.clearTimeout(timer);
-  }, [rtl, widgetId]);
-
-  return null;
+  return (
+    <noscript>
+      <a href={`https://www.livechat.com/chat-with/${LICENSE_ID}/`} rel="nofollow">
+        Chat with us
+      </a>
+      {", powered by "}
+      <a
+        href="https://www.livechat.com/?welcome"
+        rel="noopener nofollow"
+        target="_blank"
+      >
+        LiveChat
+      </a>
+    </noscript>
+  );
 }

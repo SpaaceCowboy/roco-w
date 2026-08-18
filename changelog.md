@@ -3,6 +3,22 @@
 This file records changes made during the launch-readiness remediation. New
 work should be added here in the same change that implements it.
 
+## 2026-08-18
+
+### Temporary LiveChat.com trial
+
+#### Changed
+
+- Replaced the tawk.to loader with the LiveChat.com tracking snippet for license
+  `19903719` as a temporary production trial. The existing layout mount remains
+  unchanged, and the official no-JavaScript fallback is included.
+- Kept the dormant tawk.to environment configuration intact so the trial can be
+  rolled back without reconstructing the previous provider settings.
+
+#### Verification
+
+- TypeScript, ESLint, and the full Webpack production build pass.
+
 ## 2026-08-12
 
 ### Live chat script tag
