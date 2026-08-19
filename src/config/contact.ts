@@ -8,7 +8,7 @@ export const CONTACT = {
   whatsapp: {
     e164: "+447723179486",
     display: "+44 7723 179486",
-    url: "https://api.whatsapp.com/send/?phone=%2B447723179486&text&type=phone_number&app_absent=0",
+    url: "https://wa.me/+447723179486",
   },
   telegram: {
     handle: "@RocoBrokersupport",

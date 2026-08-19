@@ -10,13 +10,13 @@ const EMAIL = "support@rocobroker.com";
 
 /** Legal documents → their organized PDF paths. `id` doubles as the deep-link hash. */
 const DOCS = [
-  { id: "client-agreement", key: "clientAgreement", file: "/documents/client-agreement.pdf" },
-  { id: "risk-disclosure", key: "riskDisclosure", file: "/documents/risk-disclosure.pdf" },
-  { id: "aml-compliance", key: "aml", file: "/documents/aml-compliance.pdf" },
-  { id: "privacy-policy", key: "privacy", file: "/documents/privacy-policy.pdf" },
-  { id: "social-trade-follower", key: "socialFollower", file: "/documents/social-trade-follower.pdf" },
-  { id: "social-trade-provider", key: "socialProvider", file: "/documents/social-trade-provider.pdf" },
-  { id: "pamm-agreement", key: "pamm", file: "/documents/pamm-agreement.pdf" },
+  { id: "client-agreement", key: "clientAgreement", file: "/documents/Client-agreement-vol7.pdf" },
+  { id: "risk-disclosure", key: "riskDisclosure", file: "/documents/Risk-Disclosure-statement-vol2.pdf" },
+  { id: "aml-compliance", key: "aml", file: "/documents/AML_Compliance_Document-vol2-1.pdf" },
+  { id: "privacy-policy", key: "privacy", file: "/documents/privecy-policy-vol2.pdf" },
+  { id: "social-trade-follower", key: "socialFollower", file: "/documents/Social-trade-follower-agreement.pdf" },
+  { id: "social-trade-provider", key: "socialProvider", file: "/documents/social-trade-provider-agreement.pdf" },
+  { id: "pamm-agreement", key: "pamm", file: "/documents/PAMM-investor-Manager-agreement-1.pdf" },
 ] as const;
 
 function OpenIcon() {

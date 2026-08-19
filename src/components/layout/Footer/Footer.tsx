@@ -8,11 +8,11 @@ import { CONTACT } from "@/config/contact";
 import styles from "./Footer.module.css";
 
 const MT5 = {
-  ios: "https://apps.apple.com/app/metatrader-5/id413251709",
-  android: "https://play.google.com/store/apps/details?id=net.metaquotes.metatrader5",
-  windows: "https://www.metatrader5.com/en/download",
-  mac: "https://www.metatrader5.com/en/download/mac",
-  web: "https://www.metatrader5.com/en/terminal/web",
+  ios: "https://download.terminal.free/cdn/mobile/mt5/ios?server=RocoBroker-Ltd",
+  android: "https://download.terminal.free/cdn/mobile/mt5/android?server=RocoBroker-Ltd",
+  windows: "https://download.terminal.free/cdn/web/roco.broker.ltd/mt5/rocobroker5setup.exe",
+  mac: "https://download.mql5.com/cdn/web/metaquotes.software.corp/mt5/MetaTrader5.pkg.zip",
+  web: "https://webtrading.rocobroker.com/terminal?utm_source=www.rocobroker.com&mode=demo&lang=en&theme-mode=0&theme=greenRed",
 };
 
 /**
@@ -111,7 +111,7 @@ export function Footer() {
             <div className={styles.qrRow}>
               <figure className={styles.qr}>
                 <Image
-                  src="/shared/qr-whatsapp.webp"
+                  src="/shared/whatsapp-image.jpeg"
                   alt={`${t("whatsapp")} QR code`}
                   width={110}
                   height={110}
@@ -121,7 +121,7 @@ export function Footer() {
               </figure>
               <figure className={styles.qr}>
                 <Image
-                  src="/shared/qr-telegram.webp"
+                  src="/shared/telegram-image.jpeg"
                   alt={`${t("telegram")} QR code`}
                   width={110}
                   height={110}
