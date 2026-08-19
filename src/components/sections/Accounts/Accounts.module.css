@@ -215,6 +215,40 @@
   transform: scaleX(1);
 }
 
+/* Keep the flagship account prominent even without hover on touch devices. */
+.featured {
+  transform: translateY(-6px);
+  border-color: color-mix(in srgb, var(--color-accent) 68%, var(--glass-border));
+  background:
+    linear-gradient(145deg, color-mix(in srgb, var(--color-accent) 10%, transparent), transparent 46%),
+    var(--glass-bg-strong);
+  box-shadow:
+    0 28px 70px -30px rgba(0, 0, 0, 0.82),
+    0 0 52px -18px color-mix(in srgb, var(--color-accent) 58%, transparent);
+}
+.featured::before {
+  transform: scaleX(1);
+}
+.featured:hover {
+  transform: translateY(-10px);
+}
+
+.popularBadge {
+  align-self: flex-start;
+  margin-block-end: 1rem;
+  padding: 0.4rem 0.7rem;
+  border: 1px solid color-mix(in srgb, var(--color-accent) 62%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-accent) 14%, transparent);
+  font-family: var(--font-mono, var(--font-secondary));
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+
 .cardName {
   margin: 0 0 1.5rem;
   font-size: clamp(1.2rem, 1.7vw, 1.5rem);

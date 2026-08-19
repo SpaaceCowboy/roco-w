@@ -103,11 +103,14 @@ export function Accounts() {
           {ACCOUNTS.map((key) => (
             <a
               key={key}
-              className={styles.card}
+              className={`${styles.card} ${key === "cheetah" ? styles.featured : ""}`}
               href={CTA_JOIN.href}
               target="_blank"
               rel="noopener noreferrer"
             >
+              {key === "cheetah" && (
+                <span className={styles.popularBadge}>{t("mostPopular")}</span>
+              )}
               <h3 className={styles.cardName}>{t(`${key}.name`)}</h3>
 
               <ul className={styles.specs}>

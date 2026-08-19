@@ -110,6 +110,7 @@
     "labelSpread": "Spread",
     "labelCommission": "Kommission",
     "cta": "Jetzt beitreten",
+    "mostPopular": "Am beliebtesten",
     "lion": {
       "name": "Lion Account",
       "deposit": "Kein Limit",
@@ -508,7 +509,7 @@
     "items": {
       "openAccount": {
         "q": "Wie eröffne ich ein Konto?",
-        "a": "Besuchen Sie rocobroker.com und füllen Sie das Anmeldeformular aus. Nach der Registrierung wird Ihr Konto sofort aktiviert."
+        "a": "Besuchen Sie rocobroker.com und füllen Sie das Anmeldeformular aus. Nach der Kontoeröffnung müssen Sie außerdem die KYC-Identitätsprüfung abschließen."
       },
       "minDeposit": {
         "q": "Wie hoch ist die Mindesteinzahlung?",

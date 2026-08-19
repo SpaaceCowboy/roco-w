@@ -110,6 +110,7 @@
     "labelSpread": "点差",
     "labelCommission": "佣金",
     "cta": "立即加入",
+    "mostPopular": "最受欢迎",
     "lion": {
       "name": "Lion Account",
       "deposit": "无限制",
@@ -508,7 +509,7 @@
     "items": {
       "openAccount": {
         "q": "如何开户？",
-        "a": "访问 rocobroker.com 并填写注册表。注册后账户会立即激活。"
+        "a": "访问 rocobroker.com 并填写注册表。创建账户后，您还必须完成 KYC 身份验证流程。"
       },
       "minDeposit": {
         "q": "最低入金金额是多少？",

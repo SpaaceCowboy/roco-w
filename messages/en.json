@@ -110,6 +110,7 @@
     "labelSpread": "Spread",
     "labelCommission": "Commission",
     "cta": "Join us",
+    "mostPopular": "Most popular",
     "lion": {
       "name": "Lion Account",
       "deposit": "No Limit",
@@ -508,7 +509,7 @@
     "items": {
       "openAccount": {
         "q": "How can I open an account?",
-        "a": "Visit rocobroker.com and complete the registration form. Once registered, your account is activated immediately."
+        "a": "Visit rocobroker.com and complete the registration form. After creating your account, you must also complete the KYC identity verification process."
       },
       "minDeposit": {
         "q": "What is the minimum deposit amount?",

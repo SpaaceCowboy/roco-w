@@ -298,7 +298,7 @@ export function PromotionsView() {
         </div>
       </div>
 
-      {/* Loyalty bonus — mirrored (points left, yellow head right) */}
+      {/* Loyalty bonus — mirrored (points left, brand-accent head right) */}
       <div className={styles.motiv}>
         <div className={styles.inner}>
           <div className={`${styles.list} ${styles.listMirror}`}>

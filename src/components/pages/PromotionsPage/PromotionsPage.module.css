@@ -293,7 +293,7 @@
   color: var(--color-fg);
 }
 
-/* ---- Motivational bonus — yellow head card + dark points list ---- */
+/* ---- Motivational bonus — accent head card + dark points list ---- */
 .motiv {
   position: relative;
   z-index: 1;
@@ -306,11 +306,11 @@
   gap: clamp(2rem, 5vw, 5rem);
   align-items: stretch;
 }
-/* Mirror — points on the left, yellow head on the right. */
+/* Mirror — points on the left, accent head on the right. */
 .listMirror {
   grid-template-columns: 1fr minmax(15rem, 24rem);
 }
-/* The yellow rectangle holding the title + subtext (black text) — fills height. */
+/* Accent rectangle holding the title + subtext — fills height. */
 .listHead {
   display: flex;
   flex-direction: column;
@@ -319,9 +319,9 @@
   background: var(--color-accent);
   color: #0f1416;
 }
-/* Secondary variant (loyalty) — brand cyan instead of lime. */
+/* Loyalty uses the same palette-controlled brand accent. */
 .listHeadAlt {
-  background: #7ee0ff;
+  background: var(--color-accent);
 }
 .listTitle {
   margin: 0;
@@ -334,7 +334,7 @@
   color: #0f1416;
 }
 .listSub {
-  /* pushed to the bottom of the yellow box */
+  /* pushed to the bottom of the accent box */
   margin: auto 0 0;
   padding-block-start: clamp(2rem, 5vw, 4rem);
   max-width: 24ch;
