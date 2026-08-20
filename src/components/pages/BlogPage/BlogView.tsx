@@ -131,7 +131,7 @@ export function BlogView({ posts, categories, tags, locale, hasNativeContent, ui
           <article className={styles.featuredCard}>
             <Link href={`/blog/${featured.slug}`} className={styles.featuredVisual}>
               <span className={styles.srOnly}>{featured.title}</span>
-              <BlogVisual seed={featured.sourceId} label={featured.category.name} />
+              <BlogVisual seed={featured.sourceId} label={featured.category.name} src={featured.featuredImage} alt="" />
             </Link>
             <div className={styles.featuredCopy}>
               <PostMeta post={featured} formatter={dateFormatter} minuteRead={ui.minuteRead} />
@@ -181,7 +181,7 @@ export function BlogView({ posts, categories, tags, locale, hasNativeContent, ui
               <article key={`${post.locale}-${post.slug}`} className={styles.card}>
                 <Link href={`/blog/${post.slug}`} className={styles.cardVisual}>
                   <span className={styles.srOnly}>{post.title}</span>
-                  <BlogVisual seed={post.sourceId} label={post.category.name} />
+                  <BlogVisual seed={post.sourceId} label={post.category.name} src={post.featuredImage} alt="" />
                 </Link>
                 <div className={styles.cardCopy}>
                   <PostMeta post={post} formatter={dateFormatter} minuteRead={ui.minuteRead} />

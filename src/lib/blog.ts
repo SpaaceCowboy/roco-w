@@ -16,6 +16,10 @@ export type BlogPost = {
   updatedAt: string;
   author: string;
   readingMinutes: number;
+  featuredImage: string;
+  featuredImageAlt: string;
+  featuredImageWidth: number;
+  featuredImageHeight: number;
   contentHtml: string;
   tableOfContents: BlogTocItem[];
 };
@@ -51,6 +55,10 @@ export function getBlogPostSummaries(locale: string): BlogPostSummary[] {
     updatedAt: post.updatedAt,
     author: post.author,
     readingMinutes: post.readingMinutes,
+    featuredImage: post.featuredImage,
+    featuredImageAlt: post.featuredImageAlt,
+    featuredImageWidth: post.featuredImageWidth,
+    featuredImageHeight: post.featuredImageHeight,
   }));
 }
 

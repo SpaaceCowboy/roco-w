@@ -69,6 +69,14 @@
 .left {
   min-width: 0;
 }
+
+/* The studio image keeps the phone on the physical right. In RTL locales,
+   start-aligned copy would also sit on the right and overlap it, so place the
+   right-aligned text column in the empty physical-left half of the image. */
+:global(html[dir="rtl"]) .left {
+  width: min(52%, 48rem);
+  margin-inline-start: auto;
+}
 .title {
   margin: 0;
   font-weight: 700;
@@ -212,6 +220,10 @@
     order: 1;
     position: relative;
     z-index: 1;
+  }
+  :global(html[dir="rtl"]) .left {
+    width: 100%;
+    margin-inline-start: 0;
   }
   .bg {
     order: 2;

@@ -3,6 +3,7 @@ import { dirname, resolve } from "node:path";
 
 const API = "https://rocobroker.com/wp-json/wp/v2";
 const OUTPUT = resolve("src/content/blog/posts.json");
+const IMAGE_DIR = resolve("public/blog/images");
 const SOURCE_LOCALES = ["en", "fa"];
 const ALLOWED_TAGS = new Set([
   "p",
@@ -34,6 +35,19 @@ async function get(path, params = {}) {
   const response = await fetch(url, { signal: AbortSignal.timeout(90_000) });
   if (!response.ok) throw new Error(`${response.status} ${response.statusText}: ${url}`);
   return response.json();
+}
+
+function imageExtension(mimeType = "", sourceUrl = "") {
+  if (mimeType === "image/png") return "png";
+  if (mimeType === "image/jpeg") return "jpg";
+  if (mimeType === "image/webp") return "webp";
+  return new URL(sourceUrl).pathname.split(".").pop()?.toLowerCase() || "webp";
+}
+
+async function downloadFeaturedImage(sourceUrl, destination) {
+  const response = await fetch(sourceUrl, { signal: AbortSignal.timeout(90_000) });
+  if (!response.ok) throw new Error(`${response.status} ${response.statusText}: ${sourceUrl}`);
+  await writeFile(destination, Buffer.from(await response.arrayBuffer()));
 }
 
 function decodeEntities(value = "") {
@@ -156,7 +170,8 @@ async function loadLocale(locale) {
   const [posts, categories, tags] = await Promise.all([
     get("posts", {
       ...common,
-      _fields: "id,slug,date,modified,title,excerpt,content,categories,tags",
+      _embed: "wp:featuredmedia",
+      _fields: "id,slug,date,modified,title,excerpt,content,categories,tags,featured_media,_links,_embedded",
     }),
     get("categories", { ...common, _fields: "id,slug,name" }),
     get("tags", { ...common, _fields: "id,slug,name" }),
@@ -164,12 +179,20 @@ async function loadLocale(locale) {
   const categoryById = new Map(categories.map((item) => [item.id, item]));
   const tagById = new Map(tags.map((item) => [item.id, item]));
 
-  return posts.map((post) => {
+  await mkdir(IMAGE_DIR, { recursive: true });
+
+  return Promise.all(posts.map(async (post) => {
     const contentHtml = sanitizeHtml(post.content?.rendered);
     const category = categoryById.get(post.categories?.[0]);
     const sourceCategory = category
       ? { slug: category.slug, name: decodeEntities(category.name) }
       : { slug: "insights", name: locale === "fa" ? "وبلاگ" : "Insights" };
+    const media = post._embedded?.["wp:featuredmedia"]?.[0];
+    if (!media?.source_url) throw new Error(`Post ${post.id} has no featured image`);
+    const extension = imageExtension(media.mime_type, media.source_url);
+    const imageName = `${post.id}.${extension}`;
+    await downloadFeaturedImage(media.source_url, resolve(IMAGE_DIR, imageName));
+
     return {
       sourceId: post.id,
       locale,
@@ -185,10 +208,14 @@ async function loadLocale(locale) {
       updatedAt: post.modified,
       author: "ROCO Editorial",
       readingMinutes: readingMinutes(contentHtml),
+      featuredImage: `/blog/images/${imageName}`,
+      featuredImageAlt: plainText(media.alt_text) || plainText(post.title?.rendered),
+      featuredImageWidth: media.media_details?.width ?? 1200,
+      featuredImageHeight: media.media_details?.height ?? 675,
       contentHtml,
       tableOfContents: tableOfContents(contentHtml),
     };
-  });
+  }));
 }
 
 const migrated = (await Promise.all(SOURCE_LOCALES.map(loadLocale))).flat();
@@ -197,7 +224,7 @@ migrated.sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
 await mkdir(dirname(OUTPUT), { recursive: true });
 await writeFile(
   OUTPUT,
-  `${JSON.stringify({ schemaVersion: 1, posts: migrated }, null, 2)}\n`,
+  `${JSON.stringify({ schemaVersion: 2, posts: migrated }, null, 2)}\n`,
   "utf8",
 );
 

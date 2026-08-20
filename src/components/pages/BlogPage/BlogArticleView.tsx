@@ -47,7 +47,15 @@ export function BlogArticleView({ post, related, recent, locale, ui }: { post: B
       </header>
 
       <div className={styles.visualWrap}>
-        <BlogVisual seed={post.sourceId} label={post.category.name} />
+        <BlogVisual
+          seed={post.sourceId}
+          label={post.category.name}
+          src={post.featuredImage}
+          alt={post.featuredImageAlt}
+          width={post.featuredImageWidth}
+          height={post.featuredImageHeight}
+          articleHero
+        />
       </div>
 
       <div className={styles.contentShell}>
@@ -87,7 +95,7 @@ export function BlogArticleView({ post, related, recent, locale, ui }: { post: B
             <div className={styles.relatedGrid}>
               {related.map((item) => (
                 <article key={item.slug}>
-                  <Link href={`/blog/${item.slug}`} className={styles.relatedVisual}><span className={styles.srOnly}>{item.title}</span><BlogVisual seed={item.sourceId} label={item.category.name} /></Link>
+                  <Link href={`/blog/${item.slug}`} className={styles.relatedVisual}><span className={styles.srOnly}>{item.title}</span><BlogVisual seed={item.sourceId} label={item.category.name} src={item.featuredImage} alt="" /></Link>
                   <div><span>{item.category.name}</span><h2><Link href={`/blog/${item.slug}`}>{item.title}</Link></h2><Link className={styles.readLink} href={`/blog/${item.slug}`}>{ui.readArticle} ↗</Link></div>
                 </article>
               ))}

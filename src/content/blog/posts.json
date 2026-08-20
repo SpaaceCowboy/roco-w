@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "posts": [
     {
       "sourceId": 12774,
@@ -103,7 +103,11 @@
           "id": "سوالات-متداول",
           "label": "سوالات متداول"
         }
-      ]
+      ],
+      "featuredImage": "/blog/images/12774.webp",
+      "featuredImageAlt": "تعطیلی بازار فارکس",
+      "featuredImageWidth": 1000,
+      "featuredImageHeight": 688
     },
     {
       "sourceId": 12735,
@@ -237,7 +241,11 @@
           "id": "سوالات-متداول",
           "label": "سوالات متداول"
         }
-      ]
+      ],
+      "featuredImage": "/blog/images/12735.webp",
+      "featuredImageAlt": "تفاوت فارکس و کریپتو",
+      "featuredImageWidth": 1000,
+      "featuredImageHeight": 688
     },
     {
       "sourceId": 12573,
@@ -336,7 +344,11 @@
           "id": "سوالات-متداول",
           "label": "سوالات متداول"
         }
-      ]
+      ],
+      "featuredImage": "/blog/images/12573.webp",
+      "featuredImageAlt": "حساب دمو فارکس",
+      "featuredImageWidth": 900,
+      "featuredImageHeight": 619
     },
     {
       "sourceId": 12534,
@@ -465,7 +477,11 @@
           "id": "سوالات-متداول",
           "label": "سوالات متداول"
         }
-      ]
+      ],
+      "featuredImage": "/blog/images/12534.webp",
+      "featuredImageAlt": "لوریج در فارکس",
+      "featuredImageWidth": 900,
+      "featuredImageHeight": 619
     },
     {
       "sourceId": 12501,
@@ -569,7 +585,11 @@
           "id": "سوالات-متداول",
           "label": "سوالات متداول"
         }
-      ]
+      ],
+      "featuredImage": "/blog/images/12501.webp",
+      "featuredImageAlt": "جفت ارزهای اصلی فارکس",
+      "featuredImageWidth": 1000,
+      "featuredImageHeight": 688
     },
     {
       "sourceId": 7345,
@@ -698,7 +718,11 @@
           "id": "سوالات-متداول",
           "label": "سوالات متداول"
         }
-      ]
+      ],
+      "featuredImage": "/blog/images/7345.webp",
+      "featuredImageAlt": "بروکر ارز دیجیتال چیست",
+      "featuredImageWidth": 1000,
+      "featuredImageHeight": 688
     },
     {
       "sourceId": 8659,
@@ -812,7 +836,11 @@
           "id": "سوالات-متداول",
           "label": "سوالات متداول"
         }
-      ]
+      ],
+      "featuredImage": "/blog/images/8659.webp",
+      "featuredImageAlt": "بهترین بروکر برای اسکالپ",
+      "featuredImageWidth": 900,
+      "featuredImageHeight": 619
     },
     {
       "sourceId": 8212,
@@ -971,7 +999,11 @@
           "id": "سوالات-متداول",
           "label": "سوالات متداول"
         }
-      ]
+      ],
+      "featuredImage": "/blog/images/8212.webp",
+      "featuredImageAlt": "بهترین بروکر برای حساب دمو",
+      "featuredImageWidth": 1000,
+      "featuredImageHeight": 688
     },
     {
       "sourceId": 12303,
@@ -1080,7 +1112,11 @@
           "id": "سوالات-متداول",
           "label": "سوالات متداول"
         }
-      ]
+      ],
+      "featuredImage": "/blog/images/12303.webp",
+      "featuredImageAlt": "نماد نزدک در فارکس",
+      "featuredImageWidth": 800,
+      "featuredImageHeight": 550
     },
     {
       "sourceId": 12236,
@@ -1179,7 +1215,11 @@
           "id": "سوالات-متداول",
           "label": "سوالات متداول"
         }
-      ]
+      ],
+      "featuredImage": "/blog/images/12236.webp",
+      "featuredImageAlt": "پیپ در فارکس",
+      "featuredImageWidth": 1000,
+      "featuredImageHeight": 688
     },
     {
       "sourceId": 12202,
@@ -1268,7 +1308,11 @@
           "id": "جمع-بندی",
           "label": "جمع‌بندی"
         }
-      ]
+      ],
+      "featuredImage": "/blog/images/12202.webp",
+      "featuredImageAlt": "نماد نقره در فارکس",
+      "featuredImageWidth": 900,
+      "featuredImageHeight": 619
     },
     {
       "sourceId": 12164,
@@ -1402,7 +1446,11 @@
           "id": "جمع-بندی",
           "label": "جمع‌بندی"
         }
-      ]
+      ],
+      "featuredImage": "/blog/images/12164-hd.webp",
+      "featuredImageAlt": "بروکر با حداقل واریز",
+      "featuredImageWidth": 1600,
+      "featuredImageHeight": 1100
     },
     {
       "sourceId": 12065,
@@ -1581,7 +1629,11 @@
           "id": "سوالات-متداول-درباره-وایت-لیبل-بروکر",
           "label": "سوالات متداول درباره وایت لیبل بروکر"
         }
-      ]
+      ],
+      "featuredImage": "/blog/images/12065-hd.webp",
+      "featuredImageAlt": "وایت لیبل بروکر",
+      "featuredImageWidth": 1600,
+      "featuredImageHeight": 1000
     },
     {
       "sourceId": 12033,
@@ -1710,7 +1762,11 @@
           "id": "سوالات-متداول-درباره-استاپ-اوت-در-بروکر",
           "label": "سوالات متداول درباره استاپ اوت در بروکر"
         }
-      ]
+      ],
+      "featuredImage": "/blog/images/12033-hd.webp",
+      "featuredImageAlt": "استاپ اوت در بروکر چیست",
+      "featuredImageWidth": 1600,
+      "featuredImageHeight": 1000
     },
     {
       "sourceId": 12001,
@@ -1804,7 +1860,11 @@
           "id": "سوالات-متداول-در-انتخاب-بهترین-بروکر-طلای-آبشده",
           "label": "سوالات متداول در انتخاب بهترین بروکر طلای آبشده"
         }
-      ]
+      ],
+      "featuredImage": "/blog/images/12001-hd.webp",
+      "featuredImageAlt": "بهترین بروکر طلای آبشده",
+      "featuredImageWidth": 1600,
+      "featuredImageHeight": 1000
     },
     {
       "sourceId": 11958,
@@ -1898,7 +1958,11 @@
           "id": "سوالات-متداول-درباره-بروکرها-و-معاملات-نفت-و-گاز",
           "label": "سوالات متداول درباره بروکرها و معاملات نفت و گاز"
         }
-      ]
+      ],
+      "featuredImage": "/blog/images/11958-hd.webp",
+      "featuredImageAlt": "بروکر نفت و گاز چیست",
+      "featuredImageWidth": 1600,
+      "featuredImageHeight": 1000
     },
     {
       "sourceId": 11924,
@@ -2012,7 +2076,11 @@
           "id": "سوالات-متداول-درباره-بروکرهای-بدون-احراز-هویت",
           "label": "سوالات متداول درباره بروکرهای بدون احراز هویت"
         }
-      ]
+      ],
+      "featuredImage": "/blog/images/11924-hd.webp",
+      "featuredImageAlt": "بروکر بدون احراز هویت",
+      "featuredImageWidth": 1600,
+      "featuredImageHeight": 1000
     },
     {
       "sourceId": 11874,
@@ -2116,7 +2184,11 @@
           "id": "سوالات-متداول-اتصال-بروکر-به-تریدینگ-ویو",
           "label": "سوالات متداول اتصال بروکر به تریدینگ ویو"
         }
-      ]
+      ],
+      "featuredImage": "/blog/images/11874-hd.webp",
+      "featuredImageAlt": "اتصال بروکر به تریدینگ ویو",
+      "featuredImageWidth": 1600,
+      "featuredImageHeight": 1000
     },
     {
       "sourceId": 11802,
@@ -2220,7 +2292,11 @@
           "id": "سوالات-متداول-درباره-بهترین-بروکر-فارکس-در-کانادا",
           "label": "سوالات متداول درباره بهترین بروکر فارکس در کانادا"
         }
-      ]
+      ],
+      "featuredImage": "/blog/images/11802-hd.webp",
+      "featuredImageAlt": "بهترین بروکر فارکس در کانادا",
+      "featuredImageWidth": 1600,
+      "featuredImageHeight": 1000
     },
     {
       "sourceId": 11680,
@@ -2319,7 +2395,11 @@
           "id": "سوالات-متداول-درباره-بهترین-بروکر-فارکس-در-ترکیه",
           "label": "سوالات متداول درباره بهترین بروکر فارکس در ترکیه"
         }
-      ]
+      ],
+      "featuredImage": "/blog/images/11680-hd.webp",
+      "featuredImageAlt": "بهترین بروکر فارکس در ترکیه",
+      "featuredImageWidth": 1600,
+      "featuredImageHeight": 1000
     },
     {
       "sourceId": 6506,
@@ -2638,7 +2718,11 @@
           "id": "سوالات-متداول-در-انتخاب-بروکر-معتبر-فارکس",
           "label": "سوالات متداول در انتخاب بروکر معتبر فارکس"
         }
-      ]
+      ],
+      "featuredImage": "/blog/images/6506.webp",
+      "featuredImageAlt": "انتخاب بروکر معتبر",
+      "featuredImageWidth": 1000,
+      "featuredImageHeight": 667
     },
     {
       "sourceId": 11547,
@@ -2777,7 +2861,11 @@
           "id": "سوالات-متداول-درباره-ساعات-معاملات-طلا-در-فارکس",
           "label": "سوالات متداول درباره ساعات معاملات طلا در فارکس"
         }
-      ]
+      ],
+      "featuredImage": "/blog/images/11547-hd.webp",
+      "featuredImageAlt": "ساعت باز شدن بازار طلا در فارکس",
+      "featuredImageWidth": 1600,
+      "featuredImageHeight": 1000
     },
     {
       "sourceId": 11491,
@@ -2881,7 +2969,11 @@
           "id": "سوالات-متداول-پیرامون-اسپرد-و-هزینه-های-معاملاتی",
           "label": "سوالات متداول پیرامون اسپرد و هزینه‌های معاملاتی"
         }
-      ]
+      ],
+      "featuredImage": "/blog/images/11491-hd.webp",
+      "featuredImageAlt": "اسپرد چیست",
+      "featuredImageWidth": 1600,
+      "featuredImageHeight": 1000
     },
     {
       "sourceId": 10851,
@@ -3025,7 +3117,11 @@
           "id": "نتیجه-گیری",
           "label": "نتیجه‌گیری"
         }
-      ]
+      ],
+      "featuredImage": "/blog/images/10851.webp",
+      "featuredImageAlt": "نماد نفت در فارکس",
+      "featuredImageWidth": 900,
+      "featuredImageHeight": 506
     },
     {
       "sourceId": 11384,
@@ -3154,7 +3250,11 @@
           "id": "سوالات-متداول-در-مورد-نماد-طلا-در-فارکس",
           "label": "سوالات متداول در مورد نماد طلا در فارکس"
         }
-      ]
+      ],
+      "featuredImage": "/blog/images/11384-hd.webp",
+      "featuredImageAlt": "نماد طلا در فارکس",
+      "featuredImageWidth": 1600,
+      "featuredImageHeight": 1000
     },
     {
       "sourceId": 10728,
@@ -3298,7 +3398,11 @@
           "id": "سوالات-متداول-درباره-سشن-های-فارکس",
           "label": "سوالات متداول درباره سشن‌های فارکس"
         }
-      ]
+      ],
+      "featuredImage": "/blog/images/10728.webp",
+      "featuredImageAlt": "سشن های فارکس",
+      "featuredImageWidth": 900,
+      "featuredImageHeight": 600
     },
     {
       "sourceId": 10672,
@@ -3432,7 +3536,11 @@
           "id": "نتیجه-گیری",
           "label": "نتیجه‌گیری"
         }
-      ]
+      ],
+      "featuredImage": "/blog/images/10672.webp",
+      "featuredImageAlt": "نماد داوجونز در فارکس",
+      "featuredImageWidth": 1216,
+      "featuredImageHeight": 832
     },
     {
       "sourceId": 10408,
@@ -3636,7 +3744,11 @@
           "id": "نکات-پایانی-و-توصیه-های-مهم-قبل-از-انتخاب-بروکر",
           "label": "نکات پایانی و توصیه‌های مهم قبل از انتخاب بروکر"
         }
-      ]
+      ],
+      "featuredImage": "/blog/images/10408.webp",
+      "featuredImageAlt": "بهترین بروکر های جهان",
+      "featuredImageWidth": 900,
+      "featuredImageHeight": 616
     },
     {
       "sourceId": 10306,
@@ -3730,7 +3842,11 @@
           "id": "چطور-از-ساعات-کاری-فارکس-سود-ببریم",
           "label": "چطور از ساعات کاری فارکس سود ببریم؟"
         }
-      ]
+      ],
+      "featuredImage": "/blog/images/10306.webp",
+      "featuredImageAlt": "ساعت باز شدن بازار فارکس",
+      "featuredImageWidth": 900,
+      "featuredImageHeight": 450
     },
     {
       "sourceId": 10071,
@@ -3804,7 +3920,11 @@
           "id": "چگونه-بهترین-انتخاب-را-داشته-باشیم",
           "label": "چگونه بهترین انتخاب را داشته باشیم؟"
         }
-      ]
+      ],
+      "featuredImage": "/blog/images/10071.webp",
+      "featuredImageAlt": "پایین ترین اسپرد بروکر",
+      "featuredImageWidth": 800,
+      "featuredImageHeight": 400
     },
     {
       "sourceId": 10144,
@@ -3878,7 +3998,11 @@
           "id": "چگونه-انتخاب-کنیم-سنتی-یا-نانو",
           "label": "چگونه انتخاب کنیم: سنتی یا نانو؟"
         }
-      ]
+      ],
+      "featuredImage": "/blog/images/10144.webp",
+      "featuredImageAlt": "کدام بروکر حساب سنتی دارد",
+      "featuredImageWidth": 1000,
+      "featuredImageHeight": 500
     },
     {
       "sourceId": 10108,
@@ -3947,7 +4071,11 @@
           "id": "جمع-بندی-بهترین-بروکر-برای-حساب-دمو-چه-بروکری-است",
           "label": "جمع‌بندی؛ بهترین بروکر برای حساب دمو چه بروکری است؟"
         }
-      ]
+      ],
+      "featuredImage": "/blog/images/10108.webp",
+      "featuredImageAlt": "بهترین بروکر برای حساب دمو",
+      "featuredImageWidth": 1000,
+      "featuredImageHeight": 500
     },
     {
       "sourceId": 9026,
@@ -4071,7 +4199,11 @@
           "id": "جمع-بندی-و-توصیه-نهایی-برای-انتخاب-بهترین-بروکر-باینری",
           "label": "جمع‌بندی و توصیه نهایی برای انتخاب بهترین بروکر باینری"
         }
-      ]
+      ],
+      "featuredImage": "/blog/images/9026.webp",
+      "featuredImageAlt": "بروکر باینری آپشن",
+      "featuredImageWidth": 800,
+      "featuredImageHeight": 533
     },
     {
       "sourceId": 9000,
@@ -4150,7 +4282,11 @@
           "id": "جمع-بندی",
           "label": "جمع‌بندی"
         }
-      ]
+      ],
+      "featuredImage": "/blog/images/9000.webp",
+      "featuredImageAlt": "فرق بروکر با صرافی",
+      "featuredImageWidth": 800,
+      "featuredImageHeight": 533
     },
     {
       "sourceId": 8970,
@@ -4234,7 +4370,11 @@
           "id": "جدول-مقایسه-بهترین-بروکر-های-جهان-برای-ایرانیان",
           "label": "جدول مقایسه بهترین بروکر های جهان برای ایرانیان"
         }
-      ]
+      ],
+      "featuredImage": "/blog/images/8970.webp",
+      "featuredImageAlt": "بهترین بروکر های جهان",
+      "featuredImageWidth": 800,
+      "featuredImageHeight": 533
     },
     {
       "sourceId": 8933,
@@ -4593,7 +4733,11 @@
           "id": "ویژگی-های-مهم-یک-پلتفرم-خوب",
           "label": "ویژگی‌های مهم یک پلتفرم خوب"
         }
-      ]
+      ],
+      "featuredImage": "/blog/images/8933.webp",
+      "featuredImageAlt": "بروکر چیست",
+      "featuredImageWidth": 800,
+      "featuredImageHeight": 533
     },
     {
       "sourceId": 8909,
@@ -4697,7 +4841,11 @@
           "id": "جمع-بندی",
           "label": "جمع‌بندی"
         }
-      ]
+      ],
+      "featuredImage": "/blog/images/8909.webp",
+      "featuredImageAlt": "بروکرهای جدید در ایران",
+      "featuredImageWidth": 800,
+      "featuredImageHeight": 533
     },
     {
       "sourceId": 8879,
@@ -4746,7 +4894,11 @@
           "id": "جمع-بندی",
           "label": "جمع‌بندی"
         }
-      ]
+      ],
+      "featuredImage": "/blog/images/8879.webp",
+      "featuredImageAlt": "بروکرهای تحریم نشده برای ایرانی‌ها",
+      "featuredImageWidth": 800,
+      "featuredImageHeight": 534
     },
     {
       "sourceId": 8854,
@@ -4845,7 +4997,11 @@
           "id": "جمع-بندی",
           "label": "جمع‌بندی"
         }
-      ]
+      ],
+      "featuredImage": "/blog/images/8854.jpg",
+      "featuredImageAlt": "مقایسه بروکرها در سال ۲۰۲۵",
+      "featuredImageWidth": 800,
+      "featuredImageHeight": 533
     },
     {
       "sourceId": 8820,
@@ -4954,7 +5110,11 @@
           "id": "جمع-بندی-کدام-گزینه-واقعا-بهترین-است",
           "label": "جمع‌بندی: کدام گزینه واقعاً بهترین است؟"
         }
-      ]
+      ],
+      "featuredImage": "/blog/images/8820.webp",
+      "featuredImageAlt": "بهترین بروکر برای ترید در زمان خبر",
+      "featuredImageWidth": 800,
+      "featuredImageHeight": 533
     },
     {
       "sourceId": 8789,
@@ -5068,7 +5228,11 @@
           "id": "نتیجه-گیری",
           "label": "نتیجه‌گیری"
         }
-      ]
+      ],
+      "featuredImage": "/blog/images/8789.webp",
+      "featuredImageAlt": "بهترین بروکر برای NFP",
+      "featuredImageWidth": 800,
+      "featuredImageHeight": 533
     },
     {
       "sourceId": 8767,
@@ -5147,7 +5311,11 @@
           "id": "جمع-بندی",
           "label": "جمع‌بندی"
         }
-      ]
+      ],
+      "featuredImage": "/blog/images/8767.webp",
+      "featuredImageAlt": "بروکر بدون کمیسیون",
+      "featuredImageWidth": 800,
+      "featuredImageHeight": 533
     },
     {
       "sourceId": 8744,
@@ -5266,7 +5434,11 @@
           "id": "کدام-بروکر-در-مجموع-بهترین-انتخاب-برای-معاملات-طلا-و-نفت-است",
           "label": "کدام بروکر در مجموع بهترین انتخاب برای معاملات طلا و نفت است؟"
         }
-      ]
+      ],
+      "featuredImage": "/blog/images/8744.webp",
+      "featuredImageAlt": "بروکر برای معاملات طلا و نفت",
+      "featuredImageWidth": 800,
+      "featuredImageHeight": 532
     },
     {
       "sourceId": 8719,
@@ -5370,7 +5542,11 @@
           "id": "پیشنهاد-نهایی",
           "label": "پیشنهاد نهایی"
         }
-      ]
+      ],
+      "featuredImage": "/blog/images/8719.webp",
+      "featuredImageAlt": "بروکر برای افراد تازه‌کار",
+      "featuredImageWidth": 800,
+      "featuredImageHeight": 534
     },
     {
       "sourceId": 8633,
@@ -5544,7 +5720,11 @@
           "id": "کلام-آخر",
           "label": "کلام آخر"
         }
-      ]
+      ],
+      "featuredImage": "/blog/images/8633.webp",
+      "featuredImageAlt": "تقلب بروکرها",
+      "featuredImageWidth": 800,
+      "featuredImageHeight": 534
     },
     {
       "sourceId": 8532,
@@ -5688,7 +5868,11 @@
           "id": "نتیجه-گیری-آیا-بروکرهای-فارکس-قانونی-هستند-یا-نه",
           "label": "نتیجه‌گیری: آیا بروکرهای فارکس قانونی هستند یا نه؟"
         }
-      ]
+      ],
+      "featuredImage": "/blog/images/8532.webp",
+      "featuredImageAlt": "درآمد بروکر از کجاست",
+      "featuredImageWidth": 800,
+      "featuredImageHeight": 533
     },
     {
       "sourceId": 8483,
@@ -5797,7 +5981,11 @@
           "id": "نتیجه-گیری-آیا-بروکرهای-فارکس-قانونی-هستند-یا-نه",
           "label": "نتیجه‌گیری: آیا بروکرهای فارکس قانونی هستند یا نه؟"
         }
-      ]
+      ],
+      "featuredImage": "/blog/images/8483.webp",
+      "featuredImageAlt": "بروکرهای فارکس",
+      "featuredImageWidth": 800,
+      "featuredImageHeight": 531
     },
     {
       "sourceId": 8242,
@@ -5921,7 +6109,11 @@
           "id": "جمع-بندی-کدام-بروکر-برای-کپی-تریدینگ-بهتر-است",
           "label": "جمع‌بندی: کدام بروکر برای کپی تریدینگ بهتر است؟"
         }
-      ]
+      ],
+      "featuredImage": "/blog/images/8242.webp",
+      "featuredImageAlt": "بروکر مناسب برای کپی تریدینگ",
+      "featuredImageWidth": 800,
+      "featuredImageHeight": 533
     },
     {
       "sourceId": 7710,
@@ -6030,7 +6222,11 @@
           "id": "جمع-بندی-کلی-کدام-بروکرها-اسپرد-شناور-دارند",
           "label": "جمع‌بندی کلی: کدام بروکرها اسپرد شناور دارند"
         }
-      ]
+      ],
+      "featuredImage": "/blog/images/7710.webp",
+      "featuredImageAlt": "کدام بروکرها اسپرد شناور دارند",
+      "featuredImageWidth": 800,
+      "featuredImageHeight": 533
     },
     {
       "sourceId": 7565,
@@ -6179,7 +6375,11 @@
           "id": "نتیجه-گیری-کلی",
           "label": "نتیجه‌گیری کلی"
         }
-      ]
+      ],
+      "featuredImage": "/blog/images/7565.webp",
+      "featuredImageAlt": "تفاوت بروکر مارکت میکر و ECN",
+      "featuredImageWidth": 1000,
+      "featuredImageHeight": 667
     },
     {
       "sourceId": 7313,
@@ -6343,7 +6543,11 @@
           "id": "سوالات-متداول-درباره-بروکر-مناسب-برای-ترید-نفت",
           "label": "سوالات متداول درباره بروکر مناسب برای ترید نفت"
         }
-      ]
+      ],
+      "featuredImage": "/blog/images/7313.webp",
+      "featuredImageAlt": "بروکر مناسب برای ترید نفت",
+      "featuredImageWidth": 1000,
+      "featuredImageHeight": 667
     },
     {
       "sourceId": 6994,
@@ -6482,7 +6686,11 @@
           "id": "جمع-بندی",
           "label": "جمع‌بندی"
         }
-      ]
+      ],
+      "featuredImage": "/blog/images/6994.webp",
+      "featuredImageAlt": "بروکر مناسب برای ترید طلا",
+      "featuredImageWidth": 667,
+      "featuredImageHeight": 444
     },
     {
       "sourceId": 6941,
@@ -6596,7 +6804,11 @@
           "id": "سوالات-متداول-درباره-بهترین-بروکر-برای-معامله-جفت-ارزها",
           "label": "سوالات متداول درباره بهترین بروکر برای معامله جفت ارزها"
         }
-      ]
+      ],
+      "featuredImage": "/blog/images/6941.webp",
+      "featuredImageAlt": "بهترین بروکر برای معامله جفت ارزها",
+      "featuredImageWidth": 667,
+      "featuredImageHeight": 444
     },
     {
       "sourceId": 6876,
@@ -6785,7 +6997,11 @@
           "id": "سوالات-متداول-درباره-بروکرهای-رگوله",
           "label": "سوالات متداول درباره بروکرهای رگوله"
         }
-      ]
+      ],
+      "featuredImage": "/blog/images/6876.webp",
+      "featuredImageAlt": "بروکر رگوله چیست",
+      "featuredImageWidth": 1000,
+      "featuredImageHeight": 667
     },
     {
       "sourceId": 6841,
@@ -6919,7 +7135,11 @@
           "id": "سوالات-متداول-درباره-بروکرهای-متاتریدر",
           "label": "سوالات متداول درباره بروکرهای متاتریدر"
         }
-      ]
+      ],
+      "featuredImage": "/blog/images/6841.webp",
+      "featuredImageAlt": "MT4vsMT5",
+      "featuredImageWidth": 1000,
+      "featuredImageHeight": 667
     },
     {
       "sourceId": 6804,
@@ -7028,7 +7248,11 @@
           "id": "سوالات-متداول-درباره-مقایسه-بروکرهای-فارکس-برای-معامله-طلا",
           "label": "سوالات متداول درباره مقایسه بروکرهای فارکس برای معامله طلا"
         }
-      ]
+      ],
+      "featuredImage": "/blog/images/6804.webp",
+      "featuredImageAlt": "مقایسه بروکرهای فارکس برای معامله طلا",
+      "featuredImageWidth": 1000,
+      "featuredImageHeight": 667
     },
     {
       "sourceId": 6652,
@@ -7187,7 +7411,11 @@
           "id": "سوالات-متداول-درباره-ثبت-نام-در-بروکر-خارجی",
           "label": "سوالات متداول درباره ثبت نام در بروکر خارجی"
         }
-      ]
+      ],
+      "featuredImage": "/blog/images/6652.webp",
+      "featuredImageAlt": "آموزش ثبت نام در بروکر خارجی",
+      "featuredImageWidth": 1000,
+      "featuredImageHeight": 667
     },
     {
       "sourceId": 6624,
@@ -7271,7 +7499,11 @@
           "id": "سوالات-متداول",
           "label": "سوالات متداول"
         }
-      ]
+      ],
+      "featuredImage": "/blog/images/6624.webp",
+      "featuredImageAlt": "بروکر ECN چیست و چه مزایایی دارد؟",
+      "featuredImageWidth": 1000,
+      "featuredImageHeight": 667
     },
     {
       "sourceId": 6556,
@@ -7465,7 +7697,11 @@
           "id": "سوالات-متداول",
           "label": "سوالات متداول"
         }
-      ]
+      ],
+      "featuredImage": "/blog/images/6556.webp",
+      "featuredImageAlt": "بهترین بروکر ایرانی ها",
+      "featuredImageWidth": 1000,
+      "featuredImageHeight": 667
     },
     {
       "sourceId": 6404,
@@ -7599,7 +7835,11 @@
           "id": "سوالات-متداول",
           "label": "سوالات متداول"
         }
-      ]
+      ],
+      "featuredImage": "/blog/images/6404.webp",
+      "featuredImageAlt": "فرق بروکر با صرافی",
+      "featuredImageWidth": 900,
+      "featuredImageHeight": 619
     },
     {
       "sourceId": 6277,
@@ -7953,7 +8193,11 @@
           "id": "سخن-پایانی",
           "label": "سخن پایانی"
         }
-      ]
+      ],
+      "featuredImage": "/blog/images/6277.webp",
+      "featuredImageAlt": "بروکر فارکس چیست",
+      "featuredImageWidth": 1000,
+      "featuredImageHeight": 667
     },
     {
       "sourceId": 3015,
@@ -8016,7 +8260,11 @@
           "id": "risk-management",
           "label": "Risk Management"
         }
-      ]
+      ],
+      "featuredImage": "/blog/images/3015.webp",
+      "featuredImageAlt": "Spread",
+      "featuredImageWidth": 710,
+      "featuredImageHeight": 480
     },
     {
       "sourceId": 65,
@@ -8059,7 +8307,11 @@
           "id": "key-considerations-for-success-in-technical-analysis",
           "label": "Key Considerations for Success in Technical Analysis"
         }
-      ]
+      ],
+      "featuredImage": "/blog/images/65.png",
+      "featuredImageAlt": "Technical Analysis",
+      "featuredImageWidth": 710,
+      "featuredImageHeight": 480
     },
     {
       "sourceId": 63,
@@ -8092,7 +8344,11 @@
           "id": "content-of-the-economic-calendar",
           "label": "Content of the Economic Calendar"
         }
-      ]
+      ],
+      "featuredImage": "/blog/images/63.webp",
+      "featuredImageAlt": "Economic Calendar",
+      "featuredImageWidth": 710,
+      "featuredImageHeight": 480
     },
     {
       "sourceId": 61,
@@ -8175,7 +8431,11 @@
           "id": "factors-to-consider",
           "label": "Factors to Consider"
         }
-      ]
+      ],
+      "featuredImage": "/blog/images/61.webp",
+      "featuredImageAlt": "Swap",
+      "featuredImageWidth": 710,
+      "featuredImageHeight": 480
     },
     {
       "sourceId": 59,
@@ -8248,7 +8508,11 @@
           "id": "key-components-of-fundamental-analysis-in-forex",
           "label": "Key Components of Fundamental Analysis in Forex:"
         }
-      ]
+      ],
+      "featuredImage": "/blog/images/59.webp",
+      "featuredImageAlt": "Fundamental Analysis",
+      "featuredImageWidth": 710,
+      "featuredImageHeight": 480
     },
     {
       "sourceId": 57,
@@ -8301,7 +8565,11 @@
           "id": "step-4-calculate-the-impact-of-a-negative-price-movement",
           "label": "Step 4: Calculate the Impact of a Negative Price Movement"
         }
-      ]
+      ],
+      "featuredImage": "/blog/images/57.webp",
+      "featuredImageAlt": "Leverage",
+      "featuredImageWidth": 710,
+      "featuredImageHeight": 480
     },
     {
       "sourceId": 55,
@@ -8344,7 +8612,11 @@
           "id": "how-to-avoid-a-margin-call",
           "label": "How to Avoid a Margin Call"
         }
-      ]
+      ],
+      "featuredImage": "/blog/images/55.webp",
+      "featuredImageAlt": "Margin call",
+      "featuredImageWidth": 710,
+      "featuredImageHeight": 480
     },
     {
       "sourceId": 32,
@@ -8397,7 +8669,11 @@
           "id": "choosing-a-regulated-broker",
           "label": "Choosing a Regulated Broker"
         }
-      ]
+      ],
+      "featuredImage": "/blog/images/32.webp",
+      "featuredImageAlt": "Regulation",
+      "featuredImageWidth": 710,
+      "featuredImageHeight": 480
     }
   ]
 }

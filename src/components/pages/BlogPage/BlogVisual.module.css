@@ -9,6 +9,23 @@
     linear-gradient(145deg, #182126, #0d1215 68%);
 }
 
+.photo {
+  color: inherit;
+  background: #182126;
+}
+
+.image {
+  object-fit: cover;
+}
+
+.articleHero {
+  min-height: 0;
+}
+
+.articleHero .image {
+  object-fit: contain;
+}
+
 .variant1 { color: #92e6cf; }
 .variant2 { color: #ffc66d; }
 .variant3 { color: #aab7ff; }
