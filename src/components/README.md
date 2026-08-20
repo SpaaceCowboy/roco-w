@@ -40,7 +40,6 @@ lives in `@/lib` (helpers), `@/config` (nav), `@/i18n` (routing), `@/app` (route
 
 ## `src/lib`
 
-- `lib/hooks/` — React hooks (`useLetterRotate`)
 - `lib/animation/` — GSAP / scroll helpers (`chaosBlink`, `smoothScroll`)
 - `lib/fonts.ts` — locale font config
 - `lib/blog.ts`, `lib/blogFeed.ts` — local article repository and RSS generation

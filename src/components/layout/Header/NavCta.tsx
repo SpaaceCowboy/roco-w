@@ -1,6 +1,3 @@
-"use client";
-
-import { useLetterRotate } from "@/lib/hooks/useLetterRotate";
 import styles from "./Header.module.css";
 
 type Props = {
@@ -11,9 +8,8 @@ type Props = {
   variant: "join" | "login";
 };
 
-/** Header CTA button (Join Now / Login) with the letter-rotate hover. */
+/** Header CTA button (Join Now / Login) with stable CSS-only hover feedback. */
 export function NavCta({ label, href, external, variant }: Props) {
-  const { ref, start } = useLetterRotate<HTMLSpanElement>();
   const cls = `${styles.linkItem} ${variant === "join" ? styles.ctaJoin : styles.ctaLogin}`;
 
   return (
@@ -22,10 +18,9 @@ export function NavCta({ label, href, external, variant }: Props) {
       href={href}
       target={external ? "_blank" : undefined}
       rel={external ? "noopener noreferrer" : undefined}
-      onMouseEnter={start}
     >
       <span className={styles.linkWrap}>
-        <span className={styles.linkText} ref={ref}>
+        <span className={styles.linkText}>
           {label}
         </span>
       </span>

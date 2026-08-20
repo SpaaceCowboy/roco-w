@@ -4,7 +4,6 @@ import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import type { NavChild } from "@/config/nav";
-import { useLetterRotate } from "@/lib/hooks/useLetterRotate";
 import styles from "./Header.module.css";
 
 type Props = {
@@ -19,7 +18,6 @@ export function NavDropdown({ labelKey, items, href }: Props) {
   const t = useTranslations("nav");
   const [open, setOpen] = useState(false);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const { ref, start } = useLetterRotate<HTMLSpanElement>();
 
   function openNow() {
     if (closeTimer.current) clearTimeout(closeTimer.current);
@@ -44,10 +42,9 @@ export function NavDropdown({ labelKey, items, href }: Props) {
           className={`${styles.linkItem} ${open ? styles.dropOpen : ""}`}
           aria-haspopup="menu"
           aria-expanded={open}
-          onMouseEnter={start}
         >
           <span className={styles.linkWrap}>
-            <span className={styles.linkText} ref={ref}>
+            <span className={styles.linkText}>
               {t(labelKey)}
             </span>
           </span>
@@ -58,11 +55,10 @@ export function NavDropdown({ labelKey, items, href }: Props) {
           className={`${styles.linkItem} ${open ? styles.dropOpen : ""}`}
           aria-haspopup="menu"
           aria-expanded={open}
-          onMouseEnter={start}
           onClick={() => setOpen((o) => !o)}
         >
           <span className={styles.linkWrap}>
-            <span className={styles.linkText} ref={ref}>
+            <span className={styles.linkText}>
               {t(labelKey)}
             </span>
           </span>

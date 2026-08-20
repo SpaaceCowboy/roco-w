@@ -1,7 +1,6 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { useLetterRotate } from "@/lib/hooks/useLetterRotate";
 import styles from "./Button.module.css";
 
 type Props = {
@@ -22,9 +21,8 @@ type Props = {
 };
 
 /**
- * Reusable brand button. Carries the same hover animation as the navbar CTAs —
- * the letter-rotate effect (useLetterRotate). Renders as an <a> when `href` is
- * given, else a <button>.
+ * Reusable brand button. Renders as an <a> when `href` is given, else a
+ * <button>. Hover feedback is handled entirely in CSS so labels stay stable.
  */
 export function Button({
   label,
@@ -37,12 +35,11 @@ export function Button({
   disabled = false,
   className,
 }: Props) {
-  const { ref, start } = useLetterRotate<HTMLSpanElement>();
   const sizeCls = size === "lg" ? "" : styles[size];
   const cls = `${styles.btn} ${styles[variant]} ${sizeCls} ${className ?? ""}`.trim();
 
   const inner = (
-    <span className={styles.text} ref={ref}>
+    <span className={styles.text}>
       {label}
     </span>
   );
@@ -54,7 +51,6 @@ export function Button({
         href={href}
         target={external ? "_blank" : undefined}
         rel={external ? "noopener noreferrer" : undefined}
-        onMouseEnter={start}
         onClick={onClick}
       >
         {inner}
@@ -63,7 +59,7 @@ export function Button({
   }
 
   return (
-    <button type={type} className={cls} onMouseEnter={start} onClick={onClick} disabled={disabled}>
+    <button type={type} className={cls} onClick={onClick} disabled={disabled}>
       {inner}
     </button>
   );
