@@ -240,7 +240,7 @@ export function About() {
           <video
             ref={videoRef}
             className={styles.mediaVideo}
-            poster="/home/about-poster.webp"
+            poster="/home/about-poster.png"
             muted
             playsInline
             preload="none"

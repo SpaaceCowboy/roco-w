@@ -14,7 +14,7 @@ import styles from "./IBPromo.module.css";
  * (e.g. the Markets page) with a different asset + message.
  */
 export function IBPromo({
-  image = "/home/ib-promo.webp",
+  image = "/home/ib-promo.png",
   title,
   cta,
   href,

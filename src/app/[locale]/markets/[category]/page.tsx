@@ -46,7 +46,7 @@ export default async function MarketsCategoryPage({
   return (
     <main id="main-content">
       <MarketsView active={category as Category} />
-      <IBPromo image="/markets/banner.webp" title={t("bannerTitle")} cta={t("cta")} href={REGISTER} />
+      <IBPromo image="/markets/banner.png" title={t("bannerTitle")} cta={t("cta")} href={REGISTER} />
       <Footer />
     </main>
   );

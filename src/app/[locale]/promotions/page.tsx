@@ -39,7 +39,7 @@ export default async function PromotionsPage({
     <main id="main-content">
       <PromotionsView />
       <IBPromo
-        image="/payment-methods/banner.webp"
+        image="/payment-methods/banner.png"
         title={t("bannerTitle")}
         cta={t("bannerCta")}
         href={REGISTER}

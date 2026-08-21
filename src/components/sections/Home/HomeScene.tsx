@@ -152,7 +152,7 @@ export function HomeScene({ hero, features }: { hero: ReactNode; features: React
         <Markets />
         <Accounts />
         <MetaTrader
-          image="/home/roco-office.webp"
+          image="/home/roco-office.png"
           alt={t("officeImageAlt")}
           width={1424}
           height={800}

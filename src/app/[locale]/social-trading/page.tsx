@@ -43,7 +43,7 @@ export default async function SocialTradingPage({
       <SocialValues />
       <SocialRating />
       <IBPromo
-        image="/social-trading/banner.webp"
+        image="/social-trading/banner.png"
         title={t("banner.title")}
         cta={t("banner.cta")}
         href={REGISTER}

@@ -26,11 +26,11 @@ const MEDIA: Partial<Record<Category, string>> = {
   indices: "/markets/indices.mp4",
 };
 const POSTERS: Partial<Record<Category, string>> = {
-  forex: "/markets/forex-poster.webp",
-  metals: "/markets/metals-poster.webp",
-  commodities: "/markets/commodities-poster.webp",
-  stocks: "/markets/stocks-poster.webp",
-  crypto: "/markets/crypto-poster.webp",
+  forex: "/markets/forex-poster.png",
+  metals: "/markets/metals-poster.png",
+  commodities: "/markets/commodities.png",
+  stocks: "/markets/stocks-poster.png",
+  crypto: "/markets/crypto-poster.png",
   indices: "/markets/indices-poster.webp",
 };
 

@@ -542,7 +542,7 @@
       "orderClosed": {
         "q": "Why was my order closed?",
         "a": "A margin call is triggered at {marginCallLevel}. Automatic position closure can begin at the {stopOutLevel} stop-out level."
-      },
+      },  
       "regulated": {
         "q": "Is your broker regulated?",
         "a": "{companyName} is listed by {regulatorName} as an active authorised brokerage company under licence {licenseNumber}. Company registration: {registrationNumber}."
@@ -737,7 +737,7 @@
     "b2text": "Catering to traders of all levels, ROCO provides advanced tools, educational resources, and 24/7 multilingual customer support.",
     "b3label": "Every market",
     "b3text": "Trade currencies, commodities, precious metals, stocks, indices, and cryptocurrencies via CFDs — without owning the underlying assets.",
-    "cardLabel": "Years of experience",
+    "cardLabel": " Years financial market experience",
     "partnersLabel": "Our partners",
     "wantTitle": "What We",
     "wantAccent": "Want",
@@ -789,7 +789,7 @@
     "s4d": "Share why traders choose ROCO.",
     "s5t": "Provide them referral codes/links",
     "s5d": "Hand out your unique referral codes and links.",
-    "s6t": "Ask them to open a Lion account",
+    "s6t": "Ask them to open a Lion/Cheetah account",
     "s6d": "Have your referrals open a Lion account.",
     "s7t": "Now — enjoy your income!",
     "s7d": "Earn commission as your network trades.",

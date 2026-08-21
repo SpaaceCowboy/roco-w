@@ -34,3 +34,4 @@ next-env.d.ts
 # local reference archive (not part of the project)
 Example.zip
 Example1.zip
+.aider*
