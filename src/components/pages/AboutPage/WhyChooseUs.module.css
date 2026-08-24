@@ -234,20 +234,6 @@
   font-size: 1em;
   color: var(--color-accent);
 }
-.statMicro {
-  margin: 0;
-  max-width: 24ch;
-  font-family: var(--font-mono, var(--font-secondary));
-  font-size: clamp(0.65rem, 0.9vw, 0.78rem);
-  letter-spacing: 0.02em;
-  line-height: 1.5;
-  text-transform: uppercase;
-  color: var(--color-muted);
-}
-.microWord {
-  display: inline-block;
-  will-change: opacity;
-}
 .statDesc {
   margin: 0;
   max-width: 30ch;

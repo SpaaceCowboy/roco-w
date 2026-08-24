@@ -56,6 +56,7 @@ export const NAV_ITEMS: NavItem[] = [
     children: [
       { key: "metatrader5", href: "/platforms/metatrader-5" },
       { key: "calendar", href: "/calendar" },
+      { key: "forexCalculator", href: "/tools/forex-calculator" },
     ],
   },
   {

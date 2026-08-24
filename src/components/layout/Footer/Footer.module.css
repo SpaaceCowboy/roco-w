@@ -151,6 +151,10 @@
 .contactList a:hover {
   color: var(--color-accent);
 }
+.phoneValue {
+  align-self: flex-start;
+  unicode-bidi: isolate;
+}
 .contactLabel {
   font-family: var(--font-mono, var(--font-secondary));
   font-size: 0.6875rem;

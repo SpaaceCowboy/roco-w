@@ -137,7 +137,9 @@ export function Footer() {
               </li>
               <li>
                 <span className={styles.contactLabel}>{t("phoneLabel")}</span>
-                <a href={`tel:${CONTACT.phone.e164}`}>{CONTACT.phone.display}</a>
+                <a href={`tel:${CONTACT.phone.e164}`} dir="ltr" className={styles.phoneValue}>
+                  {CONTACT.phone.display}
+                </a>
               </li>
             </ul>
           </div>

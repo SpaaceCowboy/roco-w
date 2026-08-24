@@ -278,6 +278,29 @@ export function PromotionsView() {
         </div>
       </div>
 
+      {/* First-deposit bonus — matching summary card + conditions list */}
+      <div className={styles.motiv}>
+        <div className={styles.inner}>
+          <div className={styles.list}>
+            <div className={styles.listHead}>
+              <h2 className={styles.listTitle}>{t("depositAccent")}</h2>
+              <p className={styles.listSub}>{t("condHeading")}</p>
+            </div>
+            <ol className={styles.listInner}>
+              {CONDITIONS.map((c, i) => (
+                <li key={c} className={styles.listItem}>
+                  <span className={styles.listNo}>{i + 1}</span>
+                  <p className={styles.listText}>
+                    <strong>{t(`${c}t`)}</strong>
+                    <span>{t(`${c}d`)}</span>
+                  </p>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </div>
+      </div>
+
       {/* Motivational bonus — numbered c-list (head + ordered list) */}
       <div className={styles.motiv}>
         <div className={styles.inner}>

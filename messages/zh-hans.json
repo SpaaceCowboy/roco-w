@@ -25,6 +25,7 @@
     "faq": "常见问题",
     "metatrader5": "MetaTrader 5",
     "calendar": "日历",
+    "forexCalculator": "外汇计算器",
     "promotions": "促销活动",
     "partnership": "合作伙伴",
     "aboutUs": "关于我们",
@@ -201,7 +202,7 @@
       },
       "methods": {
         "q": "ROCO 提供哪些入金和出金方式？",
-        "a": "方式包括通过 {rialProvider} 使用伊朗里亚尔，以及在多种网络上的 BTC、ETH、USDT 和 USDC。更多方式即将上线。"
+        "a": "我们支持通过可用的本地支付网关进行法币入金和出金，包括通过 {rialProvider} 使用伊朗里亚尔。加密货币方式包括多种网络上的 BTC、ETH、USDT 和 USDC。"
       },
       "withdrawTime": {
         "q": "出金申请需要多长时间处理？",
@@ -295,7 +296,7 @@
   },
   "accountsPage": {
     "title": "账户",
-    "overview": "所有 ROCO 账户都拥有同样实惠的最低入金——按交易风格与功能选择，而非成本。两个系列，六种账户，一个登录。",
+    "overview": "ROCO 账户没有最低入金或出金金额限制——按交易风格与功能选择，而非资金门槛。两个系列，六种账户，一个登录。",
     "cta": "加入我们",
     "centsNote": "所有数值（入金、利润等）均以分为单位。",
     "bannerTitle": "找到合适的账户了吗？几分钟即可开户并开始交易。",
@@ -517,7 +518,7 @@
       },
       "methods": {
         "q": "ROCO 提供哪些入金和出金方式？",
-        "a": "通过 {rialProvider} 使用伊朗里亚尔，以及在多种网络上的 BTC、ETH、USDT、USDC。更多方式即将上线。"
+        "a": "我们支持通过可用的本地支付网关进行法币入金和出金，包括通过 {rialProvider} 使用伊朗里亚尔。加密货币方式包括多种网络上的 BTC、ETH、USDT 和 USDC。"
       },
       "withdrawTime": {
         "q": "出金申请需要多长时间处理？",

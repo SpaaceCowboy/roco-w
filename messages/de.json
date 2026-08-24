@@ -25,6 +25,7 @@
     "faq": "FAQ",
     "metatrader5": "MetaTrader 5",
     "calendar": "Kalender",
+    "forexCalculator": "Forex-Rechner",
     "promotions": "Werbeaktionen",
     "partnership": "Partnerschaft",
     "aboutUs": "Über uns",
@@ -128,7 +129,7 @@
       "note": "Alle Werte (Einzahlungen, Gewinne usw.) sind in Cent."
     },
     "nanoCheetah": {
-      "name": "NANO-Cheetah Account",
+      "name": "Nano-Cheetah Account",
       "deposit": "Kein Limit",
       "leverage": "1:1000",
       "spread": "Raw Spread",
@@ -201,7 +202,7 @@
       },
       "methods": {
         "q": "Welche Ein- und Auszahlungsmethoden bieten Sie an?",
-        "a": "Zu den Methoden gehören iranische Rial über {rialProvider} sowie BTC, ETH, USDT und USDC in verschiedenen Netzwerken. Weitere Methoden folgen in Kürze."
+        "a": "Wir unterstützen Fiat-Ein- und -Auszahlungen über verfügbare lokale Zahlungsanbieter, einschließlich iranischer Rial über {rialProvider}. Zu den Kryptomethoden gehören BTC, ETH, USDT und USDC in verschiedenen Netzwerken."
       },
       "withdrawTime": {
         "q": "Wie lange dauert die Bearbeitung meiner Auszahlung?",
@@ -295,7 +296,7 @@
   },
   "accountsPage": {
     "title": "Konten",
-    "overview": "Jedes ROCO-Konto teilt dieselbe günstige Mindesteinzahlung — Sie wählen nach Handelsstil und Funktionen, nicht nach Kosten. Zwei Familien, sechs Konten, ein Login.",
+    "overview": "Für ROCO-Konten gibt es keinen Mindestbetrag für Ein- oder Auszahlungen — wählen Sie nach Handelsstil und Funktionen, nicht nach Finanzierungslimits. Zwei Familien, sechs Konten, ein Login.",
     "cta": "Mitmachen",
     "centsNote": "Alle Werte (Einzahlungen, Gewinne usw.) sind in Cent.",
     "bannerTitle": "Ihr Konto gefunden? Eröffnen Sie es in Minuten und legen Sie los.",
@@ -517,7 +518,7 @@
       },
       "methods": {
         "q": "Welche Ein- und Auszahlungsmethoden bieten Sie an?",
-        "a": "Iranische Rial über {rialProvider} sowie BTC, ETH, USDT und USDC in verschiedenen Netzwerken. Weitere folgen bald."
+        "a": "Wir unterstützen Fiat-Ein- und -Auszahlungen über verfügbare lokale Zahlungsanbieter, einschließlich iranischer Rial über {rialProvider}. Zu den Kryptomethoden gehören BTC, ETH, USDT und USDC in verschiedenen Netzwerken."
       },
       "withdrawTime": {
         "q": "Wie lange dauert die Bearbeitung meiner Auszahlung?",

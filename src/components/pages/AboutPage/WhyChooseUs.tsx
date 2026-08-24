@@ -1,27 +1,15 @@
 "use client";
 
-import { Fragment, useRef } from "react";
+import { useRef } from "react";
 import { useTranslations } from "next-intl";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
-import { chaosBlink } from "@/lib/animation/chaosBlink";
 import styles from "./WhyChooseUs.module.css";
 
 gsap.registerPlugin(ScrollTrigger);
 
 const ADV = ["why1", "why2", "why4"] as const;
-const MICRO_L = "ROCO BROKER";
-const MICRO_R = "EST. 2014";
-
-// Decorative "barcode" bar widths (fixed for SSR/CSR parity).
-const BARS = [3, 1, 2, 1, 1, 4, 1, 2, 3, 1, 1, 2, 1, 3, 1, 2, 1, 1, 4, 2];
-const BAR_GAP = 1.4;
-const BAR_TOTAL = BARS.reduce((a, w) => a + w + BAR_GAP, 0);
-const BAR_LAYOUT = BARS.map((width, index) => ({
-  width,
-  x: BARS.slice(0, index).reduce((total, previous) => total + previous + BAR_GAP, 0),
-}));
 
 /** Advantage icons (own, stroke-based). */
 function LeverageIcon() {
@@ -59,37 +47,10 @@ function RiskIcon() {
 }
 const ICONS = { why1: LeverageIcon, why2: LiquidityIcon, why3: SupportIcon, why4: RiskIcon };
 
-/** Split text into flickering char spans. */
-function Chars({ text }: { text: string }) {
-  return (
-    <>
-      {[...text].map((c, i) => (
-        <Fragment key={i}>
-          <span className={styles.microChar}>{c === " " ? " " : c}</span>
-        </Fragment>
-      ))}
-    </>
-  );
-}
-
-/** Split text into flickering word spans. */
-function Words({ text }: { text: string }) {
-  return (
-    <>
-      {text.split(/\s+/).map((w, i, arr) => (
-        <Fragment key={i}>
-          <span className={styles.microWord}>{w}</span>
-          {i < arr.length - 1 ? " " : null}
-        </Fragment>
-      ))}
-    </>
-  );
-}
-
 /**
  * WhyChooseUs — the About "Why Choose Us" section, in the titangatequity
- * stats-section manner but reskinned to our brand: a micro-text header row with
- * a barcode graphic, a heading flanked by dotted guideline lines, an intro line,
+ * stats-section manner but reskinned to our brand: a heading flanked by dotted
+ * guideline lines, an intro line,
  * and the four advantages as dotted-ring blocks. Own decorations + colours.
  * Text from docs/about-source.md.
  */
@@ -102,9 +63,6 @@ export function WhyChooseUs() {
       const el = rootRef.current;
       if (!el) return;
       if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-      chaosBlink(gsap.utils.toArray(`.${styles.microChar}`, el));
-      chaosBlink(gsap.utils.toArray(`.${styles.microWord}`, el));
-      chaosBlink(gsap.utils.toArray(`.${styles.bars} rect`, el));
       gsap.from(gsap.utils.toArray<HTMLElement>(`.${styles.advantage}`, el), {
         opacity: 0,
         y: 28,
@@ -149,31 +107,6 @@ export function WhyChooseUs() {
   return (
     <section ref={rootRef} className={styles.section}>
       <div className={styles.inner}>
-        {/* Micro header row */}
-        <div className={styles.microRow}>
-          <span className={styles.microText}>
-            <Chars text={MICRO_L} />
-          </span>
-          <span className={styles.bars} aria-hidden="true">
-            <svg viewBox={`0 0 ${BAR_TOTAL} 24`} preserveAspectRatio="none" width="100%" height="24">
-              {BAR_LAYOUT.map(({ width, x }, i) => (
-                <rect
-                  key={i}
-                  x={x}
-                  y={0}
-                  width={width}
-                  height={24}
-                  fill="currentColor"
-                  opacity={0.35 + ((i * 37) % 55) / 100}
-                />
-              ))}
-            </svg>
-          </span>
-          <span className={`${styles.microText} ${styles.microEnd}`}>
-            <Chars text={MICRO_R} />
-          </span>
-        </div>
-
         {/* Heading flanked by dotted guideline lines */}
         <div className={styles.intro}>
           <span className={styles.guide} aria-hidden="true" />
@@ -252,9 +185,6 @@ export function WhyChooseUs() {
                   <circle cx="257" cy="257" r="250" stroke="currentColor" strokeWidth="4" strokeDasharray="4 16" />
                 </g>
               </svg>
-              <p className={styles.statMicro}>
-                <Words text={t("statLeftMicro")} />
-              </p>
               <div className={styles.statInner}>
                 <div className={styles.statNumber}>
                   <span className={styles.count} data-to="12">

@@ -25,6 +25,7 @@
     "faq": "FAQ",
     "metatrader5": "MetaTrader 5",
     "calendar": "Calendar",
+    "forexCalculator": "Forex Calculator",
     "promotions": "Promotions",
     "partnership": "Partnership",
     "aboutUs": "About us",
@@ -128,7 +129,7 @@
       "note": "All values (deposits, profits, etc.) are in cents."
     },
     "nanoCheetah": {
-      "name": "NANO-Cheetah Account",
+      "name": "Nano-Cheetah Account",
       "deposit": "No Limit",
       "leverage": "1:1000",
       "spread": "Raw Spread",
@@ -201,7 +202,7 @@
       },
       "methods": {
         "q": "What deposit and withdrawal methods do you offer?",
-        "a": "Methods include Iranian Rial via {rialProvider}, plus BTC, ETH, USDT, and USDC on various networks. Additional methods will be added soon."
+        "a": "We support fiat deposits and withdrawals through available local payment gateways, including Iranian Rial via {rialProvider}. Crypto methods include BTC, ETH, USDT, and USDC on various networks."
       },
       "withdrawTime": {
         "q": "How long does it take to process my withdrawal request?",
@@ -295,7 +296,7 @@
   },
   "accountsPage": {
     "title": "Accounts",
-    "overview": "Every ROCO account shares the same affordable minimum deposit — so you choose by trading style and features, not by cost. Two families, six accounts, one login.",
+    "overview": "ROCO accounts have no minimum deposit or withdrawal amount — so you choose by trading style and features, not by funding limits. Two families, six accounts, one login.",
     "cta": "Join us",
     "centsNote": "All values (deposits, profits, etc.) are in cents.",
     "bannerTitle": "Found your account? Open it in minutes and start trading.",
@@ -517,7 +518,7 @@
       },
       "methods": {
         "q": "What deposit and withdrawal methods do you offer?",
-        "a": "Iranian Rial via {rialProvider}, plus BTC, ETH, USDT, and USDC on various networks. More methods are coming soon."
+        "a": "We support fiat deposits and withdrawals through available local payment gateways, including Iranian Rial via {rialProvider}. Crypto methods include BTC, ETH, USDT, and USDC on various networks."
       },
       "withdrawTime": {
         "q": "How long does it take to process my withdrawal request?",

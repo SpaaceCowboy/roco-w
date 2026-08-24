@@ -12,6 +12,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/social-trading",
     "/payment-methods",
     "/calendar",
+    "/tools/forex-calculator",
     "/platforms/metatrader-5",
     "/promotions",
     "/about",
