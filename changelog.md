@@ -3,6 +3,25 @@
 This file records changes made during the launch-readiness remediation. New
 work should be added here in the same change that implements it.
 
+## 2026-08-24
+
+### Temporary Crisp live-chat trial
+
+#### Added
+
+- Added Crisp as an opt-in live-chat provider, enabled with
+  `NEXT_PUBLIC_LIVE_CHAT_PROVIDER=crisp` and a public
+  `NEXT_PUBLIC_CRISP_WEBSITE_ID`.
+- Kept Chatwoot as the default provider and retained its complete integration,
+  allowing the trial to be rolled back by changing one environment value.
+- Forced the Crisp widget locale from the site's active locale, including the
+  `zh-hans` to `zh` mapping expected by Crisp.
+
+#### Verification
+
+- TypeScript, ESLint for the changed source files, and the full Webpack
+  production build pass.
+
 ## 2026-08-18
 
 ### Temporary LiveChat.com trial
