@@ -35,11 +35,11 @@ export function Features({
               <article className={styles.bigCard}>
                 <Image
                   className={styles.bigPhone}
-                  src="/home/phone-app.webp"
+                  src="/home/phone-app.png"
                   alt={imageAlt}
-                  width={2600}
-                  height={5284}
-                  sizes="(max-width: 900px) 128px, 200px"
+                  width={2752}
+                  height={1536}
+                  sizes="(max-width: 900px) 100vw, 40vw"
                 />
                 {/* Subtext top-left, big number bottom-left. */}
                 <span className={styles.bigLabel}>{big.label}</span>
