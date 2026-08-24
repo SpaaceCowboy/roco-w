@@ -1,5 +1,5 @@
 /* Welcome promo — small fixed bottom-start banner (video left, copy + CTA right).
-   Sits on the opposite corner from the tawk.to chat bubble, which is pinned to
+   Sits on the opposite corner from the Chatwoot bubble, which is pinned to
    the inline end (see src/components/ui/LiveChat/LiveChat.tsx). */
 .promo {
   position: fixed;

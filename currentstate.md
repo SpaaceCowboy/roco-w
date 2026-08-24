@@ -140,7 +140,7 @@ step was missed.
 1. **Log rotation.** `pm2 install pm2-logrotate`. PM2 log files grow unbounded
    on a host that also runs cPanel, Exim and WordPress; filling the disk would
    take mail and Apache down with it.
-2. **Cookie policy.** tawk.to loads for every visitor before any consent choice
+2. **Cookie policy.** Chatwoot loads for every visitor before any consent choice
    and sets its own cookies. The policy text in `messages/*.json` still
    describes TradingView only. Treat as blocking for public launch.
 3. **Apex cutover.** Three things have to be right together:
