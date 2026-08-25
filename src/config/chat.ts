@@ -13,7 +13,7 @@ export const LIVE_CHAT_PROVIDER: LiveChatProvider =
 
 /** Public values from Chatwoot → Settings → Inboxes → Website → Configuration. */
 export const CHATWOOT_BASE_URL = (
-  process.env.NEXT_PUBLIC_CHATWOOT_BASE_URL || "https://app.chatwoot.com"
+  process.env.NEXT_PUBLIC_CHATWOOT_BASE_URL || "https://support.rocobroker.com"
 ).replace(/\/$/, "");
 
 export const CHATWOOT_WEBSITE_TOKEN = process.env.NEXT_PUBLIC_CHATWOOT_WEBSITE_TOKEN || "";

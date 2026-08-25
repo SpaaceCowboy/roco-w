@@ -162,6 +162,9 @@ Gunmetal has a dark→light neutral scale `--gunmetal-950 … --gunmetal-400`; l
 
 ## Deployment (planned)
 
+Self-hosted Chatwoot deployment and recovery notes are documented in
+[`docs/chatwoot-production.md`](docs/chatwoot-production.md).
+
 - App → **Vercel**, domain `rocobroker.com` / `www`.
 - Turn **Cloudflare proxying ON** (currently DNS-only, which exposes the origin IP).
 - Configure `RESEND_API_KEY` and `CONTACT_EMAIL_FROM` in Vercel so the contact
