@@ -9,6 +9,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const paths = [
     "/",
     "/accounts",
+    "/swap-free-account",
     "/social-trading",
     "/payment-methods",
     "/calendar",

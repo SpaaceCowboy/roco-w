@@ -40,6 +40,7 @@ export const NAV_ITEMS: NavItem[] = [
     href: "/accounts", // clicking the parent opens the Accounts page
     children: [
       { key: "accountTypes", href: "/accounts#accounts" },
+      { key: "swapFree", href: "/swap-free-account" },
       { key: "socialTrade", href: "/social-trading" },
       { key: "paymentMethods", href: "/payment-methods" },
     ],
