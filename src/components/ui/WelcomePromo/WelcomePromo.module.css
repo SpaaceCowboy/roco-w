@@ -1,4 +1,4 @@
-/* Welcome promo — small fixed bottom-start banner (video left, copy + CTA right).
+/* Welcome promo — small fixed bottom-start banner (visual left, copy + CTA right).
    Sits on the opposite corner from the Chatwoot bubble, which is pinned to
    the inline end (see src/components/ui/LiveChat/LiveChat.tsx). */
 .promo {
@@ -51,16 +51,15 @@
 }
 
 .media {
+  position: relative;
   flex: none;
   width: 9rem;
-  margin: 0;
+  overflow: hidden;
   background: #0a0f14;
 }
-.video {
-  display: block;
-  width: 100%;
-  height: 100%;
+.mediaImage {
   object-fit: cover;
+  object-position: 52% center;
 }
 
 .body {

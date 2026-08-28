@@ -855,6 +855,21 @@
     "requirement4": "انتظر الموافقة وتأكيد تطبيق حالة بدون سواب.",
     "requirement5": "قد تُقيّد الإتاحة بحسب الإقامة أو اللوائح أو العقوبات أو متطلبات الامتثال.",
     "requirement6": "أغلق جميع الصفقات وألغِ الأوامر المعلقة قبل التقديم.",
+    "activationKicker": "عملية التفعيل",
+    "activationTitle": "اطلب تفعيل الحساب بدون سواب",
+    "activationIntro": "يتم التفعيل عبر بوابة عملاء ROCO ولا يسري إلا بعد الموافقة على الطلب وتطبيق الحالة في النظام.",
+    "activationStep1Tag": "قبل البدء",
+    "activationStep1Title": "جهّز الحساب",
+    "activationStep1Body": "تأكد من اكتمال وصلاحية KYC، ثم أغلق جميع الصفقات المفتوحة وألغِ كل الأوامر المعلقة.",
+    "activationStep2Tag": "بوابة العميل",
+    "activationStep2Title": "اختر Lion أو Cheetah",
+    "activationStep2Body": "سجّل الدخول إلى بوابة عملاء ROCO واختر حساب Standard Lion أو Standard Cheetah المؤهل.",
+    "activationStep3Tag": "إرسال الطلب",
+    "activationStep3Title": "اطلب حالة بدون سواب",
+    "activationStep3Body": "أرسل طلب التفعيل من لوحة العميل. يجب أن يكون الحساب مملوكًا للشخص نفسه الذي يقدم الطلب.",
+    "activationStep4Tag": "نتيجة المراجعة",
+    "activationStep4Title": "انتظر التأكيد",
+    "activationStep4Body": "يراجع الفريق المختص الطلب وتُرسل النتيجة بالبريد الإلكتروني. يبدأ الإعفاء بعد الموافقة وتطبيق الحالة في النظام فقط.",
     "eligibleLabel": "الحسابات المؤهلة", "eligibleTitle": "Standard Lion و Cheetah", "eligibleBody": "وفق الشروط الحالية، يتوفر التفعيل فقط لحسابي Standard Lion وStandard Cheetah.",
     "excludedLabel": "غير مؤهل", "excludedTitle": "Nano والعروض والمكافآت والائتمان", "excludedBody": "حسابات Nano والعروض والمكافآت، وكذلك الحسابات التي تحتوي على رصيد ائتماني، غير مؤهلة للخدمة.",
     "marketsKicker": "الوصول إلى الأسواق", "marketsTitle": "حساب واحد، أسواق متعددة", "marketsBody": "قد تتوفر الرموز المؤهلة ضمن مجموعات الأدوات التالية، وفق قائمة الرموز النشطة وشروط التداول الحالية.",
@@ -888,13 +903,6 @@
     "save": "حفظ الخيارات",
     "reject": "رفض الكل",
     "accept": "قبول الكل"
-  },
-  "welcomePromo": {
-    "kicker": "عرض محدود",
-    "title": "مكافأة إيداع 40%",
-    "text": "احصل على مكافأة 40% على إيداعك الأول.",
-    "cta": "احصل عليها",
-    "close": "إغلاق"
   },
   "a11y": {
     "skipToContent": "تخطَّ إلى المحتوى"

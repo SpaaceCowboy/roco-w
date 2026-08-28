@@ -1,45 +1,54 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useTranslations } from "next-intl";
+import Image from "next/image";
+import { useLocale } from "next-intl";
 import { Button } from "@/components/ui/Button/Button";
+import { routing, type Locale } from "@/i18n/routing";
 import { CONSENT_EVENT, readConsent } from "@/lib/consent";
+import { welcomePromoCopy } from "./welcomePromoCopy";
 import styles from "./WelcomePromo.module.css";
 
-const REGISTER = "https://my.rocobroker.com/register";
-const DISMISS_KEY = "roco.welcomePromo.dismissed.v1";
+const DISMISS_KEY = "roco.welcomePromo.swapFree.dismissed.v2";
 const DELAY_MS = 20000; // ~20s after consent
 
 /**
- * WelcomePromo — a small bottom-end banner promoting the 40% deposit bonus. Shown
+ * WelcomePromo — a small bottom-end banner promoting the Swap-Free account. Shown
  * ~20s AFTER the user has confirmed cookie consent (so it never competes with the
  * consent banner), once per browsing session — dismissal is kept in sessionStorage,
- * so it appears again on the visitor's next visit after the same delay. Video left,
- * copy + CTA right.
+ * so it appears again on the visitor's next visit after the same delay.
  */
 export function WelcomePromo() {
-  const t = useTranslations("welcomePromo");
+  const locale = useLocale();
+  const copy = welcomePromoCopy[locale as Locale] ?? welcomePromoCopy.en;
   const [show, setShow] = useState(false);
   const timerRef = useRef<number | null>(null);
+  const swapFreeHref = locale === routing.defaultLocale ? "/swap-free-account" : `/${locale}/swap-free-account`;
 
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (window.sessionStorage.getItem(DISMISS_KEY)) return;
 
     const arm = () => {
-      if (timerRef.current) return;
-      timerRef.current = window.setTimeout(() => setShow(true), DELAY_MS);
+      if (timerRef.current !== null) return;
+      timerRef.current = window.setTimeout(() => {
+        timerRef.current = null;
+        setShow(true);
+      }, DELAY_MS);
     };
 
     if (readConsent()) {
       arm();
     } else {
-      const onConsent = () => arm();
-      window.addEventListener(CONSENT_EVENT, onConsent);
-      return () => window.removeEventListener(CONSENT_EVENT, onConsent);
+      window.addEventListener(CONSENT_EVENT, arm);
     }
+
     return () => {
-      if (timerRef.current) window.clearTimeout(timerRef.current);
+      window.removeEventListener(CONSENT_EVENT, arm);
+      if (timerRef.current !== null) {
+        window.clearTimeout(timerRef.current);
+        timerRef.current = null;
+      }
     };
   }, []);
 
@@ -55,30 +64,26 @@ export function WelcomePromo() {
   if (!show) return null;
 
   return (
-    <aside className={styles.promo} role="complementary" aria-label={t("title")}>
-      <button type="button" className={styles.close} aria-label={t("close")} onClick={dismiss}>
+    <aside className={styles.promo} role="complementary" aria-label={copy.title}>
+      <button type="button" className={styles.close} aria-label={copy.close} onClick={dismiss}>
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
           <path d="M6 6l12 12M18 6L6 18" />
         </svg>
       </button>
-      <figure className={styles.media}>
-        <video
-          className={styles.video}
-          src="/promotions/deposit.mp4"
-          poster="/promotions/deposit-poster.webp"
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="metadata"
-          aria-hidden="true"
+      <div className={styles.media} aria-hidden="true">
+        <Image
+          className={styles.mediaImage}
+          src="/swap-free/welcome-promo.webp"
+          alt=""
+          fill
+          sizes="144px"
         />
-      </figure>
+      </div>
       <div className={styles.body}>
-        <span className={styles.kicker}>{t("kicker")}</span>
-        <strong className={styles.title}>{t("title")}</strong>
-        <p className={styles.text}>{t("text")}</p>
-        <Button label={t("cta")} href={REGISTER} external size="sm" variant="primary" onClick={dismiss} />
+        <span className={styles.kicker}>{copy.kicker}</span>
+        <strong className={styles.title}>{copy.title}</strong>
+        <p className={styles.text}>{copy.text}</p>
+        <Button label={copy.cta} href={swapFreeHref} size="sm" variant="primary" onClick={dismiss} />
       </div>
     </aside>
   );

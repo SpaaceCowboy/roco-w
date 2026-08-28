@@ -1,6 +1,6 @@
 .page {
   position: relative;
-  overflow: hidden;
+  overflow: clip;
   background: var(--color-bg);
   color: var(--color-fg);
 }
@@ -81,6 +81,121 @@
 .accountEligible { background: linear-gradient(135deg, color-mix(in srgb, var(--color-accent) 18%, transparent), var(--glass-bg)); }
 .accountCard h3 { margin: 0; font-size: clamp(1.4rem, 2.5vw, 2.2rem); }
 .accountCard > p:last-child { margin: 1rem 0 0; color: var(--color-muted); }
+.activation {
+  --activation-steps: 4;
+  position: relative;
+  z-index: 1;
+  height: calc(100svh * var(--activation-steps));
+  border-block-start: 1px solid var(--color-border);
+  background: var(--color-bg);
+}
+.activationSticky {
+  position: sticky;
+  inset-block-start: 0;
+  height: 100svh;
+  overflow: clip;
+}
+.activationStage { position: relative; width: 100%; height: 100%; }
+.activationRings {
+  position: absolute;
+  inset-block-start: 56%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: color-mix(in srgb, var(--color-fg) 34%, transparent);
+  pointer-events: none;
+}
+.activationEllipse {
+  position: absolute;
+  inset-block-start: 50%;
+  left: 50%;
+  width: min(88vw, 88.5rem);
+  height: auto;
+  transform: translate(-50%, -50%);
+}
+.activationCircle {
+  position: absolute;
+  inset-block-start: 50%;
+  left: 50%;
+  width: min(70vw, 33.875rem);
+  height: auto;
+  transform: translate(-50%, -50%);
+}
+.activationArrow {
+  position: absolute;
+  inset-block-start: 50%;
+  left: 50%;
+  width: min(70vw, 33.875rem);
+  height: min(70vw, 33.875rem);
+  transform: translate(-50%, -50%);
+  will-change: transform;
+}
+.activationArrow svg { width: 100%; height: 100%; }
+.activationHeading {
+  position: absolute;
+  z-index: 1;
+  inset-block-start: clamp(4.75rem, 11vh, 7.5rem);
+  inset-inline: var(--container-padding);
+  text-align: center;
+}
+.activationHeading .kicker { margin-block-end: .65rem; }
+.activationHeading h2 {
+  margin: 0;
+  font-size: clamp(1.35rem, 2.5vw, 2.25rem);
+  line-height: 1.05;
+  text-transform: uppercase;
+}
+.activationHeading > p:last-child {
+  max-width: 58ch;
+  margin: .75rem auto 0;
+  font-family: var(--font-secondary);
+  font-size: clamp(.85rem, 1.05vw, 1rem);
+  line-height: 1.55;
+  color: var(--color-muted);
+}
+.activationPanel {
+  position: absolute;
+  z-index: 1;
+  inset-block-start: 58%;
+  left: 50%;
+  display: flex;
+  width: min(86vw, 31rem);
+  transform: translate(-50%, -50%);
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  will-change: transform, opacity;
+}
+.activationPanel:not(:first-of-type) { opacity: 0; }
+.activationNo {
+  font-family: var(--font-secondary);
+  font-size: .78rem;
+  font-weight: 600;
+  letter-spacing: .12em;
+  color: var(--color-accent);
+}
+.activationTag {
+  margin: .8rem 0 .45rem;
+  font-family: var(--font-secondary);
+  font-size: .72rem;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+.activationPanel h3 {
+  max-width: 18ch;
+  margin: 0;
+  font-size: clamp(1.6rem, 3.4vw, 2.8rem);
+  line-height: 1.08;
+}
+.activationBody {
+  max-width: 48ch;
+  margin: 1rem 0 0;
+  font-family: var(--font-secondary);
+  font-size: clamp(.9rem, 1.15vw, 1.05rem);
+  line-height: 1.6;
+  color: var(--color-muted);
+}
 .marketsGrid { align-items: center; }
 .marketsGrid .bodyCopy { margin-block-start: 1.5rem; max-width: 45ch; }
 .marketList { display: flex; flex-wrap: wrap; gap: .65rem; }
@@ -130,4 +245,19 @@
   :global(html[dir="rtl"]) .timelineStep { padding: 0 2rem 0 0; }
   .timelineStep::before { inset-block-start: .3rem; }
 }
-@media (prefers-reduced-motion: reduce) { .page * { scroll-behavior: auto; } }
+@media (prefers-reduced-motion: reduce) {
+  .page * { scroll-behavior: auto; }
+  .activation { height: auto; padding-block: 5rem; }
+  .activationSticky { position: relative; height: auto; overflow: visible; }
+  .activationStage { display: grid; gap: 1rem; height: auto; padding-inline: var(--container-padding); }
+  .activationRings { display: none; }
+  .activationHeading, .activationPanel {
+    position: relative;
+    inset: auto;
+    width: 100%;
+    transform: none !important;
+    opacity: 1 !important;
+  }
+  .activationHeading { margin-block-end: 2rem; }
+  .activationPanel { padding: 2rem 1.25rem; border: 1px solid var(--color-border); border-radius: .75rem; }
+}

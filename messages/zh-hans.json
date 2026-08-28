@@ -855,6 +855,21 @@
     "requirement4": "等待审核并确认免隔夜利息状态已启用。",
     "requirement5": "服务可能因居住地、法规、制裁或合规要求而受限。",
     "requirement6": "申请前须平掉所有持仓并取消全部挂单。",
+    "activationKicker": "激活流程",
+    "activationTitle": "申请免隔夜利息服务",
+    "activationIntro": "激活申请须通过 ROCO 客户中心提交，并仅在申请获批且系统已启用免息状态后生效。",
+    "activationStep1Tag": "开始之前",
+    "activationStep1Title": "准备账户",
+    "activationStep1Body": "确认 KYC 已完整通过且仍然有效，然后平掉所有持仓并取消全部挂单。",
+    "activationStep2Tag": "客户中心",
+    "activationStep2Title": "选择 Lion 或 Cheetah",
+    "activationStep2Body": "登录 ROCO 客户中心，选择符合条件的 Standard Lion 或 Standard Cheetah 账户。",
+    "activationStep3Tag": "提交申请",
+    "activationStep3Title": "申请免息状态",
+    "activationStep3Body": "通过客户中心提交激活申请。账户必须属于提交申请的本人。",
+    "activationStep4Tag": "审核结果",
+    "activationStep4Title": "等待确认",
+    "activationStep4Body": "相关团队将审核申请并通过电子邮件发送结果。仅在获批且系统已启用该状态后，免隔夜利息服务才会生效。",
     "eligibleLabel": "符合条件的账户", "eligibleTitle": "Standard Lion 与 Cheetah", "eligibleBody": "根据当前条款，仅 Standard Lion 和 Standard Cheetah 账户可申请此服务。",
     "excludedLabel": "不符合条件", "excludedTitle": "Nano、促销、赠金及信用账户", "excludedBody": "Nano、促销和赠金账户，以及持有信用额的账户，均无法使用此服务。",
     "marketsKicker": "市场准入", "marketsTitle": "一个账户，多个市场", "marketsBody": "符合条件的品种可能覆盖以下类别。实际范围以开放品种列表和当前交易条件为准。",
@@ -888,13 +903,6 @@
     "save": "保存选择",
     "reject": "全部拒绝",
     "accept": "全部接受"
-  },
-  "welcomePromo": {
-    "kicker": "限时优惠",
-    "title": "40% 存款奖金",
-    "text": "首次入金即享 40% 奖金。",
-    "cta": "立即领取",
-    "close": "关闭"
   },
   "a11y": {
     "skipToContent": "跳到主要内容"

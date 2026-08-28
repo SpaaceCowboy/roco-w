@@ -3,6 +3,7 @@ import { PageBackground } from "@/components/ui/PageBackground/PageBackground";
 import { Reveal } from "@/components/ui/Reveal/Reveal";
 import { Button } from "@/components/ui/Button/Button";
 import { CornerMark } from "@/components/ui/CornerMark/CornerMark";
+import { SwapFreeActivationSteps } from "./SwapFreeActivationSteps";
 import styles from "./SwapFreePage.module.css";
 
 const DASHBOARD = "https://my.rocobroker.com/login";
@@ -11,6 +12,11 @@ export function SwapFreeView() {
   const t = useTranslations("swapFreePage");
   const requirements = Array.from({ length: 6 }, (_, index) => t(`requirement${index + 1}`));
   const markets = Array.from({ length: 7 }, (_, index) => t(`market${index + 1}`));
+  const activationSteps = Array.from({ length: 4 }, (_, index) => ({
+    tag: t(`activationStep${index + 1}Tag`),
+    title: t(`activationStep${index + 1}Title`),
+    body: t(`activationStep${index + 1}Body`),
+  }));
 
   return (
     <div className={styles.page}>
@@ -109,6 +115,13 @@ export function SwapFreeView() {
           </div>
         </div>
       </section>
+
+      <SwapFreeActivationSteps
+        kicker={t("activationKicker")}
+        title={t("activationTitle")}
+        intro={t("activationIntro")}
+        steps={activationSteps}
+      />
 
       <section className={styles.section}>
         <div className={`${styles.inner} ${styles.marketsGrid}`}>

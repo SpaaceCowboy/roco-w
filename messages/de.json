@@ -857,6 +857,21 @@
     "requirement4": "Warten Sie auf die Bestätigung, dass der Swap-Free-Status aktiviert wurde.",
     "requirement5": "Die Verfügbarkeit kann durch Wohnsitz, Vorschriften, Sanktionen oder Compliance beschränkt sein.",
     "requirement6": "Schließen Sie vor dem Antrag alle offenen Trades und stornieren Sie ausstehende Orders.",
+    "activationKicker": "Aktivierung",
+    "activationTitle": "Swap-Free-Zugang beantragen",
+    "activationIntro": "Die Aktivierung erfolgt über das ROCO-Kundenportal und gilt erst, nachdem der Antrag genehmigt und der Status im System gesetzt wurde.",
+    "activationStep1Tag": "Vor dem Start",
+    "activationStep1Title": "Konto vorbereiten",
+    "activationStep1Body": "Prüfen Sie, dass Ihre KYC vollständig und gültig ist. Schließen Sie danach alle offenen Positionen und stornieren Sie sämtliche Pending Orders.",
+    "activationStep2Tag": "Kundenportal",
+    "activationStep2Title": "Lion oder Cheetah wählen",
+    "activationStep2Body": "Melden Sie sich im ROCO-Kundenportal an und wählen Sie das geeignete Standard-Lion- oder Standard-Cheetah-Konto aus.",
+    "activationStep3Tag": "Antrag senden",
+    "activationStep3Title": "Swap-Free-Status beantragen",
+    "activationStep3Body": "Senden Sie den Aktivierungsantrag über das Kunden-Dashboard. Das Konto muss der antragstellenden Person gehören.",
+    "activationStep4Tag": "Prüfergebnis",
+    "activationStep4Title": "Bestätigung abwarten",
+    "activationStep4Body": "Das zuständige Team prüft den Antrag und sendet das Ergebnis per E-Mail. Swap-Free beginnt erst nach Genehmigung und Aktivierung im System.",
     "eligibleLabel": "Berechtigte Konten", "eligibleTitle": "Standard Lion & Cheetah",
     "eligibleBody": "Nach den aktuellen Bedingungen ist Swap-Free nur für Standard-Lion- und Standard-Cheetah-Konten verfügbar.",
     "excludedLabel": "Nicht berechtigt", "excludedTitle": "Nano, Promotion, Bonus & Kredit",
@@ -895,13 +910,6 @@
     "save": "Auswahl speichern",
     "reject": "Alle ablehnen",
     "accept": "Alle akzeptieren"
-  },
-  "welcomePromo": {
-    "kicker": "Zeitlich begrenzt",
-    "title": "40 % Einzahlungsbonus",
-    "text": "Erhalten Sie 40 % Bonus auf Ihre erste Einzahlung.",
-    "cta": "Jetzt sichern",
-    "close": "Schließen"
   },
   "a11y": {
     "skipToContent": "Zum Inhalt springen"

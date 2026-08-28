@@ -835,8 +835,8 @@
     "copied": "Link copied"
   },
   "swapFreePage": {
-    "metaTitle": "Swap-Free Account | Trade Without Swap Under Clear Terms",
-    "metaDescription": "A Swap-Free Islamic account lets eligible trades run without swap charges or credits. Explore eligibility, supported markets and the 7-day rule.",
+    "metaTitle": "ROCO Swap-Free Account | Trade Without Swap Under Clear Terms",
+    "metaDescription": "The ROCO Swap-Free (Islamic) account lets eligible trades run without swap charges or credits. Learn about eligibility requirements, tradable symbols, and the 7-day rule at ROCO.",
     "eyebrow": "Faith-conscious trading",
     "title": "Swap-Free",
     "titleAccent": "Account",
@@ -862,6 +862,21 @@
     "requirement4": "Wait for approval and confirmation that Swap-Free status has been applied.",
     "requirement5": "Availability may be restricted by residence, regulation, sanctions or compliance requirements.",
     "requirement6": "Close all open trades and cancel every pending order before applying.",
+    "activationKicker": "Activation process",
+    "activationTitle": "Request Swap-Free access",
+    "activationIntro": "Activation is handled through the ROCO Client Portal and only takes effect after the request has been approved and applied in the system.",
+    "activationStep1Tag": "Before you begin",
+    "activationStep1Title": "Prepare the account",
+    "activationStep1Body": "Make sure KYC is complete and valid, then close every open trade and cancel all pending orders on the account.",
+    "activationStep2Tag": "Client Portal",
+    "activationStep2Title": "Choose Lion or Cheetah",
+    "activationStep2Body": "Log in to the ROCO Client Portal and select the eligible Standard Lion or Standard Cheetah account you want to activate.",
+    "activationStep3Tag": "Submit request",
+    "activationStep3Title": "Ask for Swap-Free status",
+    "activationStep3Body": "Submit the activation request from the Client Dashboard. The account must belong to the same person making the request.",
+    "activationStep4Tag": "Review outcome",
+    "activationStep4Title": "Wait for confirmation",
+    "activationStep4Body": "The relevant team reviews the request. The result is sent by email, and Swap-Free only starts once the status is approved and applied in the system.",
     "eligibleLabel": "Eligible accounts",
     "eligibleTitle": "Standard Lion & Cheetah",
     "eligibleBody": "Under current terms, Swap-Free activation is available only for Standard Lion and Standard Cheetah accounts.",
@@ -921,13 +936,6 @@
     "save": "Save choices",
     "reject": "Reject all",
     "accept": "Accept all"
-  },
-  "welcomePromo": {
-    "kicker": "Limited offer",
-    "title": "40% Deposit Bonus",
-    "text": "Get a 40% bonus on your first deposit.",
-    "cta": "Claim now",
-    "close": "Close"
   },
   "a11y": {
     "skipToContent": "Skip to content"
