@@ -3,7 +3,6 @@ import { PageBackground } from "@/components/ui/PageBackground/PageBackground";
 import { Reveal } from "@/components/ui/Reveal/Reveal";
 import { Button } from "@/components/ui/Button/Button";
 import { CornerMark } from "@/components/ui/CornerMark/CornerMark";
-import { Link } from "@/i18n/navigation";
 import styles from "./SwapFreePage.module.css";
 
 const DASHBOARD = "https://my.rocobroker.com/login";
@@ -121,7 +120,6 @@ export function SwapFreeView() {
             </div>
             <div className={styles.ctaActions}>
               <Button label={t("ctaButton")} href={DASHBOARD} external variant="dark" />
-              <Link className={styles.termsLink} href="/legal-documents">Swap-Free Terms</Link>
             </div>
           </div>
           <p className={styles.conditions}>{t("conditionsNote")}</p>
