@@ -10,7 +10,7 @@ const DASHBOARD = "https://my.rocobroker.com/login";
 
 export function SwapFreeView() {
   const t = useTranslations("swapFreePage");
-  const requirements = [t("requirement1"), t("requirement5"), t("requirement6")];
+  const requirements = [t("requirement1"), t("requirement5"), t("requirement6"), t("limitBody")];
 
   return (
     <div className={styles.page}>
@@ -70,6 +70,7 @@ export function SwapFreeView() {
                 </div>
               ))}
             </div>
+            <p className={styles.bodyCopy}>{t("ruleIntro")} {t("warningBody")}</p>
           </div>
         </div>
       </section>
