@@ -10,6 +10,7 @@ const DASHBOARD = "https://my.rocobroker.com/login";
 export function SwapFreeView() {
   const t = useTranslations("swapFreePage");
   const requirements = [t("requirement1"), t("requirement5"), t("requirement6"), t("limitBody")];
+  const activationSteps = [t("activationStep1Body"), t("activationStep3Body"), t("activationStep4Body")];
 
   return (
     <div className={styles.page}>
@@ -117,6 +118,9 @@ export function SwapFreeView() {
               <p className={styles.kicker}>{t("ctaKicker")}</p>
               <h2>{t("ctaTitle")}</h2>
               <p>{t("ctaBody")}</p>
+              <ol className={styles.activationSummary}>
+                {activationSteps.map((step) => <li key={step}>{step}</li>)}
+              </ol>
             </div>
             <div className={styles.ctaActions}>
               <Button label={t("ctaButton")} href={DASHBOARD} external variant="dark" />
