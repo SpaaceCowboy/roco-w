@@ -1,0 +1,27 @@
+[Unit]
+Description=ROCO Chatwoot AI AgentBot
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=rocobot
+Group=rocobot
+WorkingDirectory=/opt/roco-chatwoot-agent
+EnvironmentFile=/opt/roco-chatwoot-agent/.env
+ExecStart=/opt/rocobroker-node/bin/node /opt/roco-chatwoot-agent/dist/server.js
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=20
+
+# The bot needs outbound HTTPS and its own project directory only.
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/roco-chatwoot-agent
+RestrictSUIDSGID=true
+LockPersonality=true
+
+[Install]
+WantedBy=multi-user.target
