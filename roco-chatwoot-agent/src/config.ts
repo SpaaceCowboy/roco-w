@@ -72,7 +72,7 @@ export function loadConfig(): Config {
     webhookSecret: required("CHATWOOT_WEBHOOK_SECRET"),
     openaiApiKey: required("OPENAI_API_KEY"),
     openaiBaseUrl: url("OPENAI_BASE_URL", "https://api.openai.com/v1"),
-    openaiModel: process.env.OPENAI_MODEL?.trim() || "gpt-5.6-luna",
+    openaiModel: process.env.OPENAI_MODEL?.trim() || "gpt-5.4-mini",
     openaiReasoningEffort: reasoningEffort(),
     confidenceThreshold: decimal("BOT_CONFIDENCE_THRESHOLD", 0.72, 0.5, 1),
     maxContextMessages: integer("BOT_MAX_CONTEXT_MESSAGES", 10, 1, 30),

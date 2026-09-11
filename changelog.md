@@ -143,6 +143,13 @@ work should be added here in the same change that implements it.
 - All ten agent tests pass, including webhook, security, language, and model
   decision scenarios.
 
+### Model fallback consistency
+
+#### Fixed
+
+- Aligned the code-level OpenAI model fallback with `.env.example` so a missing
+  `OPENAI_MODEL` cannot silently select an obsolete model name.
+
 ## 2026-09-08
 
 ### Project work report
