@@ -34,6 +34,19 @@ work should be added here in the same change that implements it.
   Sidekiq were recreated from the rebuilt custom image.
 - The website changes were pushed to the repository's `main` branch.
 
+### Internal handoff notes for support agents
+
+#### Added
+
+- Added private Chatwoot notes for every AI handoff, containing only the
+  handoff reason, detected customer language, and required human-review action.
+- Private notes are invisible to customers and do not include customer message
+  bodies or sensitive data.
+
+#### Verification
+
+- Agent build and all ten tests pass after the private-note integration.
+
 ### Deterministic support escalation and refusal gates
 
 #### Changed

@@ -1,8 +1,9 @@
 import type { Config } from "./config.js";
 import { decideResponse } from "./openai.js";
-import { getConversationMessages, handoff, sendMessage } from "./chatwoot.js";
+import { addPrivateNote, getConversationMessages, handoff, sendMessage } from "./chatwoot.js";
 import type { ChatwootMessage, ChatwootWebhook, DecisionReason, Job } from "./types.js";
 import { responseMatchesCustomerLanguage } from "./language.js";
+import { detectCustomerLanguage } from "./language.js";
 
 const HUMAN_REQUEST = /\b(human|person|agent|representative|operator|support staff|live support)\b|انسان|اپراتور|پشتیبان|کارشناس|موظف|دعم بشري|человек|оператор|поддержк|mitarbeiter|berater|人工|客服/i;
 const SENSITIVE_INFORMATION = /\b(password|passcode|otp|one[- ]?time code|2fa|seed phrase|private key|secret key|card number|cvv|wallet address)\b|رمز عبور|رمز یکبار مصرف|کد تأیید|عبارت بازیابی|کلید خصوصی|شماره کارت|کد امنیتی|مفتاح خاص|رمز|验证码|私钥|助记词|карта|пароль/i;
@@ -55,6 +56,14 @@ function isIncoming(message: ChatwootMessage): boolean {
 
 function isOutgoing(message: ChatwootMessage): boolean {
   return message.message_type === "outgoing" || message.message_type === 1;
+}
+
+async function recordHandoff(config: Config, conversationId: number, message: string, reason: DecisionReason): Promise<void> {
+  try {
+    await addPrivateNote(config, conversationId, `AI handoff\nReason: ${reason}\nCustomer language: ${detectCustomerLanguage(message)}\nAction: human review required`);
+  } catch (error) {
+    console.error(`[bot] conversation=${conversationId} private_note=failed:`, error instanceof Error ? error.message : "unknown error");
+  }
 }
 
 export function webhookJob(payload: ChatwootWebhook, config: Config): {
@@ -117,6 +126,7 @@ export async function processMessage(
     const content = job.content || messages.find((message) => String(message.id) === job.messageId)?.content?.trim() || "";
     const forcedReason = deterministicHandoffReason(content);
     if (!content || forcedReason) {
+      await recordHandoff(config, job.conversationId, content, forcedReason ?? "unsupported_or_uncertain");
       await sendMessage(config, job.conversationId, handoffText(content, forcedReason ?? undefined), job.messageId);
       await handoff(config, job.conversationId);
       console.info(`[bot] message=${job.messageId} conversation=${job.conversationId} action=handoff reason=${forcedReason ?? "unsupported_or_uncertain"} ms=${Date.now() - startedAt}`);
@@ -130,6 +140,7 @@ export async function processMessage(
     });
 
     if (decision.action === "handoff" || !responseMatchesCustomerLanguage(content, decision.message)) {
+      await recordHandoff(config, job.conversationId, content, decision.action === "handoff" ? decision.reason : "unsupported_or_uncertain");
       await sendMessage(config, job.conversationId, handoffText(content, decision.reason), job.messageId);
       await handoff(config, job.conversationId);
       console.info(`[bot] message=${job.messageId} conversation=${job.conversationId} action=handoff reason=${decision.action === "handoff" ? decision.reason : "unsupported_or_uncertain"} ms=${Date.now() - startedAt}`);
@@ -148,6 +159,7 @@ export async function processMessage(
       error instanceof Error ? error.message : "unknown error",
     );
     try {
+      await recordHandoff(config, job.conversationId, job.content, "unsupported_or_uncertain");
       await sendMessage(config, job.conversationId, handoffText(job.content, "unsupported_or_uncertain"), job.messageId);
       await handoff(config, job.conversationId);
     } catch (handoffError) {

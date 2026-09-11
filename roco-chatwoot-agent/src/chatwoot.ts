@@ -66,6 +66,27 @@ export async function sendMessage(
   );
 }
 
+export async function addPrivateNote(
+  config: Config,
+  conversationId: number,
+  content: string,
+): Promise<void> {
+  await chatwootRequest(
+    config,
+    `/api/v1/accounts/${config.chatwootAccountId}/conversations/${conversationId}/messages`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        content: content.slice(0, 2_000),
+        message_type: "outgoing",
+        private: true,
+        content_type: "text",
+        content_attributes: { generated_by: "roco-chatwoot-agent", type: "handoff_context" },
+      }),
+    },
+  );
+}
+
 export async function handoff(config: Config, conversationId: number): Promise<void> {
   await chatwootRequest(
     config,
