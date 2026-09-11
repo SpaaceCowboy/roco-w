@@ -58,6 +58,20 @@ function isOutgoing(message: ChatwootMessage): boolean {
   return message.message_type === "outgoing" || message.message_type === 1;
 }
 
+function interactivePayload(payload: ChatwootWebhook): string {
+  const attributes = payload.content_attributes;
+  if (!attributes) return "";
+
+  const submitted = attributes.submitted_values;
+  if (submitted && typeof submitted === "object") {
+    const value = (submitted as { value?: unknown }).value;
+    if (typeof value === "string" && value.trim()) return value.trim();
+  }
+
+  const value = attributes.payload;
+  return typeof value === "string" ? value.trim() : "";
+}
+
 async function recordHandoff(config: Config, conversationId: number, message: string, reason: DecisionReason): Promise<void> {
   try {
     await addPrivateNote(config, conversationId, `AI handoff\nReason: ${reason}\nCustomer language: ${detectCustomerLanguage(message)}\nAction: human review required`);
@@ -81,7 +95,9 @@ export function webhookJob(payload: ChatwootWebhook, config: Config): {
   const conversationId = Number(payload.conversation?.id);
   const messageId = String(payload.id ?? "");
   const contactId = String(payload.contact?.id ?? payload.sender?.id ?? "unknown");
-  const content = typeof payload.content === "string" ? payload.content.trim() : "";
+  const content = typeof payload.content === "string" && payload.content.trim()
+    ? payload.content.trim()
+    : interactivePayload(payload);
 
   if (
     accountId !== config.chatwootAccountId ||
@@ -147,8 +163,9 @@ export async function processMessage(
       return true;
     }
 
+    const hasPriorSupportReply = messages.some((message) => isOutgoing(message) && !message.private);
     await sendMessage(config, job.conversationId, decision.message, job.messageId);
-    if (!messages.some((message) => message.content_attributes?.type === "handoff_button")) {
+    if (!hasPriorSupportReply) {
       await sendHandoffButton(config, job.conversationId, content);
     }
     console.info(

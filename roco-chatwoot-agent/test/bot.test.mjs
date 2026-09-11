@@ -31,6 +31,27 @@ test("accepts only an incoming contact message for the configured inbox", () => 
   assert.equal(webhookJob({ ...payload, conversation: { ...payload.conversation, status: "open" } }, config), null);
 });
 
+test("turns a Chatwoot postback into the human-support command", () => {
+  const payload = {
+    event: "message_created",
+    id: 43,
+    content: null,
+    content_attributes: { submitted_values: { value: "REQUEST_HUMAN_SUPPORT" } },
+    message_type: "incoming",
+    sender_type: "Contact",
+    account: { id: 1 },
+    inbox: { id: 1 },
+    contact: { id: 7 },
+    conversation: { id: 9, inbox_id: 1, status: "pending" },
+  };
+  assert.deepEqual(webhookJob(payload, config), {
+    messageId: "43",
+    conversationId: 9,
+    contactId: "7",
+    content: "REQUEST_HUMAN_SUPPORT",
+  });
+});
+
 test("forces high-risk requests to handoff before model processing", () => {
   assert.equal(deterministicHandoffReason("I forgot my password and need an OTP"), "sensitive_information");
   assert.equal(deterministicHandoffReason("Why was my withdrawal rejected?"), "needs_account_access");

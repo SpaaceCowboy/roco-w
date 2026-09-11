@@ -47,6 +47,20 @@ work should be added here in the same change that implements it.
 
 - Agent build and all ten tests pass after the interactive-message change.
 
+#### Fixed
+
+- Fixed Chatwoot postback webhook handling so a clicked handoff button is
+  recognized even when Chatwoot sends the action in
+  `content_attributes.submitted_values` instead of message text.
+- Limited the handoff button to the first normal AI reply in a conversation by
+  checking for an existing non-private support reply, preventing repeated
+  buttons after later customer messages.
+
+#### Verification
+
+- Added a postback webhook regression test; agent build and all eleven tests
+  pass.
+
 ### Internal handoff notes for support agents
 
 #### Added
