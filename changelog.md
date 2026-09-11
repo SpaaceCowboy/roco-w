@@ -34,6 +34,19 @@ work should be added here in the same change that implements it.
   Sidekiq were recreated from the rebuilt custom image.
 - The website changes were pushed to the repository's `main` branch.
 
+### Localized human-handoff button
+
+#### Added
+
+- Added a localized Chatwoot postback card after the first normal AI answer in
+  a conversation, with duplicate-button protection.
+- Selecting the button sends the fixed `REQUEST_HUMAN_SUPPORT` payload through
+  the existing deterministic handoff path, including the internal handoff note.
+
+#### Verification
+
+- Agent build and all ten tests pass after the interactive-message change.
+
 ### Internal handoff notes for support agents
 
 #### Added
