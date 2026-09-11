@@ -1,6 +1,6 @@
 import type { Config } from "./config.js";
 import { decideResponse } from "./openai.js";
-import { addPrivateNote, getConversationMessages, handoff, sendHandoffButton, sendMessage } from "./chatwoot.js";
+import { addPrivateNote, getConversationMessages, handoff, sendMessage } from "./chatwoot.js";
 import type { ChatwootMessage, ChatwootWebhook, DecisionReason, Job } from "./types.js";
 import { responseMatchesCustomerLanguage } from "./language.js";
 import { detectCustomerLanguage } from "./language.js";
@@ -163,11 +163,7 @@ export async function processMessage(
       return true;
     }
 
-    const hasPriorSupportReply = messages.some((message) => isOutgoing(message) && !message.private);
     await sendMessage(config, job.conversationId, decision.message, job.messageId);
-    if (!hasPriorSupportReply) {
-      await sendHandoffButton(config, job.conversationId, content);
-    }
     console.info(
       `[bot] message=${job.messageId} conversation=${job.conversationId} action=${decision.action} reason=${decision.reason} confidence=${decision.confidence.toFixed(2)} ms=${Date.now() - startedAt}`,
     );

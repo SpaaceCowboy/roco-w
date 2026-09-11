@@ -61,6 +61,15 @@ work should be added here in the same change that implements it.
 - Added a postback webhook regression test; agent build and all eleven tests
   pass.
 
+### Unsupported widget handoff card removed
+
+#### Removed
+
+- Removed the Chatwoot `cards` handoff message because the deployed Web Widget
+  does not emit an incoming event when its postback action is clicked.
+- Kept the existing localized text triggers for human handoff, including
+  “human”, “کارشناس”, and equivalent supported phrases.
+
 ### Internal handoff notes for support agents
 
 #### Added

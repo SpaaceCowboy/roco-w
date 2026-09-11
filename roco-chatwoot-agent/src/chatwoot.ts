@@ -87,39 +87,6 @@ export async function addPrivateNote(
   );
 }
 
-export async function sendHandoffButton(
-  config: Config,
-  conversationId: number,
-  customerMessage: string,
-): Promise<void> {
-  const isPersian = /[پچژگکی]/.test(customerMessage);
-  const isArabic = !isPersian && /[ء-ي]/.test(customerMessage);
-  const isChinese = /[一-鿿]/.test(customerMessage);
-  const isRussian = /[А-Яа-яЁё]/.test(customerMessage);
-  const text = isPersian ? "ارتباط با کارشناس انسانی" : isArabic ? "التواصل مع موظف دعم" : isChinese ? "转接人工客服" : isRussian ? "Связаться со специалистом" : "Talk to a human specialist";
-  await chatwootRequest(
-    config,
-    `/api/v1/accounts/${config.chatwootAccountId}/conversations/${conversationId}/messages`,
-    {
-      method: "POST",
-      body: JSON.stringify({
-        content: text,
-        content_type: "cards",
-        private: false,
-        content_attributes: {
-          generated_by: "roco-chatwoot-agent",
-          type: "handoff_button",
-          items: [{
-            title: text,
-            description: isPersian ? "برای ادامه گفتگو با پشتیبانی انسانی انتخاب کنید." : "Select this to continue with human support.",
-            actions: [{ type: "postback", text, payload: "REQUEST_HUMAN_SUPPORT" }],
-          }],
-        },
-      }),
-    },
-  );
-}
-
 export async function handoff(config: Config, conversationId: number): Promise<void> {
   await chatwootRequest(
     config,
