@@ -190,6 +190,21 @@ work should be added here in the same change that implements it.
 
 - Agent build and all ten tests pass.
 
+### Knowledge governance metadata
+
+#### Added
+
+- Added `knowledge/README.md` with approval and review requirements for
+  customer-facing policy content.
+- Added approved owner, review dates, status, and source references in
+  `knowledge/metadata.json`.
+- Added startup validation that blocks draft/expired knowledge and warns when
+  an approved knowledge review is overdue.
+
+#### Verification
+
+- Agent build and all ten tests pass with metadata validation enabled.
+
 ## 2026-09-08
 
 ### Project work report
