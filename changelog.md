@@ -131,6 +131,18 @@ work should be added here in the same change that implements it.
 
 - Added credential-redaction coverage; all seven agent tests pass.
 
+### Automated model and failure-scenario coverage
+
+#### Added
+
+- Added tests for valid structured model decisions, low-confidence conversion to
+  handoff, and OpenAI HTTP failure propagation.
+
+#### Verification
+
+- All ten agent tests pass, including webhook, security, language, and model
+  decision scenarios.
+
 ## 2026-09-08
 
 ### Project work report
