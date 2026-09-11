@@ -3,6 +3,77 @@
 This file records changes made during the launch-readiness remediation. New
 work should be added here in the same change that implements it.
 
+## 2026-09-11
+
+### Chatwoot AI support agent and widget presentation
+
+#### Added
+
+- Added the Chatwoot AI agent to the website repository under
+  `roco-chatwoot-agent/`, using the OpenAI Responses API with `gpt-5.4-mini`.
+- Added the production Chatwoot AgentBot deployment, systemd service, protected
+  environment file, Apache reverse-proxy route, and health endpoint on the VPS.
+- Added Persian RTL support for the Chatwoot widget, including right-aligned
+  Persian message text and composer fields.
+- Increased the Chatwoot widget dimensions to 440px wide and up to 720px high
+  on desktop, with responsive near-fullscreen sizing on mobile.
+- Added custom scrollbar styling inside the Chatwoot widget by extending the
+  self-hosted Chatwoot branding image and injecting the style into the widget
+  document.
+
+#### Fixed
+
+- Fixed the agent's Chatwoot message-history request to use the bot-authorized
+  conversation endpoint instead of the bot-forbidden messages index endpoint,
+  resolving the HTTP 401 responses.
+
+#### Verification
+
+- TypeScript checks passed for the website and the agent.
+- The agent successfully started on `127.0.0.1:3200` and Chatwoot Rails and
+  Sidekiq were recreated from the rebuilt custom image.
+- The website changes were pushed to the repository's `main` branch.
+
+## 2026-09-08
+
+### Project work report
+
+#### Added
+
+- Added the Persian internal work report covering the committed project history
+  from the initial repository commit through 2026-09-01, using the Roco internal
+  report template and Estedad font.
+
+## 2026-09-01
+
+### Swap-free account page and forex calculator
+
+#### Added
+
+- Added the multilingual swap-free account page and linked it into navigation
+  and the sitemap for all six supported locales.
+- Added the swap-free activation flow, including the account-opening steps and
+  welcome promotion content.
+
+#### Changed
+
+- Refactored the swap-free page content to keep the policy explanation concise,
+  restored the required activation instructions, and removed a terms link that
+  was not available in the current deployment.
+- Corrected forex calculator currency conversions and improved its input
+  validation and price-status handling.
+- Removed the misleading price refresh behavior from the calculator.
+
+## 2026-08-25
+
+### Self-hosted Chatwoot integration
+
+#### Added
+
+- Added the production documentation and environment configuration for the
+  self-hosted Chatwoot deployment, while keeping the provider switch explicit
+  and reversible.
+
 ## 2026-08-24
 
 ### Temporary Crisp live-chat trial
