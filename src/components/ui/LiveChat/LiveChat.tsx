@@ -37,8 +37,54 @@ declare global {
 
 const CHATWOOT_SCRIPT_ID = "chatwoot-sdk";
 const CRISP_SCRIPT_ID = "crisp-sdk";
+const CHATWOOT_HOST_STYLE_ID = "chatwoot-host-styles";
+
+const CHATWOOT_HOST_CSS = `
+  .woot-widget-holder {
+    width: 440px !important;
+    height: min(720px, calc(100vh - 96px)) !important;
+    max-width: calc(100vw - 32px) !important;
+    max-height: calc(100vh - 32px) !important;
+  }
+
+  @media (max-width: 640px) {
+    .woot-widget-holder {
+      width: calc(100vw - 16px) !important;
+      height: calc(100dvh - 80px) !important;
+      max-width: none !important;
+      max-height: none !important;
+      right: 8px !important;
+      bottom: 8px !important;
+    }
+  }
+`;
 
 const PERSIAN_CHATWOOT_CSS = `
+  *,
+  *::before,
+  *::after {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(148, 163, 184, 0.55) transparent;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.55);
+    border-radius: 999px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(148, 163, 184, 0.8);
+  }
+
   html,
   body {
     direction: rtl !important;
@@ -53,8 +99,20 @@ const PERSIAN_CHATWOOT_CSS = `
   }
 `;
 
+function installChatwootHostStyles() {
+  let style = document.getElementById(CHATWOOT_HOST_STYLE_ID) as HTMLStyleElement | null;
+  if (!style) {
+    style = document.createElement("style");
+    style.id = CHATWOOT_HOST_STYLE_ID;
+    document.head.appendChild(style);
+  }
+  style.textContent = CHATWOOT_HOST_CSS;
+}
+
 function loadChatwoot(locale: Locale) {
   if (!CHATWOOT_WEBSITE_TOKEN) return;
+
+  installChatwootHostStyles();
 
   window.chatwootSettings = {
     hideMessageBubble: false,
