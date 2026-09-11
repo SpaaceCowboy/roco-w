@@ -85,29 +85,38 @@ function transcript(messages: ChatwootMessage[], fallback: string) {
 export async function processMessage(
   config: Config,
   job: ReturnType<typeof webhookJob> & {},
-): Promise<void> {
+): Promise<boolean> {
   const startedAt = Date.now();
   try {
-    const forcedReason = deterministicHandoffReason(job.content);
-    if (!job.content || forcedReason) {
-      await sendMessage(config, job.conversationId, handoffText(job.content));
-      await handoff(config, job.conversationId);
-      console.info(`[bot] message=${job.messageId} conversation=${job.conversationId} action=handoff reason=${forcedReason ?? "unsupported_or_uncertain"} ms=${Date.now() - startedAt}`);
-      return;
+    const messages = await getConversationMessages(config, job.conversationId);
+    if (messages.some((message) => {
+      const attributes = message.content_attributes;
+      return attributes?.generated_by === "roco-chatwoot-agent" && attributes.source_message_id === job.messageId;
+    })) {
+      console.info(`[bot] message=${job.messageId} conversation=${job.conversationId} action=skip reason=already_processed ms=${Date.now() - startedAt}`);
+      return true;
     }
 
-    const messages = await getConversationMessages(config, job.conversationId);
+    const forcedReason = deterministicHandoffReason(job.content);
+    if (!job.content || forcedReason) {
+      await sendMessage(config, job.conversationId, handoffText(job.content), job.messageId);
+      await handoff(config, job.conversationId);
+      console.info(`[bot] message=${job.messageId} conversation=${job.conversationId} action=handoff reason=${forcedReason ?? "unsupported_or_uncertain"} ms=${Date.now() - startedAt}`);
+      return true;
+    }
+
     const decision = await decideResponse({
       config,
       contactId: job.contactId,
       messages: transcript(messages, job.content),
     });
 
-    await sendMessage(config, job.conversationId, decision.message);
+    await sendMessage(config, job.conversationId, decision.message, job.messageId);
     if (decision.action === "handoff") await handoff(config, job.conversationId);
     console.info(
       `[bot] message=${job.messageId} conversation=${job.conversationId} action=${decision.action} reason=${decision.reason} confidence=${decision.confidence.toFixed(2)} ms=${Date.now() - startedAt}`,
     );
+    return true;
   } catch (error) {
     // Never log customer content or model output.
     console.error(
@@ -115,7 +124,7 @@ export async function processMessage(
       error instanceof Error ? error.message : "unknown error",
     );
     try {
-      await sendMessage(config, job.conversationId, handoffText(job.content));
+      await sendMessage(config, job.conversationId, handoffText(job.content), job.messageId);
       await handoff(config, job.conversationId);
     } catch (handoffError) {
       console.error(
@@ -123,5 +132,6 @@ export async function processMessage(
         handoffError instanceof Error ? handoffError.message : "unknown error",
       );
     }
+    return false;
   }
 }

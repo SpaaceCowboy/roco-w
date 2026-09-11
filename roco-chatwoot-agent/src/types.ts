@@ -5,6 +5,7 @@ export type ChatwootMessage = {
   private?: boolean;
   sender_type?: string | null;
   sender?: { id?: number | string; type?: string; name?: string } | null;
+  content_attributes?: Record<string, unknown> | null;
 };
 
 export type ChatwootWebhook = ChatwootMessage & {

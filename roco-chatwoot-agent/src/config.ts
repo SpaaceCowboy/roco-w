@@ -14,6 +14,8 @@ export type Config = {
   maxContextMessages: number;
   maxConcurrent: number;
   queueLimit: number;
+  maxAttempts: number;
+  retryBaseDelayMs: number;
   webhookMaxAgeSeconds: number;
 };
 
@@ -76,6 +78,8 @@ export function loadConfig(): Config {
     maxContextMessages: integer("BOT_MAX_CONTEXT_MESSAGES", 10, 1, 30),
     maxConcurrent: integer("AI_MAX_CONCURRENT", 2, 1, 20),
     queueLimit: integer("AI_QUEUE_LIMIT", 100, 1, 10_000),
+    maxAttempts: integer("AI_MAX_ATTEMPTS", 3, 1, 5),
+    retryBaseDelayMs: integer("AI_RETRY_BASE_DELAY_MS", 1_000, 100, 60_000),
     webhookMaxAgeSeconds: integer("WEBHOOK_MAX_AGE_SECONDS", 300, 30, 3_600),
   };
 }

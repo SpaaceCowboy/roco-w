@@ -50,6 +50,22 @@ work should be added here in the same change that implements it.
 - Added coverage for the high-risk routing cases and confirmed all five agent
   tests pass.
 
+### Duplicate protection and bounded retries
+
+#### Changed
+
+- Added a source-message identifier to bot replies and checks fresh conversation
+  history before processing, preventing duplicate replies after webhook retries
+  or service restarts during delivery.
+- Added bounded internal retries with exponential backoff for failed jobs, with
+  configurable `AI_MAX_ATTEMPTS` and `AI_RETRY_BASE_DELAY_MS` settings.
+- Preserved fast webhook acknowledgement so Chatwoot is not held open while the
+  model or Chatwoot API is processing.
+
+#### Verification
+
+- Agent build and all five tests pass.
+
 ## 2026-09-08
 
 ### Project work report

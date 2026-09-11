@@ -37,6 +37,7 @@ export async function sendMessage(
   config: Config,
   conversationId: number,
   content: string,
+  sourceMessageId?: string,
 ): Promise<void> {
   await chatwootRequest(
     config,
@@ -48,7 +49,10 @@ export async function sendMessage(
         message_type: "outgoing",
         private: false,
         content_type: "text",
-        content_attributes: { generated_by: "roco-chatwoot-agent" },
+        content_attributes: {
+          generated_by: "roco-chatwoot-agent",
+          ...(sourceMessageId ? { source_message_id: sourceMessageId } : {}),
+        },
       }),
     },
   );
