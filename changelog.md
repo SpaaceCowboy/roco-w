@@ -66,6 +66,19 @@ work should be added here in the same change that implements it.
 
 - Agent build and all five tests pass.
 
+### Versioned support knowledge files
+
+#### Changed
+
+- Moved the approved ROCO knowledge and system policy out of the TypeScript
+  source into versioned `knowledge/roco.md` and `knowledge/policy.md` files.
+- Added runtime loading of those files from the built agent so policy updates
+  remain reviewable content changes rather than large code edits.
+
+#### Verification
+
+- Agent build and test suite pass with the external knowledge files loaded.
+
 ## 2026-09-08
 
 ### Project work report
