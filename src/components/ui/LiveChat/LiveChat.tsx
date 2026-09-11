@@ -60,11 +60,31 @@ const CHATWOOT_HOST_CSS = `
 `;
 
 const PERSIAN_CHATWOOT_CSS = `
-  *,
-  *::before,
-  *::after {
+  html {
     scrollbar-width: thin;
     scrollbar-color: rgba(148, 163, 184, 0.55) transparent;
+  }
+
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  html::-webkit-scrollbar-track,
+  body::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  html::-webkit-scrollbar-thumb,
+  body::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.55);
+    border-radius: 999px;
+  }
+
+  html::-webkit-scrollbar-thumb:hover,
+  body::-webkit-scrollbar-thumb:hover {
+    background: rgba(148, 163, 184, 0.8);
   }
 
   ::-webkit-scrollbar {
