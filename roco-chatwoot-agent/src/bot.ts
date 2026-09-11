@@ -21,18 +21,32 @@ export function deterministicHandoffReason(message: string): DecisionReason | nu
   return null;
 }
 
-function handoffText(message: string): string {
+function handoffText(message: string, reason?: DecisionReason): string {
+  const safety = reason === "sensitive_information";
   if (/[؀-ۿ]/.test(message)) {
-    return /[پچژگکی]/.test(message)
-      ? "یک کارشناس پشتیبانی به‌زودی این گفتگو را ادامه می‌دهد."
-      : "سيتابع أحد مختصي الدعم هذه المحادثة قريبًا."
+    if (/[پچژگکی]/.test(message)) {
+      return safety
+        ? "یک کارشناس پشتیبانی به‌زودی این گفتگو را ادامه می‌دهد. لطفاً رمز عبور، کد یک‌بارمصرف، اطلاعات کارت یا کلید خصوصی خود را ارسال نکنید."
+        : "یک کارشناس پشتیبانی به‌زودی این گفتگو را ادامه می‌دهد. لطفاً اطلاعات مرتبط با مشکل را بدون رمز عبور یا کد تأیید ارسال کنید."
+    }
+    return safety
+      ? "سيتابع أحد مختصي الدعم هذه المحادثة قريبًا. يُرجى عدم إرسال كلمة المرور أو رمز التحقق أو بيانات البطاقة أو المفتاح الخاص."
+      : "سيتابع أحد مختصي الدعم هذه المحادثة قريبًا. يُرجى إرسال تفاصيل المشكلة دون كلمة مرور أو رمز تحقق."
   }
-  if (/[Ѐ-ӿ]/.test(message)) return "Специалист поддержки скоро продолжит этот разговор.";
-  if (/[一-鿿]/.test(message)) return "支持专员将很快继续此对话。";
+  if (/[Ѐ-ӿ]/.test(message)) return safety
+    ? "Специалист поддержки скоро продолжит этот разговор. Не отправляйте пароль, код подтверждения, данные карты или закрытый ключ."
+    : "Специалист поддержки скоро продолжит этот разговор. Не отправляйте пароль или код подтверждения.";
+  if (/[一-鿿]/.test(message)) return safety
+    ? "支持专员将很快继续此对话。请勿发送密码、验证码、银行卡信息、助记词或私钥。"
+    : "支持专员将很快继续此对话。请不要发送密码或验证码。";
   if (/\b(hallo|bitte|konto|mitarbeiter|berater|danke)\b/i.test(message)) {
-    return "Ein Support-Mitarbeiter wird dieses Gespräch in Kürze fortsetzen.";
+    return safety
+      ? "Ein Support-Mitarbeiter wird dieses Gespräch in Kürze fortsetzen. Bitte senden Sie niemals Passwörter, Bestätigungscodes, Kartendaten oder private Schlüssel."
+      : "Ein Support-Mitarbeiter wird dieses Gespräch in Kürze fortsetzen. Bitte senden Sie kein Passwort oder keinen Bestätigungscode.";
   }
-  return "A support specialist will continue this conversation shortly.";
+  return safety
+    ? "A support specialist will continue this conversation shortly. Never send passwords, OTPs, card details, seed phrases, or private keys."
+    : "A support specialist will continue this conversation shortly. Please do not send passwords or verification codes.";
 }
 
 function isIncoming(message: ChatwootMessage): boolean {
@@ -103,7 +117,7 @@ export async function processMessage(
     const content = job.content || messages.find((message) => String(message.id) === job.messageId)?.content?.trim() || "";
     const forcedReason = deterministicHandoffReason(content);
     if (!content || forcedReason) {
-      await sendMessage(config, job.conversationId, handoffText(content), job.messageId);
+      await sendMessage(config, job.conversationId, handoffText(content, forcedReason ?? undefined), job.messageId);
       await handoff(config, job.conversationId);
       console.info(`[bot] message=${job.messageId} conversation=${job.conversationId} action=handoff reason=${forcedReason ?? "unsupported_or_uncertain"} ms=${Date.now() - startedAt}`);
       return true;
@@ -116,7 +130,7 @@ export async function processMessage(
     });
 
     if (decision.action === "handoff" || !responseMatchesCustomerLanguage(content, decision.message)) {
-      await sendMessage(config, job.conversationId, handoffText(content), job.messageId);
+      await sendMessage(config, job.conversationId, handoffText(content, decision.reason), job.messageId);
       await handoff(config, job.conversationId);
       console.info(`[bot] message=${job.messageId} conversation=${job.conversationId} action=handoff reason=${decision.action === "handoff" ? decision.reason : "unsupported_or_uncertain"} ms=${Date.now() - startedAt}`);
       return true;
@@ -134,7 +148,7 @@ export async function processMessage(
       error instanceof Error ? error.message : "unknown error",
     );
     try {
-      await sendMessage(config, job.conversationId, handoffText(job.content), job.messageId);
+      await sendMessage(config, job.conversationId, handoffText(job.content, "unsupported_or_uncertain"), job.messageId);
       await handoff(config, job.conversationId);
     } catch (handoffError) {
       console.error(

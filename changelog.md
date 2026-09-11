@@ -177,6 +177,19 @@ work should be added here in the same change that implements it.
 
 - Added prompt-injection routing coverage; all ten agent tests pass.
 
+### Localized handoff guidance
+
+#### Changed
+
+- Expanded English, Persian, Arabic, Chinese, Russian, and German handoff
+  messages with concise guidance on safe information to provide.
+- Sensitive-information handoffs now explicitly warn customers not to send
+  passwords, OTPs, card details, seed phrases, or private keys.
+
+#### Verification
+
+- Agent build and all ten tests pass.
+
 ## 2026-09-08
 
 ### Project work report
