@@ -30,8 +30,10 @@ export function verifyChatwootSignature({
 /** Remove common identifiers before any conversation text leaves ROCO infrastructure. */
 export function redactForModel(value: string): string {
   return value
+    .replace(/\b(?:password|passcode|otp|one[- ]?time code|2fa|secret|private key|seed phrase|cvv)\b\s*[:=]?\s*\S+/gi, "[sensitive value removed]")
     .replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi, "[email removed]")
     .replace(/\b(?:\+?\d[\d\s().-]{7,}\d)\b/g, "[number removed]")
+    .replace(/\b(?:\d[ -]*?){13,19}\b/g, "[card number removed]")
     .replace(/\b[0-9a-f]{8}-[0-9a-f-]{27,}\b/gi, "[identifier removed]")
     .replace(/\b(?:0x)?[0-9a-f]{24,}\b/gi, "[identifier removed]")
     .slice(0, 4_000);

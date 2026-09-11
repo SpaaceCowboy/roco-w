@@ -36,3 +36,10 @@ test("redacts common personal identifiers", () => {
   assert.doesNotMatch(value, /7401 123456/);
   assert.doesNotMatch(value, /1234567890abcdef1234567890abcdef/);
 });
+
+test("redacts credential-like historical content", () => {
+  const value = redactForModel("password=hunter2 otp: 123456 card 4111 1111 1111 1111");
+  assert.equal(value.includes("hunter2"), false);
+  assert.equal(value.includes("123456"), false);
+  assert.equal(value.includes("4111"), false);
+});

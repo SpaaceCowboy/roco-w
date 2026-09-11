@@ -119,6 +119,18 @@ work should be added here in the same change that implements it.
 
 - Agent build and all six tests pass.
 
+### Expanded model-input redaction
+
+#### Changed
+
+- Extended historical conversation redaction to remove credential-like values,
+  OTPs, private keys, seed phrases, CVVs, and card-number patterns before model
+  input is constructed.
+
+#### Verification
+
+- Added credential-redaction coverage; all seven agent tests pass.
+
 ## 2026-09-08
 
 ### Project work report
