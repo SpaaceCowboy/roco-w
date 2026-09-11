@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { deterministicHandoffReason, webhookJob } from "../dist/bot.js";
+import { responseMatchesCustomerLanguage } from "../dist/language.js";
 
 const config = {
   chatwootAccountId: 1,
@@ -37,4 +38,11 @@ test("forces high-risk requests to handoff before model processing", () => {
   assert.equal(deterministicHandoffReason("Should I use 1:1000 leverage?"), "financial_advice");
   assert.equal(deterministicHandoffReason("Please connect me to a human"), "human_requested");
   assert.equal(deterministicHandoffReason("What platforms do you support?"), null);
+});
+
+test("validates the response script against the customer language", () => {
+  assert.equal(responseMatchesCustomerLanguage("حساب من محدود شده", "یک کارشناس پاسخ خواهد داد"), true);
+  assert.equal(responseMatchesCustomerLanguage("حساب من محدود شده", "A support specialist will help"), false);
+  assert.equal(responseMatchesCustomerLanguage("我的账户受到限制", "支持专员会继续处理"), true);
+  assert.equal(responseMatchesCustomerLanguage("我的账户受到限制", "A support specialist will help"), false);
 });

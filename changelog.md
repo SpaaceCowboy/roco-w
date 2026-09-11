@@ -79,6 +79,20 @@ work should be added here in the same change that implements it.
 
 - Agent build and test suite pass with the external knowledge files loaded.
 
+### Persian and Chinese response-language validation
+
+#### Added
+
+- Added lightweight language detection and response-script validation for
+  Persian, Arabic, Chinese, Russian, German, and English customer messages.
+- Mismatched Persian or Chinese model output now becomes a localized human
+  handoff rather than being sent to the customer.
+- Model-selected handoffs now use the customer's language for the handoff text.
+
+#### Verification
+
+- Added multilingual script-validation tests; all six agent tests pass.
+
 ## 2026-09-08
 
 ### Project work report

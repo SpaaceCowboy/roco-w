@@ -2,6 +2,7 @@ import type { Config } from "./config.js";
 import { decideResponse } from "./openai.js";
 import { getConversationMessages, handoff, sendMessage } from "./chatwoot.js";
 import type { ChatwootMessage, ChatwootWebhook, DecisionReason } from "./types.js";
+import { responseMatchesCustomerLanguage } from "./language.js";
 
 const HUMAN_REQUEST = /\b(human|person|agent|representative|operator|support staff|live support)\b|انسان|اپراتور|پشتیبان|کارشناس|موظف|دعم بشري|человек|оператор|поддержк|mitarbeiter|berater|人工|客服/i;
 const SENSITIVE_INFORMATION = /\b(password|passcode|otp|one[- ]?time code|2fa|seed phrase|private key|secret key|card number|cvv|wallet address)\b|رمز عبور|رمز یکبار مصرف|کد تأیید|عبارت بازیابی|کلید خصوصی|شماره کارت|کد امنیتی|مفتاح خاص|رمز|验证码|私钥|助记词|карта|пароль/i;
@@ -111,8 +112,14 @@ export async function processMessage(
       messages: transcript(messages, job.content),
     });
 
+    if (decision.action === "handoff" || !responseMatchesCustomerLanguage(job.content, decision.message)) {
+      await sendMessage(config, job.conversationId, handoffText(job.content), job.messageId);
+      await handoff(config, job.conversationId);
+      console.info(`[bot] message=${job.messageId} conversation=${job.conversationId} action=handoff reason=${decision.action === "handoff" ? decision.reason : "unsupported_or_uncertain"} ms=${Date.now() - startedAt}`);
+      return true;
+    }
+
     await sendMessage(config, job.conversationId, decision.message, job.messageId);
-    if (decision.action === "handoff") await handoff(config, job.conversationId);
     console.info(
       `[bot] message=${job.messageId} conversation=${job.conversationId} action=${decision.action} reason=${decision.reason} confidence=${decision.confidence.toFixed(2)} ms=${Date.now() - startedAt}`,
     );
