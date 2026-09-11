@@ -9,12 +9,14 @@ const SENSITIVE_INFORMATION = /\b(password|passcode|otp|one[- ]?time code|2fa|se
 const ACCOUNT_OR_TRANSACTION = /\b(account balance|my account|account restriction|verify my|verification status|deposit|withdraw(?:al)?|payment|transaction|transfer|refund|trade|order|position|margin call|stop.?out|bonus claim)\b|موجودی|حساب من|احراز هویت|واریز|برداشت|پرداخت|تراکنش|انتقال|بازپرداخت|معامله|سفارش|پوزیشن|بونوس|رصيد|حسابي|إيداع|سحب|دفعة|معاملة|تحويل|استرداد|تجارة|طلب|رصيد الهامش|余额|账户|充值|提现|付款|交易|退款|订单|余额|сч[её]т|депозит|вывод|плат[её]ж|транзакц|сделк|ордер/i;
 const COMPLAINT_OR_LEGAL = /\b(complaint|complain|scam|fraud|stolen|lawsuit|lawyer|legal|regulator|regulatory|chargeback|dispute)\b|شکایت|کلاهبرداری|تقلب|سرقت|وکیل|حقوقی|رگولاتور|اعتراض|شكوى|احتيال|سرقة|محام|قانوني|منظم|اعتراض|投诉|欺诈|盗窃|律师|法律|监管|жалоб|мошеннич|украд|юрист|юридич/i;
 const FINANCIAL_ADVICE = /\b(should i|recommend|advise me|best leverage|which (account|provider|trade|symbol)|buy|sell|invest|guaranteed profit|signal|allocation|risk)\b|آیا.*(بخرم|بفروشم|سرمایه‌گذاری)|اهرم.*(پیشنهاد|مناسب)|سود تضمینی|توصیه مالی|هل أشتري|هل أبيع|استثمر|رافعة مناسبة|شراء|بيع|投资|买入|卖出|推荐|杠杆|гарантированн.*прибыл|купить|продать|инвест/i;
+const PROMPT_INJECTION = /\b(ignore|disregard|forget|override|bypass|reveal|show|print|repeat).{0,40}\b(previous|prior|system|developer|hidden|secret|instruction|prompt|policy)\b|ignore (all|any) (previous|prior) instructions|سیستم پرامپت|دستورهای قبلی|محرمانه|تعليمات السابقة|التعليمات السابقة|系统提示词|忽略之前的指令|предыдущие инструкции/i;
 
 export function deterministicHandoffReason(message: string): DecisionReason | null {
   if (HUMAN_REQUEST.test(message)) return "human_requested";
   if (SENSITIVE_INFORMATION.test(message)) return "sensitive_information";
   if (COMPLAINT_OR_LEGAL.test(message)) return "complaint_or_legal";
   if (FINANCIAL_ADVICE.test(message)) return "financial_advice";
+  if (PROMPT_INJECTION.test(message)) return "unsupported_or_uncertain";
   if (ACCOUNT_OR_TRANSACTION.test(message)) return "needs_account_access";
   return null;
 }

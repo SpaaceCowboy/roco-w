@@ -164,6 +164,19 @@ work should be added here in the same change that implements it.
 
 - Agent TypeScript build and scenario tests pass after the persistence changes.
 
+### Deterministic prompt-injection handling
+
+#### Added
+
+- Added a pre-model detector for requests to ignore, override, or reveal
+  system/developer instructions and hidden prompts in supported languages.
+- Detected prompt-injection attempts now use the normal safe handoff path and
+  never reach OpenAI.
+
+#### Verification
+
+- Added prompt-injection routing coverage; all ten agent tests pass.
+
 ## 2026-09-08
 
 ### Project work report
