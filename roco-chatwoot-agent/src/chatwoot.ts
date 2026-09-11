@@ -1,7 +1,7 @@
 import type { Config } from "./config.js";
 import type { ChatwootMessage } from "./types.js";
 
-type MessagesResponse = { payload?: ChatwootMessage[] } | ChatwootMessage[];
+type ConversationResponse = { messages?: ChatwootMessage[] };
 
 async function chatwootRequest(
   config: Config,
@@ -27,10 +27,10 @@ export async function getConversationMessages(
 ): Promise<ChatwootMessage[]> {
   const response = await chatwootRequest(
     config,
-    `/api/v1/accounts/${config.chatwootAccountId}/conversations/${conversationId}/messages`,
+    `/api/v1/accounts/${config.chatwootAccountId}/conversations/${conversationId}`,
   );
-  const data = (await response.json()) as MessagesResponse;
-  return Array.isArray(data) ? data : (data.payload ?? []);
+  const data = (await response.json()) as ConversationResponse;
+  return data.messages ?? [];
 }
 
 export async function sendMessage(
