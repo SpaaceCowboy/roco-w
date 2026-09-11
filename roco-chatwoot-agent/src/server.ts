@@ -10,6 +10,7 @@ const DEDUPE_TTL_MS = 15 * 60_000;
 const seen = new Map<string, number>();
 type Job = NonNullable<ReturnType<typeof webhookJob>> & { attempt: number };
 const queue: Job[] = [];
+const activeConversations = new Set<number>();
 let active = 0;
 
 function json(response: ServerResponse, status: number, body: object): void {
@@ -40,9 +41,12 @@ function pruneSeen(now: number): void {
 
 function drain(): void {
   while (active < config.maxConcurrent && queue.length) {
-    const job = queue.shift();
+    const index = queue.findIndex((candidate) => !activeConversations.has(candidate.conversationId));
+    if (index < 0) return;
+    const [job] = queue.splice(index, 1);
     if (!job) return;
     active += 1;
+    activeConversations.add(job.conversationId);
     void processMessage(config, job).then((succeeded) => {
       if (!succeeded && job.attempt < config.maxAttempts) {
         const delay = config.retryBaseDelayMs * 2 ** (job.attempt - 1);
@@ -56,6 +60,7 @@ function drain(): void {
       }
     }).finally(() => {
       active -= 1;
+      activeConversations.delete(job.conversationId);
       drain();
     });
   }
@@ -76,7 +81,7 @@ const server = createServer(async (request, response) => {
   const url = new URL(request.url ?? "/", `http://${request.headers.host ?? "localhost"}`);
 
   if (request.method === "GET" && url.pathname === "/health") {
-    json(response, 200, { ok: true, active, queued: queue.length });
+    json(response, 200, { ok: true, active, active_conversations: activeConversations.size, queued: queue.length });
     return;
   }
 

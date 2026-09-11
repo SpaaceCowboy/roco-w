@@ -106,6 +106,19 @@ work should be added here in the same change that implements it.
 
 - All six agent tests pass after the logging changes.
 
+### Per-conversation concurrency protection
+
+#### Changed
+
+- Added a per-conversation execution lock so rapid messages in one conversation
+  are processed in order and cannot generate competing replies.
+- Extended the health response with the number of active conversations while
+  retaining the global concurrency and queue limits.
+
+#### Verification
+
+- Agent build and all six tests pass.
+
 ## 2026-09-08
 
 ### Project work report
