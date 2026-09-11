@@ -8,15 +8,23 @@ async function chatwootRequest(
   path: string,
   init: RequestInit = {},
 ): Promise<Response> {
-  const response = await fetch(`${config.chatwootBaseUrl}${path}`, {
-    ...init,
-    headers: {
-      api_access_token: config.chatwootToken,
-      "Content-Type": "application/json",
-      ...init.headers,
-    },
-    signal: AbortSignal.timeout(15_000),
-  });
+  const startedAt = Date.now();
+  let response: Response;
+  try {
+    response = await fetch(`${config.chatwootBaseUrl}${path}`, {
+      ...init,
+      headers: {
+        api_access_token: config.chatwootToken,
+        "Content-Type": "application/json",
+        ...init.headers,
+      },
+      signal: AbortSignal.timeout(15_000),
+    });
+  } catch (error) {
+    console.error(`[chatwoot] path=${path} status=network_error latency_ms=${Date.now() - startedAt}`);
+    throw error;
+  }
+  console.info(`[chatwoot] path=${path} status=${response.status} latency_ms=${Date.now() - startedAt}`);
   if (!response.ok) throw new Error(`Chatwoot API ${path} failed with HTTP ${response.status}`);
   return response;
 }

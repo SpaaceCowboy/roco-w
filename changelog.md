@@ -93,6 +93,19 @@ work should be added here in the same change that implements it.
 
 - Added multilingual script-validation tests; all six agent tests pass.
 
+### Safe external-call observability
+
+#### Added
+
+- Added structured operational logs for Chatwoot and OpenAI calls, including
+  endpoint, model, HTTP status or network failure, and latency.
+- Kept request and response bodies, credentials, and customer content out of
+  these logs.
+
+#### Verification
+
+- All six agent tests pass after the logging changes.
+
 ## 2026-09-08
 
 ### Project work report

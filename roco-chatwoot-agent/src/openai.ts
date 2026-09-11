@@ -63,7 +63,10 @@ export async function decideResponse({
     .map((message) => `${message.role.toUpperCase()}: ${redactForModel(message.content)}`)
     .join("\n");
 
-  const response = await fetch(`${config.openaiBaseUrl}/responses`, {
+  const startedAt = Date.now();
+  let response: Response;
+  try {
+    response = await fetch(`${config.openaiBaseUrl}/responses`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${config.openaiApiKey}`,
@@ -87,8 +90,13 @@ export async function decideResponse({
       prompt_cache_key: "roco-support-policy-v1",
       safety_identifier: safetyIdentifier(contactId),
     }),
-    signal: AbortSignal.timeout(30_000),
-  });
+      signal: AbortSignal.timeout(30_000),
+    });
+  } catch (error) {
+    console.error(`[openai] model=${config.openaiModel} status=network_error latency_ms=${Date.now() - startedAt}`);
+    throw error;
+  }
+  console.info(`[openai] model=${config.openaiModel} status=${response.status} latency_ms=${Date.now() - startedAt}`);
 
   const payload = (await response.json()) as ResponsePayload;
   if (!response.ok) {
