@@ -26,7 +26,9 @@ type CrispCommand = [string, string, ...unknown[]];
 declare global {
   interface Window {
     chatwootSettings?: ChatwootSettings;
-    chatwootSDK?: { run: (options: { websiteToken: string; baseUrl: string }) => void };
+    chatwootSDK?: {
+      run: (options: { websiteToken: string; baseUrl: string; customCSS?: string }) => void;
+    };
     $crisp?: CrispCommand[];
     CRISP_WEBSITE_ID?: string;
     CRISP_RUNTIME_CONFIG?: { locale: string };
@@ -35,6 +37,21 @@ declare global {
 
 const CHATWOOT_SCRIPT_ID = "chatwoot-sdk";
 const CRISP_SCRIPT_ID = "crisp-sdk";
+
+const PERSIAN_CHATWOOT_CSS = `
+  html,
+  body {
+    direction: rtl !important;
+  }
+
+  p,
+  textarea,
+  input,
+  [contenteditable="true"] {
+    direction: rtl !important;
+    text-align: right !important;
+  }
+`;
 
 function loadChatwoot(locale: Locale) {
   if (!CHATWOOT_WEBSITE_TOKEN) return;
@@ -52,6 +69,7 @@ function loadChatwoot(locale: Locale) {
     window.chatwootSDK?.run({
       websiteToken: CHATWOOT_WEBSITE_TOKEN,
       baseUrl: CHATWOOT_BASE_URL,
+      ...(locale === "fa" ? { customCSS: PERSIAN_CHATWOOT_CSS } : {}),
     });
   };
 
