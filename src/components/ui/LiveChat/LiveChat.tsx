@@ -40,7 +40,7 @@ const CRISP_SCRIPT_ID = "crisp-sdk";
 const CHATWOOT_HOST_STYLE_ID = "chatwoot-host-styles";
 
 const CHATWOOT_HOST_CSS = `
-  .woot-widget-holder {
+  #cw-widget-holder.woot-widget-holder {
     width: 440px !important;
     height: min(720px, calc(100vh - 96px)) !important;
     max-width: calc(100vw - 32px) !important;
@@ -48,7 +48,7 @@ const CHATWOOT_HOST_CSS = `
   }
 
   @media (max-width: 640px) {
-    .woot-widget-holder {
+    #cw-widget-holder.woot-widget-holder {
       width: calc(100vw - 16px) !important;
       height: calc(100dvh - 80px) !important;
       max-width: none !important;
