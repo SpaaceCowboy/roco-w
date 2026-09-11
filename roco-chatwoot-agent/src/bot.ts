@@ -1,9 +1,22 @@
 import type { Config } from "./config.js";
 import { decideResponse } from "./openai.js";
 import { getConversationMessages, handoff, sendMessage } from "./chatwoot.js";
-import type { ChatwootMessage, ChatwootWebhook } from "./types.js";
+import type { ChatwootMessage, ChatwootWebhook, DecisionReason } from "./types.js";
 
 const HUMAN_REQUEST = /\b(human|person|agent|representative|operator|support staff|live support)\b|انسان|اپراتور|پشتیبان|کارشناس|موظف|دعم بشري|человек|оператор|поддержк|mitarbeiter|berater|人工|客服/i;
+const SENSITIVE_INFORMATION = /\b(password|passcode|otp|one[- ]?time code|2fa|seed phrase|private key|secret key|card number|cvv|wallet address)\b|رمز عبور|رمز یکبار مصرف|کد تأیید|عبارت بازیابی|کلید خصوصی|شماره کارت|کد امنیتی|مفتاح خاص|رمز|验证码|私钥|助记词|карта|пароль/i;
+const ACCOUNT_OR_TRANSACTION = /\b(account balance|my account|account restriction|verify my|verification status|deposit|withdraw(?:al)?|payment|transaction|transfer|refund|trade|order|position|margin call|stop.?out|bonus claim)\b|موجودی|حساب من|احراز هویت|واریز|برداشت|پرداخت|تراکنش|انتقال|بازپرداخت|معامله|سفارش|پوزیشن|بونوس|رصيد|حسابي|إيداع|سحب|دفعة|معاملة|تحويل|استرداد|تجارة|طلب|رصيد الهامش|余额|账户|充值|提现|付款|交易|退款|订单|余额|сч[её]т|депозит|вывод|плат[её]ж|транзакц|сделк|ордер/i;
+const COMPLAINT_OR_LEGAL = /\b(complaint|complain|scam|fraud|stolen|lawsuit|lawyer|legal|regulator|regulatory|chargeback|dispute)\b|شکایت|کلاهبرداری|تقلب|سرقت|وکیل|حقوقی|رگولاتور|اعتراض|شكوى|احتيال|سرقة|محام|قانوني|منظم|اعتراض|投诉|欺诈|盗窃|律师|法律|监管|жалоб|мошеннич|украд|юрист|юридич/i;
+const FINANCIAL_ADVICE = /\b(should i|recommend|advise me|best leverage|which (account|provider|trade|symbol)|buy|sell|invest|guaranteed profit|signal|allocation|risk)\b|آیا.*(بخرم|بفروشم|سرمایه‌گذاری)|اهرم.*(پیشنهاد|مناسب)|سود تضمینی|توصیه مالی|هل أشتري|هل أبيع|استثمر|رافعة مناسبة|شراء|بيع|投资|买入|卖出|推荐|杠杆|гарантированн.*прибыл|купить|продать|инвест/i;
+
+export function deterministicHandoffReason(message: string): DecisionReason | null {
+  if (HUMAN_REQUEST.test(message)) return "human_requested";
+  if (SENSITIVE_INFORMATION.test(message)) return "sensitive_information";
+  if (COMPLAINT_OR_LEGAL.test(message)) return "complaint_or_legal";
+  if (FINANCIAL_ADVICE.test(message)) return "financial_advice";
+  if (ACCOUNT_OR_TRANSACTION.test(message)) return "needs_account_access";
+  return null;
+}
 
 function handoffText(message: string): string {
   if (/[؀-ۿ]/.test(message)) {
@@ -75,10 +88,11 @@ export async function processMessage(
 ): Promise<void> {
   const startedAt = Date.now();
   try {
-    if (!job.content || HUMAN_REQUEST.test(job.content)) {
+    const forcedReason = deterministicHandoffReason(job.content);
+    if (!job.content || forcedReason) {
       await sendMessage(config, job.conversationId, handoffText(job.content));
       await handoff(config, job.conversationId);
-      console.info(`[bot] message=${job.messageId} conversation=${job.conversationId} action=handoff reason=direct ms=${Date.now() - startedAt}`);
+      console.info(`[bot] message=${job.messageId} conversation=${job.conversationId} action=handoff reason=${forcedReason ?? "unsupported_or_uncertain"} ms=${Date.now() - startedAt}`);
       return;
     }
 

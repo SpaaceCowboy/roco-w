@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { webhookJob } from "../dist/bot.js";
+import { deterministicHandoffReason, webhookJob } from "../dist/bot.js";
 
 const config = {
   chatwootAccountId: 1,
@@ -28,4 +28,13 @@ test("accepts only an incoming contact message for the configured inbox", () => 
   assert.equal(webhookJob({ ...payload, message_type: "outgoing" }, config), null);
   assert.equal(webhookJob({ ...payload, inbox: { id: 2 } }, config), null);
   assert.equal(webhookJob({ ...payload, conversation: { ...payload.conversation, status: "open" } }, config), null);
+});
+
+test("forces high-risk requests to handoff before model processing", () => {
+  assert.equal(deterministicHandoffReason("I forgot my password and need an OTP"), "sensitive_information");
+  assert.equal(deterministicHandoffReason("Why was my withdrawal rejected?"), "needs_account_access");
+  assert.equal(deterministicHandoffReason("I want to file a complaint"), "complaint_or_legal");
+  assert.equal(deterministicHandoffReason("Should I use 1:1000 leverage?"), "financial_advice");
+  assert.equal(deterministicHandoffReason("Please connect me to a human"), "human_requested");
+  assert.equal(deterministicHandoffReason("What platforms do you support?"), null);
 });

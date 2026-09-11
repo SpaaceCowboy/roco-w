@@ -34,6 +34,22 @@ work should be added here in the same change that implements it.
   Sidekiq were recreated from the rebuilt custom image.
 - The website changes were pushed to the repository's `main` branch.
 
+### Deterministic support escalation and refusal gates
+
+#### Changed
+
+- Added a pre-model safety gate for explicit human requests, credentials and
+  sensitive information, account or transaction issues, complaints and legal
+  matters, and financial or investment advice.
+- These high-risk requests now go directly to human handoff without calling the
+  model, with a reason recorded in the operational log and no customer content
+  logged.
+
+#### Verification
+
+- Added coverage for the high-risk routing cases and confirmed all five agent
+  tests pass.
+
 ## 2026-09-08
 
 ### Project work report
