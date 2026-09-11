@@ -14,6 +14,9 @@ const store = new JobStore(config.stateFile);
 for (const job of store.pending()) queue.push({ ...job, content: "" });
 const seen = new Map<string, number>(queue.map((job) => [job.messageId, Date.now() + DEDUPE_TTL_MS]));
 let active = 0;
+let consecutiveFailures = 0;
+let totalFailures = 0;
+let totalRetryExhaustions = 0;
 
 function json(response: ServerResponse, status: number, body: object): void {
   const value = JSON.stringify(body);
@@ -50,8 +53,16 @@ function drain(): void {
     active += 1;
     activeConversations.add(job.conversationId);
     void processMessage(config, job).then((succeeded) => {
-      if (succeeded) store.remove(job.messageId);
+      if (succeeded) {
+        store.remove(job.messageId);
+        consecutiveFailures = 0;
+      }
       if (!succeeded && job.attempt < config.maxAttempts) {
+        consecutiveFailures += 1;
+        totalFailures += 1;
+        if (consecutiveFailures >= config.alertFailureThreshold) {
+          console.error(`[alert] consecutive_failures=${consecutiveFailures} threshold=${config.alertFailureThreshold}`);
+        }
         const delay = config.retryBaseDelayMs * 2 ** (job.attempt - 1);
         console.warn(`[bot] message=${job.messageId} conversation=${job.conversationId} retry=${job.attempt + 1}/${config.maxAttempts} delay_ms=${delay}`);
         setTimeout(() => {
@@ -61,7 +72,11 @@ function drain(): void {
           drain();
         }, delay).unref();
       } else if (!succeeded) {
+        consecutiveFailures += 1;
+        totalFailures += 1;
+        totalRetryExhaustions += 1;
         console.error(`[bot] message=${job.messageId} conversation=${job.conversationId} retries=exhausted`);
+        console.error(`[alert] retry_exhausted_total=${totalRetryExhaustions}`);
       }
     }).finally(() => {
       active -= 1;
@@ -88,7 +103,15 @@ const server = createServer(async (request, response) => {
   const url = new URL(request.url ?? "/", `http://${request.headers.host ?? "localhost"}`);
 
   if (request.method === "GET" && url.pathname === "/health") {
-    json(response, 200, { ok: true, active, active_conversations: activeConversations.size, queued: queue.length });
+    json(response, 200, {
+      ok: true,
+      active,
+      active_conversations: activeConversations.size,
+      queued: queue.length,
+      consecutive_failures: consecutiveFailures,
+      total_failures: totalFailures,
+      retry_exhaustions: totalRetryExhaustions,
+    });
     return;
   }
 

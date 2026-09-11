@@ -205,6 +205,21 @@ work should be added here in the same change that implements it.
 
 - Agent build and all ten tests pass with metadata validation enabled.
 
+### Monitoring counters and alert thresholds
+
+#### Added
+
+- Added failure, retry-exhaustion, active-conversation, and queue counters to
+  the agent health response.
+- Added configurable `BOT_ALERT_FAILURE_THRESHOLD` logging an alert when
+  consecutive processing failures reach the threshold.
+- Added explicit alert log events for exhausted retries; these are available to
+  journald or an external log monitor without exposing customer data.
+
+#### Verification
+
+- Agent build and all ten tests pass with monitoring counters enabled.
+
 ## 2026-09-08
 
 ### Project work report
