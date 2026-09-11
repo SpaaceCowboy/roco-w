@@ -8,6 +8,14 @@ export type ChatwootMessage = {
   content_attributes?: Record<string, unknown> | null;
 };
 
+export type Job = {
+  messageId: string;
+  conversationId: number;
+  contactId: string;
+  content: string;
+  attempt: number;
+};
+
 export type ChatwootWebhook = ChatwootMessage & {
   event?: string;
   account?: { id?: number | string };

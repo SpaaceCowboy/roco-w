@@ -1,7 +1,7 @@
 import type { Config } from "./config.js";
 import { decideResponse } from "./openai.js";
 import { getConversationMessages, handoff, sendMessage } from "./chatwoot.js";
-import type { ChatwootMessage, ChatwootWebhook, DecisionReason } from "./types.js";
+import type { ChatwootMessage, ChatwootWebhook, DecisionReason, Job } from "./types.js";
 import { responseMatchesCustomerLanguage } from "./language.js";
 
 const HUMAN_REQUEST = /\b(human|person|agent|representative|operator|support staff|live support)\b|انسان|اپراتور|پشتیبان|کارشناس|موظف|دعم بشري|человек|оператор|поддержк|mitarbeiter|berater|人工|客服/i;
@@ -85,7 +85,7 @@ function transcript(messages: ChatwootMessage[], fallback: string) {
 
 export async function processMessage(
   config: Config,
-  job: ReturnType<typeof webhookJob> & {},
+  job: Job,
 ): Promise<boolean> {
   const startedAt = Date.now();
   try {
@@ -98,9 +98,10 @@ export async function processMessage(
       return true;
     }
 
-    const forcedReason = deterministicHandoffReason(job.content);
-    if (!job.content || forcedReason) {
-      await sendMessage(config, job.conversationId, handoffText(job.content), job.messageId);
+    const content = job.content || messages.find((message) => String(message.id) === job.messageId)?.content?.trim() || "";
+    const forcedReason = deterministicHandoffReason(content);
+    if (!content || forcedReason) {
+      await sendMessage(config, job.conversationId, handoffText(content), job.messageId);
       await handoff(config, job.conversationId);
       console.info(`[bot] message=${job.messageId} conversation=${job.conversationId} action=handoff reason=${forcedReason ?? "unsupported_or_uncertain"} ms=${Date.now() - startedAt}`);
       return true;
@@ -109,11 +110,11 @@ export async function processMessage(
     const decision = await decideResponse({
       config,
       contactId: job.contactId,
-      messages: transcript(messages, job.content),
+      messages: transcript(messages, content),
     });
 
-    if (decision.action === "handoff" || !responseMatchesCustomerLanguage(job.content, decision.message)) {
-      await sendMessage(config, job.conversationId, handoffText(job.content), job.messageId);
+    if (decision.action === "handoff" || !responseMatchesCustomerLanguage(content, decision.message)) {
+      await sendMessage(config, job.conversationId, handoffText(content), job.messageId);
       await handoff(config, job.conversationId);
       console.info(`[bot] message=${job.messageId} conversation=${job.conversationId} action=handoff reason=${decision.action === "handoff" ? decision.reason : "unsupported_or_uncertain"} ms=${Date.now() - startedAt}`);
       return true;

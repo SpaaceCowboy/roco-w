@@ -2,15 +2,17 @@ import { createServer, type IncomingMessage, type ServerResponse } from "node:ht
 import { loadConfig } from "./config.js";
 import { processMessage, webhookJob } from "./bot.js";
 import { verifyChatwootSignature } from "./security.js";
-import type { ChatwootWebhook } from "./types.js";
+import type { ChatwootWebhook, Job } from "./types.js";
+import { JobStore } from "./store.js";
 
 const config = loadConfig();
 const MAX_BODY_BYTES = 64 * 1024;
 const DEDUPE_TTL_MS = 15 * 60_000;
-const seen = new Map<string, number>();
-type Job = NonNullable<ReturnType<typeof webhookJob>> & { attempt: number };
 const queue: Job[] = [];
 const activeConversations = new Set<number>();
+const store = new JobStore(config.stateFile);
+for (const job of store.pending()) queue.push({ ...job, content: "" });
+const seen = new Map<string, number>(queue.map((job) => [job.messageId, Date.now() + DEDUPE_TTL_MS]));
 let active = 0;
 
 function json(response: ServerResponse, status: number, body: object): void {
@@ -48,11 +50,14 @@ function drain(): void {
     active += 1;
     activeConversations.add(job.conversationId);
     void processMessage(config, job).then((succeeded) => {
+      if (succeeded) store.remove(job.messageId);
       if (!succeeded && job.attempt < config.maxAttempts) {
         const delay = config.retryBaseDelayMs * 2 ** (job.attempt - 1);
         console.warn(`[bot] message=${job.messageId} conversation=${job.conversationId} retry=${job.attempt + 1}/${config.maxAttempts} delay_ms=${delay}`);
         setTimeout(() => {
-          queue.push({ ...job, attempt: job.attempt + 1 });
+          const retry = { ...job, attempt: job.attempt + 1 };
+          store.update(retry);
+          queue.push(retry);
           drain();
         }, delay).unref();
       } else if (!succeeded) {
@@ -72,7 +77,9 @@ function enqueue(job: NonNullable<ReturnType<typeof webhookJob>>): boolean {
   if (seen.has(job.messageId)) return true;
   if (queue.length >= config.queueLimit) return false;
   seen.set(job.messageId, now + DEDUPE_TTL_MS);
-  queue.push({ ...job, attempt: 1 });
+  const queued = { ...job, attempt: 1 };
+  store.add(queued);
+  queue.push(queued);
   drain();
   return true;
 }

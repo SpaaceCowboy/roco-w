@@ -13,13 +13,14 @@ ExecStart=/opt/rocobroker-node/bin/node /opt/roco-chatwoot-agent/dist/server.js
 Restart=on-failure
 RestartSec=5
 TimeoutStopSec=20
+StateDirectory=rocobot
 
 # The bot needs outbound HTTPS and its own project directory only.
 NoNewPrivileges=true
 PrivateTmp=true
 ProtectSystem=strict
 ProtectHome=true
-ReadWritePaths=/opt/roco-chatwoot-agent
+ReadWritePaths=/opt/roco-chatwoot-agent /var/lib/rocobot
 RestrictSUIDSGID=true
 LockPersonality=true
 

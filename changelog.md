@@ -150,6 +150,20 @@ work should be added here in the same change that implements it.
 - Aligned the code-level OpenAI model fallback with `.env.example` so a missing
   `OPENAI_MODEL` cannot silently select an obsolete model name.
 
+### Persistent bot job storage
+
+#### Added
+
+- Added a crash-safe atomic JSON job store for queued and retrying work. Jobs
+  persist across agent restarts without storing customer message content; the
+  agent rehydrates the message from Chatwoot by message ID.
+- Added `BOT_STATE_FILE` configuration and a systemd-managed `/var/lib/rocobot`
+  state directory for the queue file.
+
+#### Verification
+
+- Agent TypeScript build and scenario tests pass after the persistence changes.
+
 ## 2026-09-08
 
 ### Project work report

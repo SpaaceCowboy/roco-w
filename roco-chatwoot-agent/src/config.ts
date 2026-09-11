@@ -16,6 +16,7 @@ export type Config = {
   queueLimit: number;
   maxAttempts: number;
   retryBaseDelayMs: number;
+  stateFile: string;
   webhookMaxAgeSeconds: number;
 };
 
@@ -80,6 +81,7 @@ export function loadConfig(): Config {
     queueLimit: integer("AI_QUEUE_LIMIT", 100, 1, 10_000),
     maxAttempts: integer("AI_MAX_ATTEMPTS", 3, 1, 5),
     retryBaseDelayMs: integer("AI_RETRY_BASE_DELAY_MS", 1_000, 100, 60_000),
+    stateFile: process.env.BOT_STATE_FILE?.trim() || "/var/lib/rocobot/jobs.json",
     webhookMaxAgeSeconds: integer("WEBHOOK_MAX_AGE_SECONDS", 300, 30, 3_600),
   };
 }
