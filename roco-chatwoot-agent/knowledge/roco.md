@@ -47,8 +47,9 @@
   symbols and current ROCO conditions.
 
 # Deposits and withdrawals
-- Publicly listed crypto methods are USDT on TRC20, ERC20 and BEP20; USDC on
-  TRC20, ERC20 and BEP20; Bitcoin on BTC; and ETH on ERC20.
+- The currently supported crypto payment method is USDT on TRC20, ERC20 and
+  BEP20. BTC, ETH and USDC are kept for future support and must not be described
+  as available.
 - ROCO states that crypto deposits and withdrawals are commission-free.
 - Publicly listed fiat methods include Visa, Mastercard and local payment
   providers. Local currency may be converted to USD through the available

@@ -13,7 +13,7 @@ import styles from "./Accounts.module.css";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const ACCOUNTS = ["lion", "nanoLion", "nanoCheetah", "cheetah"] as const;
+const ACCOUNTS = ["cheetah", "nanoCheetah", "lion", "nanoLion"] as const;
 
 /**
  * Accounts ("Our Accounts") — 4 large spec cards in a 2×2 grid. Each whole card

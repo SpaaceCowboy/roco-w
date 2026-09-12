@@ -123,7 +123,7 @@ export function SwapFreeView() {
               </ol>
             </div>
             <div className={styles.ctaActions}>
-              <Button label={t("ctaButton")} href={DASHBOARD} external variant="dark" />
+              <Button label={t("ctaButton")} href={DASHBOARD} external />
             </div>
           </div>
           <p className={styles.conditions}>{t("conditionsNote")}</p>

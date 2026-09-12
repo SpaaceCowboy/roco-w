@@ -203,7 +203,7 @@
       },
       "methods": {
         "q": "Welche Ein- und Auszahlungsmethoden bieten Sie an?",
-        "a": "Wir unterstützen Fiat-Ein- und -Auszahlungen über verfügbare lokale Zahlungsanbieter, einschließlich iranischer Rial über {rialProvider}. Zu den Kryptomethoden gehören BTC, ETH, USDT und USDC in verschiedenen Netzwerken."
+        "a": "Wir unterstützen Fiat-Ein- und -Auszahlungen über verfügbare lokale Zahlungsanbieter, einschließlich iranischer Rial über {rialProvider}. USDT wird derzeit über TRC20, ERC20 und BEP20 unterstützt."
       },
       "withdrawTime": {
         "q": "Wie lange dauert die Bearbeitung meiner Auszahlung?",
@@ -215,7 +215,7 @@
       },
       "islamic": {
         "q": "Bieten Sie islamische (swapfreie) Konten an?",
-        "a": "Derzeit sind islamische Konten nicht verfügbar, werden aber bald eingeführt."
+        "a": "Ja. ROCO bietet islamische Konten über den Swap-Free-Kontostatus an. Dieser ist auf Antrag verfügbar und wird nach Prüfung und Genehmigung aktiviert."
       },
       "scalping": {
         "q": "Sind Scalping oder Hedging erlaubt?",
@@ -519,7 +519,7 @@
       },
       "methods": {
         "q": "Welche Ein- und Auszahlungsmethoden bieten Sie an?",
-        "a": "Wir unterstützen Fiat-Ein- und -Auszahlungen über verfügbare lokale Zahlungsanbieter, einschließlich iranischer Rial über {rialProvider}. Zu den Kryptomethoden gehören BTC, ETH, USDT und USDC in verschiedenen Netzwerken."
+        "a": "Wir unterstützen Fiat-Ein- und -Auszahlungen über verfügbare lokale Zahlungsanbieter, einschließlich iranischer Rial über {rialProvider}. USDT wird derzeit über TRC20, ERC20 und BEP20 unterstützt."
       },
       "withdrawTime": {
         "q": "Wie lange dauert die Bearbeitung meiner Auszahlung?",
@@ -531,7 +531,7 @@
       },
       "islamic": {
         "q": "Bieten Sie islamische (swapfreie) Konten an?",
-        "a": "Derzeit sind islamische Konten nicht verfügbar, werden aber bald eingeführt."
+        "a": "Ja. ROCO bietet islamische Konten über den Swap-Free-Kontostatus an. Dieser ist auf Antrag verfügbar und wird nach Prüfung und Genehmigung aktiviert."
       },
       "scalping": {
         "q": "Sind Scalping oder Hedging erlaubt?",
@@ -583,7 +583,7 @@
       },
       "dailyAnalysis": {
         "q": "Bieten Sie tägliche Analysen oder Wirtschaftsnachrichten?",
-        "a": "Tägliche Marktanalysen und Wirtschaftsnachrichten teilen wir über Telegram und Instagram."
+        "a": "Tägliche Marktanalysen und Wirtschaftsnachrichten teilen wir über unseren Telegram-Kanal und per E-Mail."
       }
     },
     "cta": "Konto eröffnen"
@@ -655,16 +655,7 @@
     "leadAccent": "Handelspotenzial",
     "sub": "Lassen Sie sich vom Markt nicht überraschen. Machen Sie den Wirtschaftskalender zu einem festen Bestandteil Ihrer Trading-Routine und planen Sie Ihre Trades mit Zuversicht. Indem Sie wichtige Ereignisse antizipieren und ihre potenziellen Auswirkungen verstehen, sind Sie besser vorbereitet, um Marktchancen zu nutzen und Risiken effektiv zu steuern.",
     "cta": "Konto eröffnen",
-    "widgetLabel": "Live-Wirtschaftsereignisse",
-    "advantagesTitle": "Vorteile des ROCO-Wirtschaftskalenders",
-    "adv1": "Fundiertere Trades treffen",
-    "adv2": "Ihre Marktanalyse verbessern",
-    "adv3": "Risikomanagement im Trading",
-    "adv4": "Ein- und Ausstiege timen",
-    "adv5": "Handelschancen erkennen",
-    "adv6": "Marktbewegungen voraus sein",
-    "adv7": "Integration mit Trading-Tools",
-    "adv8": "Benutzerfreundliche Oberfläche"
+    "widgetLabel": "Live-Wirtschaftsereignisse"
   },
   "mt5Page": {
     "title": "MetaTrader 5",

@@ -5,10 +5,10 @@ export const PAYMENT_MESSAGE_VALUES = {
 };
 
 export const CRYPTO_PAYMENT_METHODS = [
-  { id: "usdt", name: "USDT (Tether)", networks: ["TRC20", "ERC20", "BEP20"], image: "/payment-methods/usdt.webp" },
-  { id: "usdc", name: "USDC", networks: ["TRC20", "ERC20", "BEP20"], image: "/payment-methods/usdc.webp" },
-  { id: "btc", name: "Bitcoin (BTC)", networks: ["BTC"], image: "/payment-methods/btc.webp" },
-  { id: "eth", name: "Ethereum (ETH)", networks: ["ERC20"], image: "/payment-methods/eth.webp" },
+  { id: "usdt", name: "USDT (Tether)", networks: ["TRC20", "ERC20", "BEP20"], image: "/payment-methods/usdt.webp", available: true },
+  { id: "usdc", name: "USDC", networks: ["TRC20", "ERC20", "BEP20"], image: "/payment-methods/usdc.webp", available: false },
+  { id: "btc", name: "Bitcoin (BTC)", networks: ["BTC"], image: "/payment-methods/btc.webp", available: false },
+  { id: "eth", name: "Ethereum (ETH)", networks: ["ERC20"], image: "/payment-methods/eth.webp", available: false },
 ] as const;
 
 export const FIAT_PAYMENT_METHODS = {

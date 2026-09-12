@@ -51,7 +51,7 @@ const LION: Variant[] = [
 ];
 const CHEETAH: Variant[] = [
   { name: "Cheetah", noteKey: "stdNote", maxDeposit: "noLimit", maxBalance: "noLimit", spread: "rawSpread", commission: "$8", social: "provider" },
-  { name: "NANO-Cheetah", noteKey: "nanoNote", maxDeposit: "$200", maxBalance: "$500", spread: "rawSpread", commission: "8 Cent", social: "na", cents: true },
+  { name: "Nano-Cheetah", noteKey: "nanoNote", maxDeposit: "$200", maxBalance: "$500", spread: "rawSpread", commission: "8 Cent", social: "na", cents: true },
   { name: "Cheetah Social", noteKey: "socialNote", maxDeposit: "noLimit", maxBalance: "noLimit", spread: "rawSpread", commission: "$8", social: "follower" },
 ];
 

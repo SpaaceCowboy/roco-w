@@ -162,100 +162,6 @@
   min-height: 520px;
 }
 
-/* ---- Advantages (About "vision"-style guideline columns) ---- */
-.advantages {
-  padding-block: clamp(1rem, 3vh, 2rem) clamp(4rem, 10vh, 8rem);
-}
-.advHead {
-  display: flex;
-  align-items: center;
-  gap: 0.9rem;
-  margin-block-end: clamp(2.5rem, 6vw, 4.5rem);
-  padding-block-end: clamp(1.25rem, 3vh, 2rem);
-  border-block-end: 1px solid var(--cal-border);
-}
-.advTitle {
-  margin: 0;
-  font-weight: 700;
-  font-size: clamp(1.4rem, 3vw, 2.4rem);
-  line-height: 1.08;
-  letter-spacing: -0.02em;
-  text-transform: uppercase;
-  color: var(--cal-ink);
-}
-.advGrid {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: clamp(1.5rem, 3vw, 3rem);
-}
-.advCol {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  gap: 0.9rem;
-  min-height: clamp(12rem, 20vh, 17rem);
-  padding-inline-start: clamp(1rem, 2vw, 2.25rem);
-}
-/* Vertical guideline — faint dark base + flowing lime pulse (About pattern). */
-.advGuide {
-  position: absolute;
-  inset-block: 0;
-  inset-inline-start: 0;
-  width: 1.5px;
-  overflow: hidden;
-  transform-origin: top center;
-  background: linear-gradient(
-    to bottom,
-    rgba(22, 29, 32, 0.04),
-    rgba(22, 29, 32, 0.22) 45%,
-    rgba(22, 29, 32, 0.03)
-  );
-}
-.advGuide::after {
-  content: "";
-  position: absolute;
-  inset-inline: -0.5px;
-  height: 40%;
-  top: -50%;
-  background: linear-gradient(to bottom, transparent, #86c40f 55%, transparent);
-  filter: drop-shadow(0 0 3px rgba(134, 196, 15, 0.55));
-  animation: cal-guideline-flow 3.4s linear infinite;
-  animation-delay: var(--flow-delay, 0s);
-}
-@keyframes cal-guideline-flow {
-  0% {
-    top: -50%;
-  }
-  100% {
-    top: 100%;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .advGuide::after {
-    animation: none;
-    opacity: 0;
-  }
-}
-.advNo {
-  font-family: var(--font-mono, var(--font-secondary));
-  font-size: 0.8rem;
-  letter-spacing: 0.1em;
-  color: #5c9a1e;
-}
-.advText {
-  font-family: var(--font-mono, var(--font-secondary));
-  font-size: clamp(0.82rem, 1vw, 0.95rem);
-  font-weight: 600;
-  line-height: 1.35;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: #1c2427;
-}
-
 /* ---- Responsive ---- */
 @media (max-width: 900px) {
   .introRow {
@@ -268,17 +174,5 @@
   }
   .sub {
     order: 2;
-  }
-  .advGrid {
-    grid-template-columns: 1fr 1fr;
-    gap: 1.75rem 1.5rem;
-  }
-  .advCol {
-    min-height: 0;
-  }
-}
-@media (max-width: 520px) {
-  .advGrid {
-    grid-template-columns: 1fr;
   }
 }

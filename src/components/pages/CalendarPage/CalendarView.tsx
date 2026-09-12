@@ -1,20 +1,13 @@
 "use client";
 
-import { useRef } from "react";
 import { useTranslations } from "next-intl";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useGSAP } from "@gsap/react";
 import { Reveal } from "@/components/ui/Reveal/Reveal";
 import { Button } from "@/components/ui/Button/Button";
 import { CornerMark } from "@/components/ui/CornerMark/CornerMark";
 import { EconomicCalendar } from "./EconomicCalendar";
 import styles from "./CalendarPage.module.css";
 
-gsap.registerPlugin(ScrollTrigger);
-
 const REGISTER = "https://my.rocobroker.com/register";
-const ADVANTAGES = ["adv1", "adv2", "adv3", "adv4", "adv5", "adv6", "adv7", "adv8"] as const;
 
 /**
  * CalendarView — the Economic Calendar subpage. Markets-style dot-grid hero
@@ -24,38 +17,9 @@ const ADVANTAGES = ["adv1", "adv2", "adv3", "adv4", "adv5", "adv6", "adv7", "adv
  */
 export function CalendarView() {
   const t = useTranslations("calendarPage");
-  const rootRef = useRef<HTMLElement>(null);
-
-  useGSAP(
-    () => {
-      const el = rootRef.current;
-      if (!el) return;
-      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-      const grid = el.querySelector(`.${styles.advGrid}`);
-      if (!grid) return;
-      const enter = { trigger: grid, start: "top 80%" as const };
-      gsap.from(gsap.utils.toArray<HTMLElement>(`.${styles.advCol}`, el), {
-        opacity: 0,
-        y: 26,
-        duration: 0.6,
-        ease: "power3.out",
-        stagger: 0.06,
-        scrollTrigger: enter,
-      });
-      gsap.from(gsap.utils.toArray<HTMLElement>(`.${styles.advGuide}`, el), {
-        scaleY: 0,
-        transformOrigin: "top center",
-        duration: 0.8,
-        ease: "power2.out",
-        stagger: 0.06,
-        scrollTrigger: enter,
-      });
-    },
-    { scope: rootRef },
-  );
 
   return (
-    <section ref={rootRef} className={styles.page}>
+    <section className={styles.page}>
       {/* Hero band */}
       <div className={styles.hero}>
         <CornerMark className={`${styles.corner} ${styles.cornerTL}`} />
@@ -99,28 +63,6 @@ export function CalendarView() {
         </div>
       </div>
 
-      {/* Advantages — About "vision"-style guideline columns */}
-      <div className={styles.advantages}>
-        <div className={styles.inner}>
-          <div className={styles.advHead}>
-            <span className={styles.microBlock} />
-            <h2 className={styles.advTitle}>{t("advantagesTitle")}</h2>
-          </div>
-          <ul className={styles.advGrid}>
-            {ADVANTAGES.map((k, i) => (
-              <li key={k} className={styles.advCol}>
-                <span
-                  className={styles.advGuide}
-                  style={{ "--flow-delay": `${(i % 4) * 0.9}s` } as React.CSSProperties}
-                  aria-hidden="true"
-                />
-                <span className={styles.advNo}>{String(i + 1).padStart(2, "0")}</span>
-                <span className={styles.advText}>{t(k)}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
     </section>
   );
 }

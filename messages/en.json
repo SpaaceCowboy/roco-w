@@ -203,7 +203,7 @@
       },
       "methods": {
         "q": "What deposit and withdrawal methods do you offer?",
-        "a": "We support fiat deposits and withdrawals through available local payment gateways, including Iranian Rial via {rialProvider}. Crypto methods include BTC, ETH, USDT, and USDC on various networks."
+        "a": "We support fiat deposits and withdrawals through available local payment gateways, including Iranian Rial via {rialProvider}. USDT is currently supported on TRC20, ERC20, and BEP20."
       },
       "withdrawTime": {
         "q": "How long does it take to process my withdrawal request?",
@@ -215,7 +215,7 @@
       },
       "islamic": {
         "q": "Do you offer Islamic (swap-free) accounts?",
-        "a": "Currently, Islamic accounts are not available, but they will be introduced soon."
+        "a": "Yes. ROCO offers Islamic accounts through its Swap-Free account status. It is available by request and becomes active after review and approval."
       },
       "scalping": {
         "q": "Is scalping or hedging allowed?",
@@ -519,7 +519,7 @@
       },
       "methods": {
         "q": "What deposit and withdrawal methods do you offer?",
-        "a": "We support fiat deposits and withdrawals through available local payment gateways, including Iranian Rial via {rialProvider}. Crypto methods include BTC, ETH, USDT, and USDC on various networks."
+        "a": "We support fiat deposits and withdrawals through available local payment gateways, including Iranian Rial via {rialProvider}. USDT is currently supported on TRC20, ERC20, and BEP20."
       },
       "withdrawTime": {
         "q": "How long does it take to process my withdrawal request?",
@@ -531,7 +531,7 @@
       },
       "islamic": {
         "q": "Do you offer Islamic (swap-free) accounts?",
-        "a": "Currently, Islamic accounts are not available, but they will be introduced soon."
+        "a": "Yes. ROCO offers Islamic accounts through its Swap-Free account status. It is available by request and becomes active after review and approval."
       },
       "scalping": {
         "q": "Is scalping or hedging allowed?",
@@ -583,7 +583,7 @@
       },
       "dailyAnalysis": {
         "q": "Do you provide daily analysis or economic news?",
-        "a": "Daily market analysis and economic news are shared via our Telegram and Instagram channels."
+        "a": "Daily market analysis and economic news are shared through our Telegram channel and by email."
       }
     },
     "cta": "Open an account"
@@ -655,16 +655,7 @@
     "leadAccent": "Potential",
     "sub": "Don't let the market catch you off guard. Make the economic calendar a regular part of your trading routine and start planning your trades with confidence. By anticipating key events and understanding their potential impact, you'll be better prepared to take advantage of market opportunities while managing risk effectively.",
     "cta": "Open an account",
-    "widgetLabel": "Live economic events",
-    "advantagesTitle": "Advantages of ROCO Economic Calendar",
-    "adv1": "Make more informed trades",
-    "adv2": "Enhance your market analysis",
-    "adv3": "Risk management in trading",
-    "adv4": "Time your entries and exits",
-    "adv5": "Spot trading opportunities",
-    "adv6": "Stay ahead of market moves",
-    "adv7": "Integration with trading tools",
-    "adv8": "User-friendly interface"
+    "widgetLabel": "Live economic events"
   },
   "mt5Page": {
     "title": "MetaTrader 5",

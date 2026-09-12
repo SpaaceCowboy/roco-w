@@ -228,6 +228,12 @@
   color: var(--color-fg);
 }
 
+/* Keep the large stat in the image's empty left side for RTL locales too.
+   Without this override, the inherited RTL direction places it over the phone. */
+:global(html[dir="rtl"]) .bigValue {
+  align-self: flex-end;
+}
+
 /* Frosted glass card — same method as the navbar (var(--glass-bg-strong) +
    backdrop-filter: blur(18px) saturate(140%)). Full column width, no shadow, no
    gradient. Subtext sits top-right; the large number sits bottom-left. */

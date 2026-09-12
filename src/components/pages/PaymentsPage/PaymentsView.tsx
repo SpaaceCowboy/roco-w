@@ -63,6 +63,7 @@ function PspIcon() {
 type Method = {
   id: string;
   name: string;
+  available?: boolean;
   networks?: readonly string[];
   image?: string;
   Icon?: () => React.JSX.Element;
@@ -209,7 +210,7 @@ export function PaymentsView() {
 
               {/* Method cards */}
               <div className={styles.cards}>
-                {sec.methods.map((mth) => (
+                {sec.methods.filter((mth) => mth.available !== false).map((mth) => (
                   <article key={mth.id} className={styles.card}>
                     {mth.image ? (
                       <figure className={styles.cardMedia}>
