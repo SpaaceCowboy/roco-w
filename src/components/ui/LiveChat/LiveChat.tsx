@@ -7,10 +7,12 @@ import {
   CHATWOOT_WEBSITE_TOKEN,
   CRISP_WEBSITE_ID,
   LIVE_CHAT_PROVIDER,
+  TAWK_PROPERTY_ID,
   chatwootLocale,
   crispLocale,
+  tawkWidgetIdForLocale,
 } from "@/config/chat";
-import type { Locale } from "@/i18n/routing";
+import { isRtl, type Locale } from "@/i18n/routing";
 
 type ChatwootSettings = {
   hideMessageBubble: boolean;
@@ -23,6 +25,11 @@ type ChatwootSettings = {
 
 type CrispCommand = [string, string, ...unknown[]];
 
+type TawkApi = {
+  customStyle?: unknown;
+  switchWidget?: (ids: { propertyId: string; widgetId: string }, cb?: () => void) => void;
+};
+
 declare global {
   interface Window {
     chatwootSettings?: ChatwootSettings;
@@ -32,11 +39,15 @@ declare global {
     $crisp?: CrispCommand[];
     CRISP_WEBSITE_ID?: string;
     CRISP_RUNTIME_CONFIG?: { locale: string };
+    Tawk_API?: TawkApi;
+    Tawk_LoadStart?: Date;
   }
 }
 
 const CHATWOOT_SCRIPT_ID = "chatwoot-sdk";
 const CRISP_SCRIPT_ID = "crisp-sdk";
+const TAWK_SCRIPT_ID = "tawk-embed";
+const TAWK_LOAD_TIMEOUT_MS = 15_000;
 const CHATWOOT_HOST_STYLE_ID = "chatwoot-host-styles";
 
 const CHATWOOT_HOST_CSS = `
@@ -184,11 +195,68 @@ function loadCrisp(locale: Locale) {
   document.head.appendChild(script);
 }
 
+function loadTawk(locale: Locale) {
+  if (!TAWK_PROPERTY_ID) {
+    if (process.env.NODE_ENV !== "production") {
+      console.error(
+        "[LiveChat] NEXT_PUBLIC_TAWK_PROPERTY_ID is unset — live chat is disabled.",
+      );
+    }
+    return;
+  }
+
+  const widgetId = tawkWidgetIdForLocale(locale);
+  const api: TawkApi = (window.Tawk_API = window.Tawk_API ?? {});
+  const existing = document.getElementById(TAWK_SCRIPT_ID) as HTMLScriptElement | null;
+
+  if (existing) {
+    if (existing.dataset.widgetId !== widgetId && typeof api.switchWidget === "function") {
+      api.switchWidget({ propertyId: TAWK_PROPERTY_ID, widgetId });
+      existing.dataset.widgetId = widgetId;
+    }
+    return;
+  }
+
+  const rtl = isRtl(locale);
+  const visibility = { position: rtl ? "bl" : "br", xOffset: 24, yOffset: 24 };
+  api.customStyle = {
+    visibility: {
+      desktop: visibility,
+      mobile: { ...visibility, xOffset: 12, yOffset: 12 },
+    },
+  };
+  window.Tawk_LoadStart = new Date();
+
+  const timer = window.setTimeout(() => {
+    console.warn(`[LiveChat] tawk.to embed still not loaded after ${TAWK_LOAD_TIMEOUT_MS}ms`);
+  }, TAWK_LOAD_TIMEOUT_MS);
+
+  const script = document.createElement("script");
+  script.id = TAWK_SCRIPT_ID;
+  script.async = true;
+  script.src = `https://embed.tawk.to/${TAWK_PROPERTY_ID}/${widgetId}`;
+  script.charset = "UTF-8";
+  script.dataset.widgetId = widgetId;
+  script.addEventListener("load", () => window.clearTimeout(timer), { once: true });
+  script.addEventListener(
+    "error",
+    () => {
+      window.clearTimeout(timer);
+      console.warn("[LiveChat] tawk.to embed failed to load");
+    },
+    { once: true },
+  );
+  document.body.appendChild(script);
+
+  return () => window.clearTimeout(timer);
+}
+
 /** Loads the selected live-chat provider once for the entire localized app. */
 export function LiveChat() {
   const locale = useLocale() as Locale;
 
   useEffect(() => {
+    if (LIVE_CHAT_PROVIDER === "tawk") return loadTawk(locale);
     if (LIVE_CHAT_PROVIDER === "crisp") return loadCrisp(locale);
     return loadChatwoot(locale);
   }, [locale]);

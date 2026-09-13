@@ -1,15 +1,34 @@
 import type { Locale } from "@/i18n/routing";
 
-export type LiveChatProvider = "chatwoot" | "crisp";
+export type LiveChatProvider = "tawk" | "chatwoot" | "crisp";
 
 /**
- * Chatwoot stays the default. Set this to `crisp` only in the environment where
- * the Crisp trial should run, so both vendors are never loaded together.
+ * Only one provider is loaded. Tawk is temporarily the default while the full
+ * Chatwoot integration remains available for later reactivation.
  */
+const configuredProvider = process.env.NEXT_PUBLIC_LIVE_CHAT_PROVIDER?.toLowerCase();
 export const LIVE_CHAT_PROVIDER: LiveChatProvider =
-  process.env.NEXT_PUBLIC_LIVE_CHAT_PROVIDER?.toLowerCase() === "crisp"
-    ? "crisp"
-    : "chatwoot";
+  configuredProvider === "chatwoot" || configuredProvider === "crisp"
+    ? configuredProvider
+    : "tawk";
+
+/** Public IDs from the tawk.to dashboard embed URL. */
+export const TAWK_PROPERTY_ID = process.env.NEXT_PUBLIC_TAWK_PROPERTY_ID || "";
+
+const DEFAULT_TAWK_WIDGET_ID = process.env.NEXT_PUBLIC_TAWK_WIDGET_ID || "default";
+
+const TAWK_WIDGET_BY_LOCALE: Record<Locale, string | undefined> = {
+  en: process.env.NEXT_PUBLIC_TAWK_WIDGET_ID_EN,
+  de: process.env.NEXT_PUBLIC_TAWK_WIDGET_ID_DE,
+  ru: process.env.NEXT_PUBLIC_TAWK_WIDGET_ID_RU,
+  ar: process.env.NEXT_PUBLIC_TAWK_WIDGET_ID_AR,
+  fa: process.env.NEXT_PUBLIC_TAWK_WIDGET_ID_FA,
+  "zh-hans": process.env.NEXT_PUBLIC_TAWK_WIDGET_ID_ZH,
+};
+
+export function tawkWidgetIdForLocale(locale: Locale): string {
+  return TAWK_WIDGET_BY_LOCALE[locale] || DEFAULT_TAWK_WIDGET_ID;
+}
 
 /** Public values from Chatwoot → Settings → Inboxes → Website → Configuration. */
 export const CHATWOOT_BASE_URL = (

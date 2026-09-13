@@ -3,6 +3,17 @@
 This file records changes made during the launch-readiness remediation. New
 work should be added here in the same change that implements it.
 
+## 2026-09-13
+
+### Temporary tawk.to live-chat reactivation
+
+#### Changed
+
+- Restored tawk.to as the active live-chat provider while retaining the full
+  Chatwoot and Crisp integrations as inactive, environment-selectable options.
+- Restored the existing RTL bubble positioning and optional per-locale tawk.to
+  widget IDs without committing any production IDs.
+
 ## 2026-09-11
 
 ### Chatwoot AI support agent and widget presentation
