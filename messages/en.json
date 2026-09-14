@@ -475,6 +475,10 @@
         "name": "Client Agreement",
         "desc": "The terms governing your trading account with ROCO."
       },
+      "swapFree": {
+        "name": "Swap-Free Account Agreement",
+        "desc": "Eligibility, conditions and the seven-day holding period for ROCO Swap-Free Accounts."
+      },
       "riskDisclosure": {
         "name": "Risk Disclosure Statement",
         "desc": "The risks of trading forex and CFDs, including leverage."

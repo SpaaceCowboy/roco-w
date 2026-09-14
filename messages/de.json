@@ -475,6 +475,10 @@
         "name": "Kundenvereinbarung",
         "desc": "Die Bedingungen für Ihr Handelskonto bei ROCO."
       },
+      "swapFree": {
+        "name": "Swap-Free-Kontovereinbarung",
+        "desc": "Berechtigung, Bedingungen und siebentägige Haltedauer für ROCO Swap-Free-Konten."
+      },
       "riskDisclosure": {
         "name": "Risikohinweis",
         "desc": "Die Risiken des Forex- und CFD-Handels, inkl. Hebel."

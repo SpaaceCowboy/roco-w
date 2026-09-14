@@ -11,6 +11,7 @@ const EMAIL = "support@rocobroker.com";
 /** Legal documents → their organized PDF paths. `id` doubles as the deep-link hash. */
 const DOCS = [
   { id: "client-agreement", key: "clientAgreement", file: "/documents/Client-agreement-vol7.pdf" },
+  { id: "swap-free-account-agreement", key: "swapFree", file: "/documents/Roco-Broker-Swap-Free-Account-Agreement-v4.pdf" },
   { id: "risk-disclosure", key: "riskDisclosure", file: "/documents/Risk-Disclosure-statement-vol2.pdf" },
   { id: "aml-compliance", key: "aml", file: "/documents/AML_Compliance_Document-vol2-1.pdf" },
   { id: "privacy-policy", key: "privacy", file: "/documents/privecy-policy-vol2.pdf" },

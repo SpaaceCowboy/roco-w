@@ -5,6 +5,15 @@ work should be added here in the same change that implements it.
 
 ## 2026-09-14
 
+### Swap-Free Account Agreement
+
+#### Added
+
+- Published the supplied Swap-Free Account Agreement in the website's Legal
+  Documents section with inline viewing and download support.
+- Added localized agreement names and descriptions for English, Persian,
+  Arabic, German, Russian, and Simplified Chinese.
+
 ### Live chat provider
 
 #### Changed
