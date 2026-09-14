@@ -3,14 +3,14 @@ import type { Locale } from "@/i18n/routing";
 export type LiveChatProvider = "tawk" | "chatwoot" | "crisp";
 
 /**
- * Only one provider is loaded. Tawk is temporarily the default while the full
- * Chatwoot integration remains available for later reactivation.
+ * Only one provider is loaded. Chatwoot is the production provider; Tawk and
+ * Crisp remain available when explicitly selected for rollback or testing.
  */
 const configuredProvider = process.env.NEXT_PUBLIC_LIVE_CHAT_PROVIDER?.toLowerCase();
 export const LIVE_CHAT_PROVIDER: LiveChatProvider =
   configuredProvider === "chatwoot" || configuredProvider === "crisp"
     ? configuredProvider
-    : "tawk";
+    : "chatwoot";
 
 /** Public IDs from the tawk.to dashboard embed URL. */
 export const TAWK_PROPERTY_ID = process.env.NEXT_PUBLIC_TAWK_PROPERTY_ID || "";

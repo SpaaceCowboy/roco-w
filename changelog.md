@@ -5,6 +5,17 @@ work should be added here in the same change that implements it.
 
 ## 2026-09-14
 
+### Live chat provider
+
+#### Changed
+
+- Switched the website's default live-chat provider from Tawk.to to the
+  self-hosted Chatwoot inbox.
+- Preserved Tawk.to and Crisp as explicit provider options for rollback or
+  testing; only the selected provider is loaded.
+
+## 2026-09-14
+
 ### Tawk shortcut migration
 
 #### Added
