@@ -3,6 +3,17 @@
 This file records changes made during the launch-readiness remediation. New
 work should be added here in the same change that implements it.
 
+## 2026-09-14
+
+### Tawk shortcut migration
+
+#### Added
+
+- Added the 120 non-empty Public English and Persian Tawk shortcuts extracted
+  from the supplied export.
+- Added an idempotent Chatwoot API importer that skips existing shortcodes and
+  excludes Personal and empty/file-only entries.
+
 ## 2026-09-13
 
 ### Temporary tawk.to live-chat reactivation
