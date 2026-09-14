@@ -233,6 +233,14 @@ const blogRedirects = [
   ),
 ];
 
+const assetRedirects = [
+  // Exact replacement for a WordPress upload retained by the current app.
+  permanent(
+    "/wp-content/uploads/2025/07/social-trade-provider-agreement.pdf",
+    "/documents/social-trade-provider-agreement.pdf",
+  ),
+];
+
 /**
  * Explicit cutover redirects only. Personalized/authentication pages from the
  * old WordPress install are intentionally excluded and continue to return 404.
@@ -241,4 +249,5 @@ export const legacyRedirects = [
   ...pageRedirects,
   ...marketRedirects,
   ...blogRedirects,
+  ...assetRedirects,
 ];
