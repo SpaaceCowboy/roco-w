@@ -97,7 +97,12 @@ export function NavDropdown({ labelKey, items, href }: Props) {
               );
             }
             return (
-              <Link key={c.key} role="menuitem" className={styles.dropItem} href={c.href}>
+              <Link
+                key={c.key}
+                role="menuitem"
+                className={styles.dropItem}
+                href={c.hash ? { pathname: c.href, hash: c.hash } : c.href}
+              >
                 {label}
               </Link>
             );

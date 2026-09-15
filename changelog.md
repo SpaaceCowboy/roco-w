@@ -3,6 +3,28 @@
 This file records changes made during the launch-readiness remediation. New
 work should be added here in the same change that implements it.
 
+## 2026-09-15
+
+### Historical canonical URLs
+
+#### Changed
+
+- Restored legitimate WordPress/WPML page, market, and English/Persian article
+  paths as the public canonical URLs while retaining shared internal Next.js
+  routes.
+- Changed duplicate campaign and superseded internal paths to permanent
+  one-hop redirects to the selected historical canonical URL.
+- Preserved the historical social-trading provider agreement URL as a `200`
+  response backed by the current document.
+- Added compatibility anchors for legacy Elementor table-of-contents fragments.
+
+#### Verification
+
+- TypeScript, ESLint, the production build, and all 152 unique paths in the
+  supplied Search Console export were checked locally.
+- Canonical tags, hreflang paths, sitemap URLs, internal navigation, permanent
+  aliases, and intentional `404` exclusions were verified.
+
 ## 2026-09-14
 
 ### Swap-Free Account Agreement

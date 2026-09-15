@@ -1,4 +1,4 @@
-import { Link } from "@/i18n/navigation";
+import { blogHref, Link } from "@/i18n/navigation";
 import type { BlogPost, BlogPostSummary } from "@/lib/blog";
 import { CornerMark } from "@/components/ui/CornerMark/CornerMark";
 import { BlogVisual } from "./BlogVisual";
@@ -21,6 +21,15 @@ export type BlogArticleUi = {
   copyLink: string;
   copied: string;
 };
+
+function addLegacyHeadingAnchors(html: string): string {
+  let index = 0;
+  return html.replace(/<h([2-6])(\s[^>]*)?>/gi, (heading) => {
+    const anchor = `<span id="elementor-toc__heading-anchor-${index}" aria-hidden="true" style="display:block;scroll-margin-top:8rem"></span>`;
+    index += 1;
+    return `${anchor}${heading}`;
+  });
+}
 
 export function BlogArticleView({ post, related, recent, locale, ui }: { post: BlogPost; related: BlogPostSummary[]; recent: BlogPostSummary[]; locale: string; ui: BlogArticleUi }) {
   const formatter = new Intl.DateTimeFormat(locale, { year: "numeric", month: "long", day: "numeric" });
@@ -61,9 +70,9 @@ export function BlogArticleView({ post, related, recent, locale, ui }: { post: B
       <div className={styles.contentShell}>
         <div className={styles.content} dir={sourceDir}>
           <div className={styles.disclaimer}>{ui.educationalNotice}</div>
-          <div className={styles.prose} dangerouslySetInnerHTML={{ __html: post.contentHtml }} />
+          <div className={styles.prose} dangerouslySetInnerHTML={{ __html: addLegacyHeadingAnchors(post.contentHtml) }} />
           <footer className={styles.articleFooter}>
-            {!!post.tags.length && <div className={styles.tags}>{post.tags.map((tag) => <Link key={tag.slug} href={`/blog?tag=${tag.slug}`}>#{tag.name}</Link>)}</div>}
+            {!!post.tags.length && <div className={styles.tags}>{post.tags.map((tag) => <Link key={tag.slug} href={{ pathname: "/blog", query: { tag: tag.slug } }}>#{tag.name}</Link>)}</div>}
             <ArticleShare title={post.title} shareLabel={ui.share} copyLabel={ui.copyLink} copiedLabel={ui.copied} />
             <div className={styles.dates}>
               <span>{ui.published}: <time dateTime={post.publishedAt}>{formatter.format(new Date(post.publishedAt))}</time></span>
@@ -82,7 +91,7 @@ export function BlogArticleView({ post, related, recent, locale, ui }: { post: B
           {!!recent.length && (
             <div className={styles.recent}>
               <strong>{ui.recent}</strong>
-              {recent.map((item) => <Link key={item.slug} href={`/blog/${item.slug}`}><span>{item.category.name}</span>{item.title}</Link>)}
+              {recent.map((item) => <Link key={item.slug} href={blogHref(item.slug)}><span>{item.category.name}</span>{item.title}</Link>)}
             </div>
           )}
         </aside>
@@ -95,8 +104,8 @@ export function BlogArticleView({ post, related, recent, locale, ui }: { post: B
             <div className={styles.relatedGrid}>
               {related.map((item) => (
                 <article key={item.slug}>
-                  <Link href={`/blog/${item.slug}`} className={styles.relatedVisual}><span className={styles.srOnly}>{item.title}</span><BlogVisual seed={item.sourceId} label={item.category.name} src={item.featuredImage} alt="" /></Link>
-                  <div><span>{item.category.name}</span><h2><Link href={`/blog/${item.slug}`}>{item.title}</Link></h2><Link className={styles.readLink} href={`/blog/${item.slug}`}>{ui.readArticle} ↗</Link></div>
+                  <Link href={blogHref(item.slug)} className={styles.relatedVisual}><span className={styles.srOnly}>{item.title}</span><BlogVisual seed={item.sourceId} label={item.category.name} src={item.featuredImage} alt="" /></Link>
+                  <div><span>{item.category.name}</span><h2><Link href={blogHref(item.slug)}>{item.title}</Link></h2><Link className={styles.readLink} href={blogHref(item.slug)}>{ui.readArticle} ↗</Link></div>
                 </article>
               ))}
             </div>

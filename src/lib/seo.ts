@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getPathname } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 
 /** Production origin — override per environment with NEXT_PUBLIC_SITE_URL. */
@@ -28,10 +29,30 @@ const HREFLANG: Record<string, string> = {
   "zh-hans": "zh-Hans",
 };
 
-/** Path for a locale under the `as-needed` prefix scheme (default = no prefix). */
+/** Resolve an internal app route to its canonical, localized public pathname. */
 export function localizedPath(locale: string, path: string): string {
-  const clean = path === "/" ? "" : path;
-  return locale === routing.defaultLocale ? clean || "/" : `/${locale}${clean}`;
+  const typedLocale = locale as (typeof routing.locales)[number];
+
+  if (path === "/blog/feed.xml") {
+    return getPathname({ locale: typedLocale, href: "/blog/feed.xml" });
+  }
+
+  const articleMatch = path.match(/^\/blog\/([^/?#]+)$/);
+
+  if (articleMatch) {
+    return getPathname({
+      locale: typedLocale,
+      href: {
+        pathname: "/blog/[slug]",
+        params: { slug: articleMatch[1] },
+      },
+    });
+  }
+
+  return getPathname({
+    locale: typedLocale,
+    href: path as Exclude<keyof typeof routing.pathnames, "/blog/[slug]">,
+  });
 }
 
 export function localizedUrl(locale: string, path: string): string {

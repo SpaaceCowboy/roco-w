@@ -2,7 +2,8 @@
 
 import { useRef, useState } from "react";
 import { useLocale } from "next-intl";
-import { usePathname, useRouter } from "@/i18n/navigation";
+import { useParams } from "next/navigation";
+import { blogHref, usePathname, useRouter, type StaticPathname } from "@/i18n/navigation";
 import { routing, type Locale } from "@/i18n/routing";
 import { LOCALE_META } from "@/config/locales";
 import { Chevron } from "./Chevron";
@@ -12,6 +13,7 @@ import styles from "./Header.module.css";
 export function LanguageSwitcher() {
   const locale = useLocale() as Locale;
   const pathname = usePathname();
+  const params = useParams<{ slug?: string }>();
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -26,7 +28,11 @@ export function LanguageSwitcher() {
   }
 
   function switchTo(next: Locale) {
-    router.replace(pathname, { locale: next });
+    if (pathname === "/blog/[slug]" && params.slug) {
+      router.replace(blogHref(params.slug), { locale: next });
+    } else {
+      router.replace(pathname as StaticPathname, { locale: next });
+    }
     setOpen(false);
   }
 

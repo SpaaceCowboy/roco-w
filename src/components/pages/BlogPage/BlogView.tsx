@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { useSearchParams } from "next/navigation";
-import { Link, usePathname, useRouter } from "@/i18n/navigation";
+import { blogHref, Link, useRouter } from "@/i18n/navigation";
 import type { BlogPostSummary, BlogTaxonomy } from "@/lib/blog";
 import { PageBackground } from "@/components/ui/PageBackground/PageBackground";
 import { CornerMark } from "@/components/ui/CornerMark/CornerMark";
@@ -45,7 +45,6 @@ type Props = {
 
 export function BlogView({ posts, categories, tags, locale, hasNativeContent, ui }: Props) {
   const router = useRouter();
-  const pathname = usePathname();
   const searchParams = useSearchParams();
   const query = searchParams.get("q") ?? "";
   const category = searchParams.get("category") ?? "";
@@ -87,8 +86,13 @@ export function BlogView({ posts, categories, tags, locale, hasNativeContent, ui
     if (nextCategory) params.set("category", nextCategory);
     if (nextTag) params.set("tag", nextTag);
     if (nextPage > 1) params.set("page", String(nextPage));
-    const suffix = params.size ? `?${params}` : "";
-    router.replace(`${pathname}${suffix}`, { scroll: false });
+    router.replace(
+      {
+        pathname: "/blog",
+        query: Object.fromEntries(params),
+      },
+      { scroll: false },
+    );
   }
 
   function chooseCategory(value: string) {
@@ -100,7 +104,7 @@ export function BlogView({ posts, categories, tags, locale, hasNativeContent, ui
   }
 
   function clearFilters() {
-    router.replace(pathname, { scroll: false });
+    router.replace("/blog", { scroll: false });
   }
 
   function goToPage(value: number) {
@@ -129,15 +133,15 @@ export function BlogView({ posts, categories, tags, locale, hasNativeContent, ui
         <div className={`${styles.inner} ${styles.featuredWrap}`}>
           <span className={styles.sectionLabel}>{ui.featured}</span>
           <article className={styles.featuredCard}>
-            <Link href={`/blog/${featured.slug}`} className={styles.featuredVisual}>
+            <Link href={blogHref(featured.slug)} className={styles.featuredVisual}>
               <span className={styles.srOnly}>{featured.title}</span>
               <BlogVisual seed={featured.sourceId} label={featured.category.name} src={featured.featuredImage} alt="" />
             </Link>
             <div className={styles.featuredCopy}>
               <PostMeta post={featured} formatter={dateFormatter} minuteRead={ui.minuteRead} />
-              <h2><Link href={`/blog/${featured.slug}`}>{featured.title}</Link></h2>
+              <h2><Link href={blogHref(featured.slug)}>{featured.title}</Link></h2>
               <p>{featured.excerpt}</p>
-              <Link href={`/blog/${featured.slug}`} className={styles.readLink}>{ui.readArticle}<span aria-hidden="true">↗</span></Link>
+              <Link href={blogHref(featured.slug)} className={styles.readLink}>{ui.readArticle}<span aria-hidden="true">↗</span></Link>
             </div>
           </article>
         </div>
@@ -179,15 +183,15 @@ export function BlogView({ posts, categories, tags, locale, hasNativeContent, ui
           <div className={styles.grid}>
             {visible.map((post) => (
               <article key={`${post.locale}-${post.slug}`} className={styles.card}>
-                <Link href={`/blog/${post.slug}`} className={styles.cardVisual}>
+                <Link href={blogHref(post.slug)} className={styles.cardVisual}>
                   <span className={styles.srOnly}>{post.title}</span>
                   <BlogVisual seed={post.sourceId} label={post.category.name} src={post.featuredImage} alt="" />
                 </Link>
                 <div className={styles.cardCopy}>
                   <PostMeta post={post} formatter={dateFormatter} minuteRead={ui.minuteRead} />
-                  <h2><Link href={`/blog/${post.slug}`}>{post.title}</Link></h2>
+                  <h2><Link href={blogHref(post.slug)}>{post.title}</Link></h2>
                   <p>{post.excerpt}</p>
-                  <Link href={`/blog/${post.slug}`} className={styles.readLink}>{ui.readArticle}<span aria-hidden="true">↗</span></Link>
+                  <Link href={blogHref(post.slug)} className={styles.readLink}>{ui.readArticle}<span aria-hidden="true">↗</span></Link>
                 </div>
               </article>
             ))}

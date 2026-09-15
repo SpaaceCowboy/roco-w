@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { Link, usePathname, useRouter } from "@/i18n/navigation";
+import { useParams } from "next/navigation";
+import { blogHref, Link, usePathname, useRouter, type StaticPathname } from "@/i18n/navigation";
 import { routing, type Locale } from "@/i18n/routing";
 import { NAV_ITEMS, CTA_LOGIN, CTA_JOIN } from "@/config/nav";
 import { LOCALE_META } from "@/config/locales";
@@ -16,6 +17,7 @@ export function MobileMenu() {
   const t = useTranslations("nav");
   const locale = useLocale() as Locale;
   const pathname = usePathname();
+  const params = useParams<{ slug?: string }>();
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [openKey, setOpenKey] = useState<string | null>(null); // which parent accordion is open
@@ -113,7 +115,11 @@ export function MobileMenu() {
   }, [closeAll, open]);
 
   function switchTo(next: Locale) {
-    router.replace(pathname, { locale: next });
+    if (pathname === "/blog/[slug]" && params.slug) {
+      router.replace(blogHref(params.slug), { locale: next });
+    } else {
+      router.replace(pathname as StaticPathname, { locale: next });
+    }
     closeAll();
   }
 
@@ -226,7 +232,7 @@ export function MobileMenu() {
                           ) : (
                             <Link
                               key={c.key}
-                              href={c.href}
+                              href={c.hash ? { pathname: c.href, hash: c.hash } : c.href}
                               className={styles.mobileChild}
                               onClick={closeAll}
                             >

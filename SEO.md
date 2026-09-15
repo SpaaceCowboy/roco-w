@@ -13,10 +13,29 @@ geo-meta). If a hosting/CDN geo feature is ever added, keep Russia untargeted.
 
 Config lives in `src/lib/seo.ts` (`HREFLANG` map + helpers).
 
+## Canonical URL policy
+
+Legitimate URLs from the previous WordPress/WPML site remain the public
+canonical URLs. The language-neutral Next.js paths are internal implementation
+routes and are localized through `src/i18n/routing.ts`.
+
+- Canonical tags, hreflang, sitemap entries, and internal links use the
+  historical public paths.
+- Superseded internal paths and duplicate campaign URLs permanently redirect
+  once to the selected canonical URL.
+- English and Persian articles retain their historical root-level slugs.
+- Obsolete template, team-profile, and uncategorized URLs remain `404` rather
+  than redirecting to unrelated content.
+- A legacy document URL is preserved only when the current app contains an
+  exact equivalent file.
+
 ## Implemented (built pages)
 
-Built routes: `/`, `/accounts`, `/faq`, `/contact`, `/legal-documents`,
-`/markets/{forex,commodities,metals,crypto,stocks,indices}`.
+Internal built routes include `/`, `/accounts`, `/faq`, `/contact`,
+`/legal-documents`, `/about`, `/social-trading`, `/payment-methods`,
+`/platforms/metatrader-5`, `/calendar`, `/promotions`, `/partnership`, and
+`/markets/{forex,commodities,metals,crypto,stocks,indices}`. Their public URLs
+are resolved by locale through `src/i18n/routing.ts`.
 
 - **`metadataBase`** + per-page **canonical** URLs (`src/app/[locale]/layout.tsx`,
   each page's `generateMetadata` via `buildMetadata`).
@@ -43,15 +62,5 @@ Built routes: `/`, `/accounts`, `/faq`, `/contact`, `/legal-documents`,
 - [ ] Verify in Google Search Console + Bing; submit the sitemap.
 - [ ] Remove the temporary `· build Mxx` marker in the footer.
 
-## Needed for the remaining (unbuilt) pages
-
-When these are built, wire the same SEO so coverage stays consistent:
-
-- Pages: `/about`, `/social-trading`, `/payment-methods`,
-  `/platforms/metatrader-5`, `/calendar`, `/promotions`, `/partnership`.
-- For each: add `generateMetadata` via `buildMetadata({ locale, path, title,
-  description })`, add the path to `src/app/sitemap.ts`, and remove the `soon`
-  flag in `src/config/nav.ts`.
-- Consider extra JSON-LD where it fits: `BreadcrumbList` on deep pages, `Service`
-  per market/account type, `Article`/`VideoObject` if an education/blog section
-  is added.
+Consider additional JSON-LD where it fits: `BreadcrumbList` on deep pages,
+`Service` per market/account type, and `VideoObject` for future video content.

@@ -8,80 +8,81 @@ const permanent = (source, destination) => ({
 });
 
 const pageRedirects = [
-  // English pages whose information architecture changed.
+  // English aliases. Historical URLs remain canonical.
   permanent("/home", "/"),
   permanent("/home-2", "/"),
-  permanent("/pamm-account", "/social-trading"),
-  permanent("/social-trading-platform", "/social-trading"),
-  permanent("/money-transfer-methods", "/payment-methods"),
-  permanent("/metatrader-5", "/platforms/metatrader-5"),
+  permanent("/pamm-account", "/social-trading-platform"),
+  permanent("/social-trading", "/social-trading-platform"),
+  permanent("/payment-methods", "/money-transfer-methods"),
+  permanent("/platforms/metatrader-5", "/metatrader-5"),
 
-  // German WPML slugs.
+  // German aliases to canonical WPML slugs.
   permanent("/de/startseite", "/de"),
   permanent("/de/landing-3", "/de/promotions"),
-  permanent("/de/social-trading-platform", "/de/social-trading"),
-  permanent("/de/money-transfer-methods", "/de/payment-methods"),
-  permanent("/de/partnerschaft", "/de/partnership"),
-  permanent("/de/juristische-dokumente", "/de/legal-documents"),
-  permanent("/de/wirtschaftskalender", "/de/calendar"),
-  permanent("/de/metatrader-5", "/de/platforms/metatrader-5"),
-  permanent("/de/kontaktieren-sie-uns", "/de/contact"),
-  permanent("/de/roco-accounts", "/de/accounts"),
-  permanent("/de/ueber-uns", "/de/about"),
+  permanent("/de/social-trading", "/de/social-trading-platform"),
+  permanent("/de/payment-methods", "/de/money-transfer-methods"),
+  permanent("/de/partnership", "/de/partnerschaft"),
+  permanent("/de/legal-documents", "/de/juristische-dokumente"),
+  permanent("/de/calendar", "/de/wirtschaftskalender"),
+  permanent("/de/platforms/metatrader-5", "/de/metatrader-5"),
+  permanent("/de/contact", "/de/kontaktieren-sie-uns"),
+  permanent("/de/accounts", "/de/roco-accounts"),
+  permanent("/de/about", "/de/ueber-uns"),
 
-  // Russian WPML slugs.
+  // Russian aliases to canonical WPML slugs.
   permanent("/ru/landing-3", "/ru/promotions"),
-  permanent("/ru/social-trading-platform", "/ru/social-trading"),
-  permanent("/ru/money-transfer-methods", "/ru/payment-methods"),
-  permanent("/ru/economic-calendar", "/ru/calendar"),
-  permanent("/ru/metatrader-5", "/ru/platforms/metatrader-5"),
-  permanent("/ru/contact-us", "/ru/contact"),
-  permanent("/ru/roco-accounts", "/ru/accounts"),
-  permanent("/ru/about-us", "/ru/about"),
+  permanent("/ru/social-trading", "/ru/social-trading-platform"),
+  permanent("/ru/payment-methods", "/ru/money-transfer-methods"),
+  permanent("/ru/calendar", "/ru/economic-calendar"),
+  permanent("/ru/platforms/metatrader-5", "/ru/metatrader-5"),
+  permanent("/ru/contact", "/ru/contact-us"),
+  permanent("/ru/accounts", "/ru/roco-accounts"),
+  permanent("/ru/about", "/ru/about-us"),
 
-  // Arabic WPML slugs.
-  permanent("/ar/طرق-تحويل-الأموال", "/ar/payment-methods"),
-  permanent("/ar/الأسئلة-الشائعة", "/ar/faq"),
-  permanent("/ar/الشراكة", "/ar/partnership"),
-  permanent("/ar/المستندات-القانونية", "/ar/legal-documents"),
-  permanent("/ar/التقويم-الاقتصادي", "/ar/calendar"),
-  permanent("/ar/ميتاتريدر-5", "/ar/platforms/metatrader-5"),
-  permanent("/ar/العروض-الترويجية", "/ar/promotions"),
-  permanent("/ar/اتصل-بنا", "/ar/contact"),
-  permanent("/ar/حسابات-roco", "/ar/accounts"),
-  permanent("/ar/نبذة-عنا", "/ar/about"),
+  // Arabic aliases to canonical WPML slugs.
+  permanent("/ar/payment-methods", encodeURI("/ar/طرق-تحويل-الأموال")),
+  permanent("/ar/faq", encodeURI("/ar/الأسئلة-الشائعة")),
+  permanent("/ar/partnership", encodeURI("/ar/الشراكة")),
+  permanent("/ar/legal-documents", encodeURI("/ar/المستندات-القانونية")),
+  permanent("/ar/calendar", encodeURI("/ar/التقويم-الاقتصادي")),
+  permanent("/ar/platforms/metatrader-5", encodeURI("/ar/ميتاتريدر-5")),
+  permanent("/ar/promotions", encodeURI("/ar/العروض-الترويجية")),
+  permanent("/ar/contact", encodeURI("/ar/اتصل-بنا")),
+  permanent("/ar/accounts", encodeURI("/ar/حسابات-roco")),
+  permanent("/ar/about", encodeURI("/ar/نبذة-عنا")),
 
-  // Persian WPML slugs and campaign pages.
-  permanent("/fa/مسابقه-روکو", "/fa/promotions"),
-  permanent("/fa/pamm-accounts", "/fa/social-trading"),
-  permanent("/fa/social-trade-platform", "/fa/social-trading"),
-  permanent("/fa/dubai-workshop", "/fa/promotions"),
-  permanent("/fa/ictpro", "/fa/promotions"),
-  permanent("/fa/ictgift", "/fa/promotions"),
-  permanent("/fa/روش-های-انتقال-وجه", "/fa/payment-methods"),
-  permanent("/fa/راهنمای-گام-به-گام", "/fa/accounts"),
-  permanent("/fa/سوالات-متداول", "/fa/faq"),
-  permanent("/fa/مشارکت", "/fa/partnership"),
-  permanent("/fa/اسناد-حقوقی", "/fa/legal-documents"),
-  permanent("/fa/تقویم", "/fa/calendar"),
-  permanent("/fa/متاتریدر-5", "/fa/platforms/metatrader-5"),
-  permanent("/fa/تبلیغات", "/fa/promotions"),
-  permanent("/fa/تماس-بگیرید", "/fa/contact"),
-  permanent("/fa/حساب-های-roco", "/fa/accounts"),
-  permanent("/fa/درباره-ما", "/fa/about"),
+  // Persian aliases and campaigns. The highest-value historical slug for each
+  // real page is canonical; duplicate campaigns consolidate into it.
+  permanent("/fa/مسابقه-روکو", encodeURI("/fa/تبلیغات")),
+  permanent("/fa/pamm-accounts", "/fa/social-trade-platform"),
+  permanent("/fa/social-trading", "/fa/social-trade-platform"),
+  permanent("/fa/dubai-workshop", encodeURI("/fa/تبلیغات")),
+  permanent("/fa/ictpro", encodeURI("/fa/تبلیغات")),
+  permanent("/fa/ictgift", encodeURI("/fa/تبلیغات")),
+  permanent("/fa/promotions", encodeURI("/fa/تبلیغات")),
+  permanent("/fa/payment-methods", encodeURI("/fa/روش-های-انتقال-وجه")),
+  permanent("/fa/راهنمای-گام-به-گام", encodeURI("/fa/حساب-های-roco")),
+  permanent("/fa/accounts", encodeURI("/fa/حساب-های-roco")),
+  permanent("/fa/faq", encodeURI("/fa/سوالات-متداول")),
+  permanent("/fa/partnership", encodeURI("/fa/مشارکت")),
+  permanent("/fa/legal-documents", encodeURI("/fa/اسناد-حقوقی")),
+  permanent("/fa/calendar", encodeURI("/fa/تقویم")),
+  permanent("/fa/platforms/metatrader-5", encodeURI("/fa/متاتریدر-5")),
+  permanent("/fa/contact", encodeURI("/fa/تماس-بگیرید")),
+  permanent("/fa/about", encodeURI("/fa/درباره-ما")),
 
-  // Simplified Chinese WPML slugs.
+  // Simplified Chinese aliases to canonical WPML slugs.
   permanent("/zh-hans/首页-2", "/zh-hans"),
-  permanent("/zh-hans/转账方式", "/zh-hans/payment-methods"),
-  permanent("/zh-hans/常见问题", "/zh-hans/faq"),
-  permanent("/zh-hans/合作伙伴", "/zh-hans/partnership"),
-  permanent("/zh-hans/法律文件", "/zh-hans/legal-documents"),
-  permanent("/zh-hans/经济日历", "/zh-hans/calendar"),
-  permanent("/zh-hans/metatrader-5", "/zh-hans/platforms/metatrader-5"),
-  permanent("/zh-hans/促销活动", "/zh-hans/promotions"),
-  permanent("/zh-hans/联系我们", "/zh-hans/contact"),
-  permanent("/zh-hans/roco-账户", "/zh-hans/accounts"),
-  permanent("/zh-hans/关于我们", "/zh-hans/about"),
+  permanent("/zh-hans/payment-methods", encodeURI("/zh-hans/转账方式")),
+  permanent("/zh-hans/faq", encodeURI("/zh-hans/常见问题")),
+  permanent("/zh-hans/partnership", encodeURI("/zh-hans/合作伙伴")),
+  permanent("/zh-hans/legal-documents", encodeURI("/zh-hans/法律文件")),
+  permanent("/zh-hans/calendar", encodeURI("/zh-hans/经济日历")),
+  permanent("/zh-hans/platforms/metatrader-5", "/zh-hans/metatrader-5"),
+  permanent("/zh-hans/promotions", encodeURI("/zh-hans/促销活动")),
+  permanent("/zh-hans/contact", encodeURI("/zh-hans/联系我们")),
+  permanent("/zh-hans/accounts", encodeURI("/zh-hans/roco-账户")),
+  permanent("/zh-hans/about", encodeURI("/zh-hans/关于我们")),
 ];
 
 const marketSlugs = {
@@ -139,9 +140,15 @@ const marketRedirects = Object.entries(marketSlugs).flatMap(
   ([locale, slugs]) => {
     const prefix = locale === "en" ? "" : `/${locale}`;
     return [
-      permanent(`${prefix}/services`, `${prefix}/markets/forex`),
+      permanent(
+        `${prefix}/services`,
+        encodeURI(`${prefix}/services/${slugs.forex}`),
+      ),
       ...Object.entries(slugs).map(([market, slug]) =>
-        permanent(`${prefix}/services/${slug}`, `${prefix}/markets/${market}`),
+        permanent(
+          `${prefix}/markets/${market}`,
+          encodeURI(`${prefix}/services/${slug}`),
+        ),
       ),
     ];
   },
@@ -223,22 +230,21 @@ const persianBlogSlugs = [
 ];
 
 const blogRedirects = [
-  permanent("/fa/وبلاگ", "/fa/blog"),
-  permanent("/zh-hans/博客", "/zh-hans/blog"),
+  permanent("/fa/blog", encodeURI("/fa/وبلاگ")),
+  permanent("/zh-hans/blog", encodeURI("/zh-hans/博客")),
   ...englishBlogSlugs.map((slug) =>
-    permanent(`/${slug}`, `/blog/${slug}`),
+    permanent(`/blog/${slug}`, `/${slug}`),
   ),
   ...persianBlogSlugs.map((slug) =>
-    permanent(`/fa/${slug}`, encodeURI(`/fa/blog/${slug}`)),
+    permanent(`/fa/blog/${slug}`, encodeURI(`/fa/${slug}`)),
   ),
 ];
 
-const assetRedirects = [
-  // Exact replacement for a WordPress upload retained by the current app.
-  permanent(
-    "/wp-content/uploads/2025/07/social-trade-provider-agreement.pdf",
-    "/documents/social-trade-provider-agreement.pdf",
-  ),
+export const legacyRewrites = [
+  {
+    source: "/wp-content/uploads/2025/07/social-trade-provider-agreement.pdf",
+    destination: "/documents/social-trade-provider-agreement.pdf",
+  },
 ];
 
 /**
@@ -249,5 +255,4 @@ export const legacyRedirects = [
   ...pageRedirects,
   ...marketRedirects,
   ...blogRedirects,
-  ...assetRedirects,
 ];

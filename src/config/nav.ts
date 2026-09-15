@@ -9,6 +9,7 @@
 export type NavChild = {
   key: string; // i18n key under "nav"
   href: string; // internal path (locale-prefixed) OR external URL
+  hash?: string; // optional in-page target, kept separate so routing can localize the path
   external?: boolean;
   soon?: boolean; // page not built yet → render as an inactive "soon" item
 };
@@ -27,12 +28,12 @@ export const NAV_ITEMS: NavItem[] = [
     children: [
       // #markets → land on the page scrolled straight to the selected topic's
       // tab/panel (not the hero top).
-      { key: "forexTrading", href: "/markets/forex#markets" },
-      { key: "commodities", href: "/markets/commodities#markets" },
-      { key: "metals", href: "/markets/metals#markets" },
-      { key: "crypto", href: "/markets/crypto#markets" },
-      { key: "stocks", href: "/markets/stocks#markets" },
-      { key: "indices", href: "/markets/indices#markets" },
+      { key: "forexTrading", href: "/markets/forex", hash: "markets" },
+      { key: "commodities", href: "/markets/commodities", hash: "markets" },
+      { key: "metals", href: "/markets/metals", hash: "markets" },
+      { key: "crypto", href: "/markets/crypto", hash: "markets" },
+      { key: "stocks", href: "/markets/stocks", hash: "markets" },
+      { key: "indices", href: "/markets/indices", hash: "markets" },
     ],
   },
   {

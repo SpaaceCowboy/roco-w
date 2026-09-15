@@ -1,5 +1,5 @@
 import createNextIntlPlugin from "next-intl/plugin";
-import { legacyRedirects } from "./src/config/legacyRedirects.mjs";
+import { legacyRedirects, legacyRewrites } from "./src/config/legacyRedirects.mjs";
 
 // Point the plugin at our i18n request config (message loading per locale).
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
@@ -39,6 +39,9 @@ const nextConfig = {
   },
   async redirects() {
     return legacyRedirects;
+  },
+  async rewrites() {
+    return legacyRewrites;
   },
 };
 
