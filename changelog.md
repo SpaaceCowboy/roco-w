@@ -3,6 +3,25 @@
 This file records changes made during the launch-readiness remediation. New
 work should be added here in the same change that implements it.
 
+## 2026-09-16
+
+### Localized canonical redirect loop
+
+#### Fixed
+
+- Moved legacy redirects into middleware so they are evaluated against the
+  browser's original path before next-intl rewrites localized public URLs to
+  internal routes.
+- Prevented Persian, Arabic, Chinese, and other localized canonical URLs from
+  redirecting to themselves after the historical URL migration.
+- Preserved query strings on permanent legacy redirects.
+
+#### Verification
+
+- TypeScript, ESLint, and the production build pass.
+- All 176 legacy aliases perform their initial permanent redirect without any
+  self-redirect loops; all 152 Search Console paths were re-audited.
+
 ## 2026-09-15
 
 ### Historical canonical URLs

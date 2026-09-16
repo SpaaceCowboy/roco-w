@@ -256,3 +256,19 @@ export const legacyRedirects = [
   ...marketRedirects,
   ...blogRedirects,
 ];
+
+const legacyRedirectLookup = new Map(
+  legacyRedirects.map(({ source, destination }) => [decodeURI(source), destination]),
+);
+
+/**
+ * Resolve redirects against the browser's original, decoded pathname.
+ *
+ * These redirects must run before next-intl rewrites a public localized URL
+ * to its internal route. Running them through next.config redirects makes an
+ * internal route such as `/fa/promotions` indistinguishable from a direct
+ * request for that alias and creates a self-redirect loop.
+ */
+export function resolveLegacyRedirect(pathname) {
+  return legacyRedirectLookup.get(pathname);
+}

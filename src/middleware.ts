@@ -1,5 +1,6 @@
 import createMiddleware from "next-intl/middleware";
-import { NextResponse, type NextRequest } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
+import { resolveLegacyRedirect } from "./config/legacyRedirects.mjs";
 import { routing } from "./i18n/routing";
 
 // Detects the visitor's language (URL → cookie → Accept-Language header) and
@@ -17,7 +18,34 @@ export default function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const response = handleI18nRouting(request);
+  // Redirect only direct browser requests. If these rules run after
+  // next-intl's internal localized-path rewrite, canonical URLs redirect to
+  // themselves (for example `/fa/تبلیغات` -> `/fa/تبلیغات`).
+  let originalPathname = request.nextUrl.pathname;
+  try {
+    originalPathname = decodeURI(originalPathname);
+  } catch {
+    // Invalid percent encoding cannot match a declared legacy route.
+  }
+
+  const legacyDestination = resolveLegacyRedirect(originalPathname);
+  if (legacyDestination) {
+    const destination = new URL(legacyDestination, request.url);
+    destination.search = request.nextUrl.search;
+    return NextResponse.redirect(destination, 308);
+  }
+
+  // Decode percent-encoded Persian/Arabic/Chinese path segments so
+  // next-intl routing matches against decoded slugs (e.g. /fa/[slug]).
+  let decodedRequest = request;
+  try {
+    const decodedUrl = new URL(decodeURI(request.url));
+    decodedRequest = new NextRequest(decodedUrl, request);
+  } catch {
+    // If decoding fails (invalid percent-encoding), fall back to the
+    // original request so the middleware can still process it.
+  }
+  const response = handleI18nRouting(decodedRequest);
 
   // next-intl rewrites to an absolute URL built from the server's own origin.
   // Behind a TLS-terminating proxy that origin is wrong twice over: the scheme
