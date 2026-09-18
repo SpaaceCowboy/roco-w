@@ -4,7 +4,8 @@ Last updated: 2026-09-18 (Asia/Tehran)
 
 Picking up from `currentstate.md`, which records how the deployment is put
 together and why. This file is only what is left to do, in the order I would do
-it. Deployed commit at the time of writing: `12cb39b`.
+it. Repository baseline at the time of writing: `085116a`; the deployed commit
+is tracked in `currentstate.md`.
 
 The site is serving over HTTPS at `https://next.rocobroker.com` through Apache.
 WordPress still serves the production apex. Nothing below is required to keep
@@ -250,9 +251,12 @@ and smoke test before changing the flag.
 
 ## 1. Cookie policy copy — blocking for public launch
 
-The tawk.to widget loads for every visitor on every page **before** any
-cookie-consent choice, and tawk.to sets its own visitor cookies (`__tawkuuid`
-and friends) at that moment. It is the only third party on the site that runs
+The live-chat widget loads for every visitor on every page **before** any
+cookie-consent choice, and it sets its own visitor cookies at that moment. The
+production provider is the self-hosted Chatwoot inbox
+(`NEXT_PUBLIC_LIVE_CHAT_PROVIDER`; `src/config/chat.ts` defaults to `chatwoot`
+and keeps tawk.to and Crisp selectable for rollback or testing). Whichever
+provider is active, live chat is the only third party on the site that runs
 ungated.
 
 The cookie policy text in `messages/*.json` still describes TradingView only, so
@@ -264,9 +268,9 @@ Two ways to resolve, and this is a business decision rather than a technical one
 
 - **Disclose it.** Add live chat to the cookie policy in all six locales. Fast,
   keeps the widget on every page.
-- **Gate it.** Move the injection behind a consent category in `@/lib/consent`.
-  The component comment at `src/components/ui/LiveChat/LiveChat.tsx:12` already
-  describes this as the intended route if consent is ever required.
+- **Gate it.** Move the injection in
+  `src/components/ui/LiveChat/LiveChat.tsx` behind a consent category in
+  `@/lib/consent`, as the TradingView widgets already are.
 
 Whichever way, the translations need compliance sign-off, same as the risk
 disclosure wording did.

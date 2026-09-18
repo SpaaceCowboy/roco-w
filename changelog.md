@@ -3,6 +3,78 @@
 This file records changes made during the launch-readiness remediation. New
 work should be added here in the same change that implements it.
 
+## 2026-09-18
+
+### Admin content, publishing, and SEO system
+
+#### Added
+
+- Added PostgreSQL persistence for editorial content with forward-only Drizzle
+  migrations covering admin users and roles, posts, localized content, immutable
+  revisions, categories, tags, slug history, media, publication operations, and
+  audit events, with explicit locale/slug uniqueness and publication-state
+  constraints.
+- Added Google OIDC admin authentication through Better Auth, backed by a
+  database allowlist: a signed-in but non-allowlisted identity is denied, and
+  roles `admin`, `editor`, and `reviewer` are enforced server-side on every admin
+  page and mutation.
+- Added a content repository interface with matching file-backed and PostgreSQL
+  adapters, selected by `CONTENT_SOURCE`. The existing file-backed public blog
+  remains the default and is unchanged.
+- Added the protected `/admin` panel: article list and filters, a six-locale
+  TipTap editor with Persian and Arabic RTL support, structured editor JSON plus
+  sanitized server-rendered HTML, debounced autosave with optimistic locking,
+  immutable revisions with comparison and rollback, translation management,
+  signed draft previews through the real article layout, and direct signed
+  S3-compatible image uploads verified for format, dimensions, size, and
+  SHA-256 before a media record is written.
+- Added the publication workflow: `draft -> review -> scheduled/published ->
+  archived`, authorized administrator self-approval with the exact approved
+  revision recorded, transactional idempotent publish/unpublish, concurrent
+  transition rejection, a bounded scheduled-publication endpoint, cache
+  revalidation outcomes with an authorized retry path, and archive/restore.
+- Added SEO controls: per-article SEO title and description, independent
+  `noindex` and `nofollow`, generated canonicals with reviewer-gated overrides,
+  featured and 1200x630 social images with overrides and previews, editorial
+  checks, real-translation-only hreflang, BlogPosting and breadcrumb JSON-LD, and
+  locale-aware slug history with one-hop permanent redirects that reject
+  collisions and loops.
+- Added an idempotent importer keyed by legacy WordPress `sourceId` for all 69
+  English and Persian snapshot articles, including taxonomy, authors, dates,
+  reading time, slugs, media, table-of-contents data, revisions, and audit
+  records, plus a fail-closed content parity verifier.
+- Added admin allowlist, disable, session-revocation, and schema-verification
+  scripts.
+- Added `docs/admin-content.md` documenting environment configuration, the
+  import and parity procedure, production cutover, and file-backed rollback.
+
+#### Changed
+
+- Routed public article, blog index, taxonomy, related-content, RSS, sitemap,
+  SEO, media, and historical-slug reads through the selected content repository.
+  The default remains `CONTENT_SOURCE=file`, so no public URL, canonical, RSS,
+  or sitemap output changes until the database cutover is explicitly enabled.
+- Added a non-locale-prefixed `/admin` passthrough to the middleware; admin
+  authorization is still enforced in its server layouts and route handlers.
+
+#### Verification
+
+- Migration dry run: 69 articles, 0 failures, 0 rejected patterns, 0 lost
+  heading anchors, and 0 text changes. TipTap normalization removes 39 `<thead>`
+  wrappers while retaining the header rows and their text.
+- Disposable PostgreSQL 17 integration checks passed for applying all
+  migrations, published-revision reads, SEO and canonical generation, slug
+  history, database repository reads, and indexable listings.
+- `npm test` (22 tests), `npm run typecheck`, `npm run lint`, `npm run db:check`,
+  and `npm run build` passed; the build now also generates the `/admin` and
+  admin API routes.
+
+#### Not enabled
+
+- The database read cutover is deliberately incomplete. Public content stays on
+  the checked-in `posts.json` snapshot until a production import, a
+  zero-mismatch parity run, and a staging smoke test complete.
+
 ## 2026-09-16
 
 ### Localized canonical redirect loop
