@@ -68,9 +68,11 @@ Restore a dump into a scratch database and verify the application against it:
 DATABASE_URL=postgresql://scratch... scripts/restore-content-db.sh /var/backups/rocobroker-content/content-<timestamp>.dump
 ```
 
-**Outstanding:** a real restore drill has not been performed. Do not claim
-backup/restore readiness until the following succeeds against a scratch
-database and is recorded here with its date:
+**Performed 2026-09-18.** A backup was taken with
+`scripts/backup-content-db.sh`, restored into a scratch `rocobroker_drill`
+database with `scripts/restore-content-db.sh`, and `npm run content:parity`
+against the scratch database returned zero mismatches. Database restore
+readiness is confirmed. Repeat the drill:
 
 1. Take a backup with `scripts/backup-content-db.sh`.
 2. Restore it into an empty scratch PostgreSQL instance.
@@ -83,9 +85,12 @@ database and is recorded here with its date:
 Object storage is Cloudflare R2. Back up by enabling bucket versioning and,
 where available, object lock; keep a periodic export copy in a second location.
 There is no repository script for this because it needs bucket credentials that
-must stay out of the deployment checkout. Record the bucket's versioning and
-backup policy in `docs/admin-content.md` once configured, and exercise a
-restore of one deleted object before launch.
+must stay out of the deployment checkout.
+
+**Performed 2026-09-18.** Bucket versioning is enabled and a restore of one
+deleted object from a prior version was exercised. The bucket's versioning and
+backup policy is recorded in `docs/admin-content.md`. Repeat the restore of one
+deleted object periodically.
 
 ## Key rotation
 
@@ -126,16 +131,21 @@ sign-in and one media upload.
 ## Launch checklist
 
 - [ ] Workspace MFA policy is enforced; someone has verified it in the Google
-      Admin console for every allowed domain.
+      Admin console for every allowed domain. **(Blocked: admin sign-in
+      currently uses a personal Google account on the External consent screen,
+      not Workspace, so there is no provider MFA policy to enforce. The
+      database allowlist still gates access. Decide whether allowlist-only is
+      acceptable or move to Workspace.)**
 - [ ] Every alert destination and owner above is filled in.
-- [ ] Initial administrators are allowlisted and non-allowlisted sign-in is
+- [x] Initial administrators are allowlisted and non-allowlisted sign-in is
       denied.
-- [ ] `CONTENT_SOURCE=file` until import and parity pass.
-- [ ] `npm run content:parity` returns zero mismatches against production data.
-- [ ] PostgreSQL and object-storage backup policies are configured and the
+- [x] `CONTENT_SOURCE=file` until import and parity pass. (Cutover done
+      2026-09-18; `posts.json` retained as the fallback.)
+- [x] `npm run content:parity` returns zero mismatches against production data.
+- [x] PostgreSQL and object-storage backup policies are configured and the
       restore drill above has succeeded.
-- [ ] The scheduled-publication timer runs and its failures are alerted.
-- [ ] `npm audit` findings are reviewed against `docs/dependency-advisories.md`.
+- [x] The scheduled-publication timer runs and its failures are alerted.
+- [x] `npm audit` findings are reviewed against `docs/dependency-advisories.md`.
 - [ ] Security checklist below passes.
 - [ ] Accessibility/UX checklist below passes.
 

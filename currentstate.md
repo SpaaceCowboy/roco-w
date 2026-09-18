@@ -146,9 +146,9 @@ step was missed.
 
 Tracked in `pending.md`, which supersedes the earlier list here. Completed since
 the last update: log rotation (item 1), apex cutover (item 3), the live-chat
-consent gating, the PostgreSQL password rotation, and the `CONTENT_SOURCE=database`
-read cutover. Still open: the Postgres/R2 restore drill, alert owners and
-destinations, the scheduled-publication timer install, origin lockdown (item 4),
+consent gating, the PostgreSQL password rotation, the `CONTENT_SOURCE=database`
+read cutover, the Postgres and R2 restore drills, the scheduled-publication
+timer install, and origin lockdown. Still open: alert owners and destinations,
 and the manual security/accessibility QA. 
 
 **Unrelated but outstanding:** `bo.`, `my.` and `webtrading.rocobroker.com`

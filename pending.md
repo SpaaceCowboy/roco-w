@@ -237,11 +237,10 @@ existing authorization and redirect tests. `docs/admin-runbook.md` documents
 ownership, key rotation, provider outages, the launch checklist, and the
 security/accessibility QA checklists; `docs/dependency-advisories.md` classifies
 the six known toolchain advisories. The PostgreSQL password was rotated, PM2 log
-rotation is configured, and the read cutover is live. Still open: the PostgreSQL
-object-storage restore drill has not been performed, alert destinations and
-owners are placeholders, the scheduled-publication timer must be installed on
-the host and verified, origin lockdown (CSF Cloudflare ranges) may still be
-outstanding, and the manual keyboard/RTL/mobile QA has not been run.
+rotation is configured, and the read cutover is live. The PostgreSQL and R2
+restore drills, the scheduled-publication timer install, and origin lockdown
+were completed 2026-09-18. Still open: alert destinations and owners are
+placeholders, and the manual keyboard/RTL/mobile QA has not been run.
 
 - Exercise backup and point-in-time restore for PostgreSQL and object storage.
 - Add structured logs and alerts for authentication failures, upload failures,
