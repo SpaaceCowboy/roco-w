@@ -102,6 +102,32 @@ work should be added here in the same change that implements it.
 - `npm run typecheck` and `npm run lint` passed after the importer and parity
   changes.
 
+### Live chat consent gating
+
+#### Changed
+
+- Added a `liveChat` category to the shared consent store and bumped the
+  storage key to `roco.cookieConsent.v3`, so existing choices are requested
+  again and the old `v2` record is removed on save.
+- Gated the live-chat provider (Chatwoot by default; tawk.to and Crisp
+  remain selectable) behind that category: the provider script is injected only
+  after live-chat consent, and revocation tears the widget down (Chatwoot
+  `reset()`, script, iframe, holders, and host styles are removed).
+- Added an off-by-default live-chat toggle to the cookie banner wired into
+  Accept all, Reject all, and Save choices, with disclosure copy in all six
+  locales.
+
+#### Verification
+
+- All six locale files still carry identical top-level and `cookies` key sets.
+- `npm run typecheck`, `npm run lint`, `npm test` (43 tests), and the Webpack
+  production build passed.
+
+#### Pending
+
+- The six-locale disclosure copy requires compliance sign-off before launch,
+  same as the risk-disclosure wording.
+
 ## 2026-09-16
 
 ### Localized canonical redirect loop
