@@ -1,0 +1,10 @@
+[Unit]
+Description=Trigger ROCO Broker scheduled content publication every minute
+
+[Timer]
+OnCalendar=*:0/1
+AccuracySec=5s
+Persistent=true
+
+[Install]
+WantedBy=timers.target

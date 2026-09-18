@@ -1,0 +1,27 @@
+# ROCO Broker scheduled content publication.
+#
+# POSTs to the application once per minute so scheduled articles become
+# published through the same path as an interactive publish (cache revalidation
+# included). The endpoint derives a stable idempotency key per approved
+# revision, so an exact retry is safe.
+#
+# Install (as root):
+#   install -m 0644 deploy/rocobroker-scheduled-publish.service /etc/systemd/system/
+#   install -m 0644 deploy/rocobroker-scheduled-publish.timer /etc/systemd/system/
+#   install -m 0600 /path/to/rocobroker-scheduled-publish.env /etc/rocobroker-scheduled-publish.env
+#   systemctl daemon-reload
+#   systemctl enable --now rocobroker-scheduled-publish.timer
+#
+# The env file holds SCHEDULED_PUBLISH_SECRET (>= 32 random bytes), mode 0600,
+# root-owned. Keep it out of the checkout. Note curl 7.61 on this host predates
+# --fail-with-body / --retry-all-errors, so those flags are not used.
+
+[Unit]
+Description=ROCO Broker scheduled content publication
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+EnvironmentFile=/etc/rocobroker-scheduled-publish.env
+ExecStart=/usr/bin/curl --fail --silent --show-error --max-time 30 --retry 2 --request POST --header "Authorization: Bearer ${SCHEDULED_PUBLISH_SECRET}" https://rocobroker.com/api/admin/scheduled-publications

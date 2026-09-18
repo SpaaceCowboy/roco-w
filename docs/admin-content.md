@@ -17,7 +17,7 @@ Set these in `.env.production`:
 ```dotenv
 DATABASE_URL=postgresql://...
 DATABASE_POOL_MAX=10
-ADMIN_AUTH_BASE_URL=https://next.rocobroker.com
+ADMIN_AUTH_BASE_URL=https://rocobroker.com
 ADMIN_AUTH_SECRET=<at least 32 random characters>
 ADMIN_GOOGLE_CLIENT_ID=<Google OAuth web client ID>
 ADMIN_GOOGLE_CLIENT_SECRET=<Google OAuth client secret>
@@ -44,12 +44,13 @@ Create a Google OAuth **Web application** client and register an authorized
 redirect URI matching the configured origin exactly:
 
 ```text
-https://next.rocobroker.com/api/auth/callback/google
+https://rocobroker.com/api/auth/callback/google
 ```
 
-At apex cutover, register
-`https://rocobroker.com/api/auth/callback/google` before changing
-`ADMIN_AUTH_BASE_URL`. Keep both redirect URIs during the transition.
+The apex cutover is complete, so the redirect URI and `ADMIN_AUTH_BASE_URL`
+above are the live values. Keep `https://next.rocobroker.com/api/auth/callback/google`
+registered as a second redirect URI only while `next.rocobroker.com` remains a
+fallback origin.
 
 `ADMIN_GOOGLE_HOSTED_DOMAIN` is optional but recommended for Workspace. The
 database allowlist remains mandatory even when the domain restriction is set.
@@ -184,18 +185,19 @@ items per invocation and derives a stable idempotency key per approved
 revision. Example systemd timer command:
 
 ```bash
-curl --fail-with-body --silent --show-error \
+curl --fail --silent --show-error \
   --max-time 30 \
   --retry 2 \
-  --retry-all-errors \
   --request POST \
   --header "Authorization: Bearer ${SCHEDULED_PUBLISH_SECRET}" \
-  https://next.rocobroker.com/api/admin/scheduled-publications
+  https://rocobroker.com/api/admin/scheduled-publications
 ```
 
-Keep the secret in the timer's protected environment file, not in the unit or
-the repository. The endpoint returns non-2xx when the batch itself fails; cache
-refresh warnings are returned per item for alerting.
+The host runs curl 7.61 (AlmaLinux 8), which predates `--fail-with-body` and
+`--retry-all-errors`; the flags above are the compatible set. Keep the secret in
+the timer's protected environment file, not in the unit or the repository. The
+endpoint returns non-2xx when the batch itself fails; cache refresh warnings are
+returned per item for alerting.
 
 ## SEO and route policy
 
