@@ -4,7 +4,8 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { routing } from "@/i18n/routing";
 import { buildMetadata, localizedUrl } from "@/lib/seo";
-import { getBlogCategories, getBlogPostSummaries, getBlogTags, hasNativeBlogContent } from "@/lib/blog";
+import { getPublishedContentRepository } from "@/lib/content/content-source";
+import { serializeJsonLd } from "@/lib/content/article-seo";
 import { BlogView, type BlogUi } from "@/components/pages/BlogPage/BlogView";
 import { Footer } from "@/components/layout/Footer/Footer";
 
@@ -25,7 +26,11 @@ export default async function BlogPage({ params }: { params: Promise<{ locale: s
   if (!routing.locales.includes(locale as (typeof routing.locales)[number])) notFound();
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: "blogPage" });
-  const posts = getBlogPostSummaries(locale);
+  const repository = getPublishedContentRepository();
+  const [posts, categories, tags, hasNativeContent] = await Promise.all([
+    repository.listPosts(locale), repository.listCategories(locale), repository.listTags(locale),
+    repository.hasNativeContent(locale),
+  ]);
   const ui: BlogUi = {
     eyebrow: t("eyebrow"), title: t("title"), lead: t("lead"), searchLabel: t("searchLabel"),
     searchPlaceholder: t("searchPlaceholder"), allCategories: t("allCategories"), featured: t("featured"),
@@ -51,14 +56,14 @@ export default async function BlogPage({ params }: { params: Promise<{ locale: s
 
   return (
     <main id="main-content">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(blogLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(blogLd) }} />
       <Suspense fallback={null}>
         <BlogView
           posts={posts}
-          categories={getBlogCategories(locale)}
-          tags={getBlogTags(locale)}
+          categories={categories}
+          tags={tags}
           locale={locale}
-          hasNativeContent={hasNativeBlogContent(locale)}
+          hasNativeContent={hasNativeContent}
           ui={ui}
         />
       </Suspense>

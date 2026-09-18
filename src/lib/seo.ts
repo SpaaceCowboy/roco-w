@@ -1,12 +1,9 @@
 import type { Metadata } from "next";
 import { getPathname } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
+import { SITE_URL } from "@/config/site-url";
 
-/** Production origin — override per environment with NEXT_PUBLIC_SITE_URL. */
-export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://rocobroker.com").replace(
-  /\/$/,
-  "",
-);
+export { SITE_URL } from "@/config/site-url";
 
 /** Default social share image (1200×630, relative to SITE_URL via metadataBase). */
 export const OG_IMAGE = "/Banner.png";

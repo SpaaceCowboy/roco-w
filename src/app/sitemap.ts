@@ -2,10 +2,12 @@ import type { MetadataRoute } from "next";
 import { routing } from "@/i18n/routing";
 import { localizedUrl, languageAlternates } from "@/lib/seo";
 import { CATEGORIES } from "@/components/pages/MarketsPage/categories";
-import { getBlogPosts } from "@/lib/blog";
+import { getPublishedContentRepository } from "@/lib/content/content-source";
+import { publishedArticlePath } from "@/config/blog-routing";
+import { SITE_URL } from "@/config/site-url";
 
 /** Every built route, one entry with hreflang alternates for all locales. */
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const paths = [
     "/",
     "/accounts",
@@ -30,19 +32,21 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: path === "/" ? 1 : 0.7,
     alternates: { languages: languageAlternates(path) },
   }));
-  const articles = ["en", "fa"].flatMap((locale) =>
-    getBlogPosts(locale).map((post) => ({
-      url: localizedUrl(post.locale, `/blog/${post.slug}`),
+  const repository = getPublishedContentRepository();
+  const articles = (await Promise.all(routing.locales.map((locale) => repository.listIndexablePosts(locale))))
+    .flat()
+    .filter((post, index, all) => all.findIndex((candidate) => candidate.locale === post.locale && candidate.slug === post.slug) === index)
+    .map((post) => ({
+      url: `${SITE_URL}${publishedArticlePath(post.locale, post.slug)}`,
       lastModified: new Date(post.updatedAt),
       changeFrequency: "monthly" as const,
       priority: 0.6,
       alternates: {
         languages: {
-          [post.locale]: localizedUrl(post.locale, `/blog/${post.slug}`),
-          ...(post.locale === "en" ? { "x-default": localizedUrl("en", `/blog/${post.slug}`) } : {}),
+          [post.locale]: `${SITE_URL}${publishedArticlePath(post.locale, post.slug)}`,
+          ...(post.locale === "en" ? { "x-default": `${SITE_URL}${publishedArticlePath("en", post.slug)}` } : {}),
         },
       },
-    })),
-  );
+    }));
   return [...pages, ...articles];
 }

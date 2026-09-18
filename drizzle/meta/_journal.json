@@ -1,0 +1,41 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1789633121457,
+      "tag": "0000_admin_blog_foundation",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1789633846426,
+      "tag": "0001_google_admin_auth",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1789635432392,
+      "tag": "0002_black_prowler",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1789652613959,
+      "tag": "0003_uneven_shen",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1789653248930,
+      "tag": "0004_whole_jigsaw",
+      "breakpoints": true
+    }
+  ]
+}

@@ -1,6 +1,10 @@
 import createNextIntlPlugin from "next-intl/plugin";
 import { legacyRewrites } from "./src/config/legacyRedirects.mjs";
 
+const contentMediaOrigin = process.env.CONTENT_MEDIA_PUBLIC_BASE_URL
+  ? new URL(process.env.CONTENT_MEDIA_PUBLIC_BASE_URL)
+  : null;
+
 // Point the plugin at our i18n request config (message loading per locale).
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
@@ -33,6 +37,12 @@ const nextConfig = {
     // Next 16 requires every `quality` value used by any next/image call to be
     // declared here. Add new values as sections introduce them.
     qualities: [75, 85, 90, 95],
+    remotePatterns: contentMediaOrigin ? [{
+      protocol: contentMediaOrigin.protocol.replace(":", ""),
+      hostname: contentMediaOrigin.hostname,
+      port: contentMediaOrigin.port,
+      pathname: `${contentMediaOrigin.pathname.replace(/\/$/, "")}/**`,
+    }] : [],
   },
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];

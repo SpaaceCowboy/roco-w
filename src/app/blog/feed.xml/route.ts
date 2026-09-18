@@ -1,5 +1,5 @@
 import { blogFeedResponse } from "@/lib/blogFeed";
 
-export function GET() {
+export async function GET() {
   return blogFeedResponse("en");
 }

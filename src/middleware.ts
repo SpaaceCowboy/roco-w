@@ -8,6 +8,14 @@ import { routing } from "./i18n/routing";
 const handleI18nRouting = createMiddleware(routing);
 
 export default function middleware(request: NextRequest) {
+  // The admin panel is intentionally not locale-prefixed. Authentication and
+  // authorization are enforced again inside its server layouts and handlers;
+  // bypassing next-intl here only prevents /admin from being rewritten to a
+  // public locale route.
+  if (request.nextUrl.pathname === "/admin" || request.nextUrl.pathname.startsWith("/admin/")) {
+    return NextResponse.next();
+  }
+
   // Next.js 16 re-invokes middleware on its own internal rewrites. next-intl
   // stamps `x-next-intl-locale` when it rewrites `/` to `/en`, so seeing that
   // header on an *incoming* request means routing already ran for this

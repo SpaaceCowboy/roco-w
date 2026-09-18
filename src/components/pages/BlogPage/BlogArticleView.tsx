@@ -1,5 +1,6 @@
 import { blogHref, Link } from "@/i18n/navigation";
 import type { BlogPost, BlogPostSummary } from "@/lib/blog";
+import { isRtl } from "@/i18n/routing";
 import { CornerMark } from "@/components/ui/CornerMark/CornerMark";
 import { BlogVisual } from "./BlogVisual";
 import { ArticleShare } from "./ArticleShare";
@@ -33,7 +34,7 @@ function addLegacyHeadingAnchors(html: string): string {
 
 export function BlogArticleView({ post, related, recent, locale, ui }: { post: BlogPost; related: BlogPostSummary[]; recent: BlogPostSummary[]; locale: string; ui: BlogArticleUi }) {
   const formatter = new Intl.DateTimeFormat(locale, { year: "numeric", month: "long", day: "numeric" });
-  const sourceDir = post.locale === "fa" ? "rtl" : "ltr";
+  const sourceDir = isRtl(post.locale) ? "rtl" : "ltr";
   const isFallback = post.locale !== locale;
 
   return (

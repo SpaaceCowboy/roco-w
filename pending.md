@@ -1,6 +1,6 @@
 # Pending Work
 
-Last updated: 2026-08-12 (Asia/Tehran)
+Last updated: 2026-09-18 (Asia/Tehran)
 
 Picking up from `currentstate.md`, which records how the deployment is put
 together and why. This file is only what is left to do, in the order I would do
@@ -9,6 +9,242 @@ it. Deployed commit at the time of writing: `12cb39b`.
 The site is serving over HTTPS at `https://next.rocobroker.com` through Apache.
 WordPress still serves the production apex. Nothing below is required to keep
 that working — item 1 is required before the site takes public traffic.
+
+---
+
+## Admin blog and SEO system
+
+The existing blog is a build-time library in `src/content/blog/posts.json`.
+The work below replaces that file as the writable source of truth without
+changing existing public URLs, canonical policy, RSS output, or sitemap
+coverage. PostgreSQL will hold content and immutable revisions; article media
+will live in S3-compatible object storage rather than the deployment checkout.
+
+### Phase 1 — foundation
+
+**Goal:** establish the database, security boundary, and repository layer before
+building editorial screens.
+
+**Status (2026-09-17): complete in code; production activation pending.** The
+schema, forward migrations, PostgreSQL connection, file-backed repository
+adapter, role matrix, Google OIDC sessions, database allowlist, identity
+binding, append-only audit trail, revocation commands, and protected `/admin`
+shell are in place. Migrations, auth schema access, integrity constraints,
+allowlisting, disabling, and session revocation were verified against a
+disposable PostgreSQL 17 instance. The production host still needs a database,
+Google OAuth credentials, an initial allowlisted admin, and the documented
+environment variables before login can be activated; see
+`docs/admin-content.md`.
+
+- Add PostgreSQL connection and migration tooling with forward-only SQL
+  migrations.
+- Create the initial schema for admin users, roles, posts, localized content,
+  immutable revisions, categories, tags, slug history, media, and audit events.
+- Add explicit constraints for locale/slug uniqueness, valid publication
+  states, and referential integrity.
+- Add a content repository interface so public routes and admin features do not
+  query the database directly.
+- Add OIDC-based admin authentication, backed by a database allowlist. Provider
+  MFA is mandatory; an email-domain claim alone never grants access.
+- Add server-side role checks for `admin`, `editor`, and `reviewer` and a
+  protected `/admin` shell.
+- Record authentication and authorization-sensitive actions in the audit log,
+  without request bodies, article content, tokens, or PII-heavy log fields.
+- Add configuration validation and document the new environment variables.
+- Add schema, authorization, and repository tests.
+
+**Exit criteria**
+
+- An unauthenticated request cannot access any admin page or mutation.
+- A signed-in but non-allowlisted identity is denied.
+- Migrations apply cleanly to an empty PostgreSQL database.
+- Role checks and audit writes are covered by automated tests.
+- The existing file-backed public blog still builds unchanged.
+
+### Phase 2 — editing and media
+
+**Goal:** create and safely revise multilingual draft content.
+
+**Status (2026-09-17): complete in code; production storage activation
+pending.** The protected article list and filters, six-locale TipTap editor,
+RTL editing, serialized debounced autosave, optimistic locking, immutable
+revision comparison and rollback, signed draft previews, translation creation,
+and S3-compatible direct image uploads are implemented. Upload completion
+verifies the stored bytes, SHA-256 digest, actual format, dimensions, and size
+before creating a media record; saved documents rewrite image sources from the
+validated record. A clean PostgreSQL 17 migration and the stale-write/media
+constraints passed against a disposable database. Production still needs the
+Phase 1 database/auth activation plus the documented R2 bucket, custom domain,
+credential, and CORS configuration in `docs/admin-content.md`.
+
+- Build the article list with locale, status, author, category, and date filters.
+- Build an RTL-aware rich-text editor for headings, lists, links, quotes,
+  tables, images, and approved callouts.
+- Store structured editor JSON as the source and separately store sanitized,
+  server-rendered HTML for public delivery.
+- Add debounced autosave with optimistic locking; reject stale writes instead
+  of silently overwriting another session.
+- Add translation management for `en`, `fa`, `de`, `ru`, `ar`, and `zh-hans`.
+- Add immutable revision snapshots, comparison, and rollback-to-new-draft.
+- Add preview tokens and render drafts through the real public article layout.
+- Add direct signed uploads to S3-compatible storage, image validation,
+  dimensions, checksums, alt text, and usage references.
+- Ensure the editor, dialogs, keyboard navigation, touch targets, and focus
+  states work in both LTR and RTL.
+
+**Exit criteria**
+
+- An editor can create, autosave, preview, revise, and roll back English and
+  Persian drafts without touching `posts.json`.
+- Unsafe HTML and upload types are rejected server-side.
+- Concurrent edits produce a visible conflict instead of lost work.
+
+### Phase 3 — review, scheduling, and publishing
+
+**Goal:** make publication transactional, observable, and reversible.
+
+**Status (2026-09-17): complete in code; production activation pending.**
+Draft/review/publish/schedule/unpublish/archive/restore
+transitions, exact approved revisions, actor audit records, UUID idempotency,
+concurrent-transition rejection, cache refresh outcome records, and the bounded
+scheduled-publication endpoint are implemented. Clean PostgreSQL 17 migrations,
+idempotent replay, concurrent publish, archive/restore/unpublish, and due
+scheduled publication checks pass. The standard workflow allows authorized
+administrators to self-approve and does not impose a separate compliance gate;
+one can be added later if the business adopts that process. Failed cache
+refreshes are surfaced without rolling back publication and can be retried from
+the workflow panel through an authorized retry endpoint. The public site remains
+file-backed until the planned Phase 5 read cutover, so public-output parity is
+verified there rather than claimed in this phase.
+
+- Implement `draft -> review -> scheduled/published -> archived` transitions.
+- Allow self-approval for an authorized solo admin while retaining the reviewer
+  and exact approved revision in the audit trail.
+- Add an optional compliance-review gate for financial claims, promotions,
+  leverage, regulation, and jurisdiction-specific content.
+- Publish and unpublish in database transactions using idempotency keys.
+- Revalidate the article, localized indexes, sitemap, and RSS after a successful
+  state change; surface cache failures as publishing warnings.
+- Make scheduled content eligible from `scheduled_at` and use bounded cache
+  revalidation so publication does not rely on an in-memory timer.
+- Add archive and restore. Permanent deletion remains an explicit admin-only
+  operation and is not part of bulk actions.
+
+**Exit criteria**
+
+- Publishing updates the public article, blog listing, RSS, and sitemap.
+- Repeated publish requests cannot create conflicting outcomes.
+- A failed downstream refresh is visible and retryable.
+
+### Phase 4 — SEO controls
+
+**Goal:** give editors useful controls without allowing accidental indexation
+damage.
+
+**Status (2026-09-17): complete in code; public wiring deferred to Phase 5
+cutover.** The editor now has SEO title/description, separate robots controls,
+featured and 1200×630 social images, social overrides, reviewer-gated canonical
+overrides, search/social previews, and editorial checks. SEO and media data are
+stored in immutable revisions; the prepared public read model generates
+canonical, real-translation-only hreflang, BlogPosting, breadcrumbs, Open Graph,
+Twitter, sitemap/feed eligibility, and safe JSON-LD from the exact published
+revision. Locale-aware slug history uses transaction-scoped namespace locks,
+rejects current/history collisions, and cannot reclaim old routes into loops.
+Clean PostgreSQL 17 migrations and service tests verify approved-revision
+metadata and redirect history. The current file-backed public routes remain
+unchanged until Phase 5 intentionally enables database reads and redirects.
+
+- Add SEO title, meta description, slug, robots, featured image, social title,
+  social description, and 1200x630 social-image fields.
+- Keep generated same-site canonicals as the default. Custom canonical changes
+  require reviewer permission and reject unapproved hosts.
+- Generate `BlogPosting`, breadcrumbs, Open Graph, Twitter cards, sitemap data,
+  RSS data, and real-translation-only hreflang from published records.
+- Use each article's social/featured image instead of the current global OG
+  image.
+- Add search-result and social-card previews.
+- Add editorial checks for missing or duplicate metadata, heading order,
+  missing alt text, broken internal links, oversized images, and redirect
+  collisions. Do not present keyword density as a ranking guarantee.
+- Add slug history with permanent redirects, collision checks, and redirect-loop
+  prevention.
+
+**Exit criteria**
+
+- Changing a published slug preserves the previous URL with one permanent
+  redirect.
+- Canonical, hreflang, structured data, RSS, and sitemap tests pass for native
+  translations and fallback content.
+
+### Phase 5 — content migration and read cutover
+
+**Goal:** migrate all current content without losing URLs, rankings, or article
+fidelity.
+
+**Status (2026-09-18): complete in code; production import and flag activation
+pending.** The idempotent `sourceId` importer covers all 69 snapshot articles,
+taxonomies, dates, authors, reading time, featured images, table-of-contents,
+slugs, immutable revisions, media usage, and audit records. Its dry run reports
+zero rejected patterns, text changes, or lost heading anchors; TipTap's expected
+table normalization removes 39 `<thead>` wrappers while retaining the header
+rows and their text. Public article, index, related-content, RSS, sitemap, SEO,
+media, and historical-slug reads now use a repository selected by
+`CONTENT_SOURCE`, which remains `file` by default. The fail-closed parity command
+checks counts, URLs, metadata, content, media, taxonomy, publication, initial
+redirect state, and index eligibility before database activation. The file
+fallback and rollback procedure are documented in `docs/admin-content.md` and
+the default file-backed production build passes. Production still requires the
+database/R2 configuration, backup, write import, zero-mismatch parity result,
+and smoke test before changing the flag.
+
+- Build an idempotent importer keyed by the existing WordPress `sourceId`.
+- Import all 69 English and Persian articles, taxonomy data, dates, authors,
+  image metadata, table-of-contents data, and current slugs.
+- Sanitize legacy HTML and report rejected or changed elements for review.
+- Compare counts, URLs, titles, metadata, HTML, redirects, RSS, and sitemap
+  output between the file and database repositories.
+- Switch public reads to PostgreSQL behind a configuration flag.
+- Retain `posts.json` as a read-only migration snapshot for one production
+  release, then remove the fallback in a later explicit change.
+
+**Exit criteria**
+
+- Every existing indexable article resolves at the same public URL and has the
+  intended canonical.
+- Database-backed output passes parity checks before the read flag is changed.
+- Rollback to file-backed reads is documented and tested.
+
+### Phase 6 — production hardening
+
+**Goal:** prove the system can be operated and recovered safely.
+
+- Exercise backup and point-in-time restore for PostgreSQL and object storage.
+- Add structured logs and alerts for authentication failures, upload failures,
+  publish failures, scheduled-publication delay, and cache refresh failures.
+- Add rate limits to authentication callbacks, previews, uploads, autosave, and
+  mutations.
+- Run authorization, CSRF/origin, stored-XSS, malicious-upload, redirect, and
+  session-expiry tests.
+- Run accessibility, keyboard, mobile, Persian RTL, Arabic RTL, and
+  reduced-motion QA.
+- Add an operational runbook for user access, failed publishes, rollback,
+  restore, key rotation, and provider outage.
+
+**Exit criteria**
+
+- A restore drill succeeds from documented steps.
+- Security and accessibility checks pass.
+- Operational ownership and alert destinations are documented.
+
+### Decisions required before the relevant phase
+
+- **OIDC provider (Phase 1): resolved.** Google Workspace is implemented. MFA
+  enforcement remains a Google Workspace policy setting.
+- **Object storage (Phase 2):** Cloudflare R2 is preferred; any S3-compatible
+  service can be substituted without changing the content model.
+- **Compliance workflow (Phase 3): resolved.** Use the standard editorial
+  workflow with authorized admin self-approval. No mandatory second-review gate
+  is included.
 
 ---
 

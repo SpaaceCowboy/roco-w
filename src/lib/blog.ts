@@ -6,7 +6,7 @@ export type BlogTocItem = { level: number; id: string; label: string };
 
 export type BlogPost = {
   sourceId: number;
-  locale: "en" | "fa";
+  locale: Locale;
   slug: string;
   title: string;
   excerpt: string;
@@ -29,7 +29,7 @@ export type BlogPostSummary = Omit<BlogPost, "contentHtml" | "tableOfContents">;
 const posts = data.posts as BlogPost[];
 
 /** The legacy editorial library contains English and Persian source content. */
-export function contentLocaleFor(locale: string): BlogPost["locale"] {
+export function contentLocaleFor(locale: string): "en" | "fa" {
   return locale === "fa" ? "fa" : "en";
 }
 
