@@ -1,16 +1,21 @@
 # Current Deployment State
 
-Last updated: 2026-08-12 (Asia/Tehran)
+Last updated: 2026-09-18 (Asia/Tehran)
 
-The Next.js site is serving over HTTPS at `https://next.rocobroker.com`, proxied
-by the existing Apache. WordPress still serves the production apex. Nothing
-about cPanel, mail, DNS or the WordPress virtual host has been reconfigured.
+The Next.js site serves the production apex over HTTPS at
+`https://rocobroker.com`, proxied by the existing Apache. `next.rocobroker.com`
+still works and redirects to the apex as a fallback. Webmail and cPanel
+hostnames are untouched. The public blog is still file-backed until the
+`CONTENT_SOURCE=database` read cutover completes; the live remaining work is
+tracked in `pending.md`.
 
 ## Source state
 
 - Repository: `git@github.com:SpaaceCowboy/roco-w.git`
 - Branch: `main`
-- Deployed commit: `dbe74c3`
+- Deployed commit: `05e2c40`. The live-chat consent gating (`162851f`) and the
+  apex/scheduler doc + timer-unit changes (`cdaa19b`) are on `main` but not yet
+  deployed — the cutover deploy below picks them up.
 - Production builds use Webpack so Next.js can fall back to its SWC WASM
   compiler on AlmaLinux 8 / glibc 2.28. Standalone output is enabled.
 - All implementation changes are recorded in `changelog.md`.
@@ -54,7 +59,8 @@ in journald.
 /home/rocoweb/.pm2/logs/rocobroker-next-out.log
 ```
 
-Log rotation is **not yet configured** — see remaining work.
+Log rotation is configured with `pm2-logrotate` (10 MB per file, 14 files
+retained, installed 2026-09-18).
 
 ## Configuration and secrets
 
@@ -137,33 +143,18 @@ step was missed.
 
 ## Remaining work
 
-1. **Log rotation.** `pm2 install pm2-logrotate`. PM2 log files grow unbounded
-   on a host that also runs cPanel, Exim and WordPress; filling the disk would
-   take mail and Apache down with it.
-2. **Cookie policy.** Chatwoot loads for every visitor before any consent choice
-   and sets its own cookies. The policy text in `messages/*.json` still
-   describes TradingView only. Treat as blocking for public launch.
-3. **Apex cutover.** Three things have to be right together:
-   - The apex vhost's `ServerAlias` carries `mail.`, `webmail.`, `cpanel.`,
-     `autodiscover.` and friends. A blanket `ProxyPass /` there would send
-     webmail and cPanel logins to Next.js. The proxy must be conditioned on
-     `Host` being `rocobroker.com` or `www.rocobroker.com`.
-   - The switch must be atomic: `src/config/legacyRedirects.mjs` assumes the old
-     WordPress URLs stop being served by WordPress at the same moment Next.js
-     starts serving them.
-   - Port 80 on the apex should redirect to HTTPS rather than proxy, keeping
-     `/.well-known` local, so the app is unreachable over plain HTTP.
-4. **Origin lockdown**, after the apex is orange-clouded in Cloudflare. Allow
-   Cloudflare's ranges in CSF and remove `443` from `TCP_IN`; leave `80` open or
-   AutoSSL renewals fail for every domain on the host, including mail. Until
-   this is done, `cf-connecting-ip` is forgeable by anyone reaching the origin
-   directly, so the contact rate limit is a brake on casual abuse, not a
-   boundary. Keep a second SSH session open while applying it.
-5. **Unrelated but outstanding:** `bo.`, `my.` and `webtrading.rocobroker.com`
-   have self-signed origin certificates that expired 2026-05-16. AutoSSL cannot
-   fix them because they resolve to Cloudflare rather than this host. Harmless
-   while Cloudflare SSL mode is Flexible or Full; switching to Full (strict)
-   would break the client portal and webtrader immediately.
+Tracked in `pending.md`, which supersedes the earlier list here. Completed since
+the last update: log rotation (item 1), apex cutover (item 3), and the
+live-chat consent gating. Still open: the Postgres/R2 restore drill, alert
+owners and destinations, the scheduled-publication timer install, origin
+lockdown (item 4), the `CONTENT_SOURCE=database` read cutover, and the manual
+security/accessibility QA. 
+
+**Unrelated but outstanding:** `bo.`, `my.` and `webtrading.rocobroker.com`
+have self-signed origin certificates that expired 2026-05-16. AutoSSL cannot
+fix them because they resolve to Cloudflare rather than this host. Harmless
+while Cloudflare SSL mode is Flexible or Full; switching to Full (strict) would
+break the client portal and webtrader immediately.
 
 ## Safe process controls
 
