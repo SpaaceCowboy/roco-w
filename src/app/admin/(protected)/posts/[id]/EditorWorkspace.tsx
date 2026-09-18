@@ -236,7 +236,7 @@ function WorkflowControls({ localizationId, status, permissions }: {
 }
 
 function EditorToolbar({ editor }: { editor: Editor | null }) {
-  if (!editor) return <div className={styles.toolbar} aria-label="Editor loading">Loading editor…</div>;
+  if (!editor) return <div className={styles.toolbar} role="status">Loading editor…</div>;
   const button = (label: string, active: boolean, action: () => void) => <button type="button" aria-pressed={active} onClick={action}>{label}</button>;
   return <div className={styles.toolbar} role="toolbar" aria-label="Text formatting">
     {button("Bold", editor.isActive("bold"), () => editor.chain().focus().toggleBold().run())}

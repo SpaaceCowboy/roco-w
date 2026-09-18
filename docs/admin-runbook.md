@@ -163,6 +163,12 @@ sign-in and one media upload.
 
 References: `src/app/admin/admin.module.css` and the editor workspace.
 
+Implemented in code and still requiring a manual browser pass: visible
+focus-visible outlines on controls, a modal focus trap with Escape-to-close and
+focus return, 44px minimum touch targets on admin controls, labelled
+`role="status"`/`role="alert"` regions, reduced-motion handling, and RTL editor
+direction for Persian and Arabic.
+
 - [ ] Full keyboard path through sign-in, article list, editor, dialogs, and the
       workflow panel; visible focus on every control.
 - [ ] Editor, dialogs, and tables usable in Persian and Arabic RTL, with correct
