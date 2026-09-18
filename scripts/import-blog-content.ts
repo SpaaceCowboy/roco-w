@@ -96,11 +96,17 @@ async function importPost(post: BlogPost): Promise<ImportResult> {
 
   const imagePath = path.join(projectRoot, "public", post.featuredImage.replace(/^\//, ""));
   const imageBytes = await readFile(imagePath);
+  const mimeByExtension: Record<string, "image/jpeg" | "image/png" | "image/webp" | "image/avif"> = {
+    ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".png": "image/png", ".webp": "image/webp", ".avif": "image/avif",
+  };
+  const mimeType = mimeByExtension[path.extname(imagePath).toLowerCase()];
+  if (!mimeType) throw new Error(`Unsupported featured image type for ${post.locale}/${post.slug}: ${post.featuredImage}`);
+  const storageExtension = mimeType === "image/jpeg" ? "jpg" : mimeType.slice("image/".length);
   const featuredMedia = await importTrustedMedia({
     bytes: imageBytes,
     filename: path.basename(imagePath),
-    storageKey: `content/imported/${post.sourceId}.webp`,
-    mimeType: "image/webp",
+    storageKey: `content/imported/${post.sourceId}.${storageExtension}`,
+    mimeType,
   });
 
   await db.transaction(async (tx) => {
