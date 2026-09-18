@@ -12,8 +12,27 @@ import type { BlogPost } from "../src/lib/blog";
 
 type Mismatch = { sourceId: number | null; field: string; expected: unknown; actual: unknown };
 
+/**
+ * Canonicalize a value so object key order no longer matters. PostgreSQL
+ * `jsonb` stores object keys in its own order, so a value round-tripped through
+ * the database can differ from the source only by key order. Comparing
+ * serialized JSON directly would flag that as a mismatch, so both sides are
+ * canonicalized (keys sorted) before comparison.
+ */
+function canonical(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(canonical);
+  if (value && typeof value === "object") {
+    const record = value as Record<string, unknown>;
+    return Object.keys(record).sort().reduce<Record<string, unknown>>((acc, key) => {
+      acc[key] = canonical(record[key]);
+      return acc;
+    }, {});
+  }
+  return value;
+}
+
 function sameJson(left: unknown, right: unknown): boolean {
-  return JSON.stringify(left) === JSON.stringify(right);
+  return JSON.stringify(canonical(left)) === JSON.stringify(canonical(right));
 }
 
 function sourceText(html: string): string {
