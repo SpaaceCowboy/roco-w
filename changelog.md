@@ -128,6 +128,25 @@ work should be added here in the same change that implements it.
 - The six-locale disclosure copy requires compliance sign-off before launch,
   same as the risk-disclosure wording.
 
+### Database read cutover activated
+
+#### Changed
+
+- Activated the PostgreSQL-backed public read path by setting
+  `CONTENT_SOURCE=database` on the production host after the import, a
+  zero-mismatch parity run, and a restore drill against a scratch database.
+  `src/content/blog/posts.json` remains the read-only fallback and rollback
+  path for one production release.
+
+#### Verification
+
+- Smoke test passed against the database reads: English index (`/blog`),
+  Persian index (`/fa/وبلاگ`), an English article (`/spread`), a Persian
+  article (`/fa/{slug}`), the Persian feed (`/fa/وبلاگ/feed.xml`), and
+  `/sitemap.xml`, with canonical and `og:image` resolving to the article.
+- The `/fa/blog` and `/fa/blog/{slug}` legacy aliases permanently redirect
+  (`308`) to the localized canonical paths.
+
 ## 2026-09-16
 
 ### Localized canonical redirect loop

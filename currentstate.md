@@ -5,9 +5,10 @@ Last updated: 2026-09-18 (Asia/Tehran)
 The Next.js site serves the production apex over HTTPS at
 `https://rocobroker.com`, proxied by the existing Apache. `next.rocobroker.com`
 still works and redirects to the apex as a fallback. Webmail and cPanel
-hostnames are untouched. The public blog is still file-backed until the
-`CONTENT_SOURCE=database` read cutover completes; the live remaining work is
-tracked in `pending.md`.
+hostnames are untouched. The public blog reads from PostgreSQL
+(`CONTENT_SOURCE=database`), with the checked-in `posts.json` retained as the
+read-only fallback for one release. Live remaining work is tracked in
+`pending.md`.
 
 ## Source state
 
@@ -144,11 +145,11 @@ step was missed.
 ## Remaining work
 
 Tracked in `pending.md`, which supersedes the earlier list here. Completed since
-the last update: log rotation (item 1), apex cutover (item 3), and the
-live-chat consent gating. Still open: the Postgres/R2 restore drill, alert
-owners and destinations, the scheduled-publication timer install, origin
-lockdown (item 4), the `CONTENT_SOURCE=database` read cutover, and the manual
-security/accessibility QA. 
+the last update: log rotation (item 1), apex cutover (item 3), the live-chat
+consent gating, the PostgreSQL password rotation, and the `CONTENT_SOURCE=database`
+read cutover. Still open: the Postgres/R2 restore drill, alert owners and
+destinations, the scheduled-publication timer install, origin lockdown (item 4),
+and the manual security/accessibility QA. 
 
 **Unrelated but outstanding:** `bo.`, `my.` and `webtrading.rocobroker.com`
 have self-signed origin certificates that expired 2026-05-16. AutoSSL cannot

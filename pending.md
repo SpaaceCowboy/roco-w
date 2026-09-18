@@ -183,8 +183,10 @@ unchanged until Phase 5 intentionally enables database reads and redirects.
 **Goal:** migrate all current content without losing URLs, rankings, or article
 fidelity.
 
-**Status (2026-09-18): production import and parity complete; flag activation
-pending.** The idempotent `sourceId` importer covers all 69 snapshot articles,
+**Status (2026-09-18): complete.** The production import and parity passed
+(69/69, 0 mismatches) and the read cutover is live with
+`CONTENT_SOURCE=database`. The idempotent `sourceId` importer covers all 69
+snapshot articles,
 taxonomies, dates, authors, reading time, featured images, table-of-contents,
 slugs, immutable revisions, media usage, and audit records. Its dry run reports
 zero rejected patterns, text changes, or lost heading anchors; TipTap's expected
@@ -197,10 +199,12 @@ redirect state, and index eligibility before database activation. The file
 fallback and rollback procedure are documented in `docs/admin-content.md` and
 the default file-backed production build passes. The production database/R2
 configuration is done, the write import succeeded (69 articles, 0 failures),
-and `npm run content:parity` returns zero mismatches. Remaining before the flag
-changes: a smoke test against `CONTENT_SOURCE=database` (English and Persian
-index, a table article, RSS, sitemap, canonicals, social images, an old-slug
-redirect) and the actual flag flip.
+and `npm run content:parity` returns zero mismatches. The database-backed smoke
+test passed and `CONTENT_SOURCE=database` is live; `posts.json` remains the
+read-only fallback for one production release and can be removed in a later
+explicit change. Note the localized canonical paths: the Persian blog index is
+`/fa/وبلاگ` and Persian articles are `/fa/{slug}`; `/fa/blog` and
+`/fa/blog/{slug}` are permanent aliases.
 
 - Build an idempotent importer keyed by the existing WordPress `sourceId`.
 - Import all 69 English and Persian articles, taxonomy data, dates, authors,
@@ -232,13 +236,12 @@ session expiry, stored-XSS sanitization, and rate-limit behavior, alongside the
 existing authorization and redirect tests. `docs/admin-runbook.md` documents
 ownership, key rotation, provider outages, the launch checklist, and the
 security/accessibility QA checklists; `docs/dependency-advisories.md` classifies
-the six known toolchain advisories. Still open: the PostgreSQL database password
-must be rotated (a value was exposed during the import session), the PostgreSQL
-and object-storage restore drill has not been performed, alert destinations and
-owners are placeholders, the scheduled-publication timer must be pointed at the
-apex and verified, PM2 log rotation is not configured, origin lockdown (CSF
-Cloudflare ranges) is not applied, and the manual keyboard/RTL/mobile QA has not
-been run.
+the six known toolchain advisories. The PostgreSQL password was rotated, PM2 log
+rotation is configured, and the read cutover is live. Still open: the PostgreSQL
+object-storage restore drill has not been performed, alert destinations and
+owners are placeholders, the scheduled-publication timer must be installed on
+the host and verified, origin lockdown (CSF Cloudflare ranges) may still be
+outstanding, and the manual keyboard/RTL/mobile QA has not been run.
 
 - Exercise backup and point-in-time restore for PostgreSQL and object storage.
 - Add structured logs and alerts for authentication failures, upload failures,
