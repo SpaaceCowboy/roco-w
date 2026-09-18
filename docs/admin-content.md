@@ -256,7 +256,19 @@ build/deploy the application. `CONTENT_MEDIA_PUBLIC_BASE_URL` is consumed by
 the Next.js image allowlist at build time, so it must be present during the
 build as well as at runtime. Smoke-test the English and Persian index, one
 article with a table, RSS, sitemap, canonicals, social images, and an old-slug
-redirect before shifting traffic.
+redirect before shifting traffic. The public paths are localized
+(`src/i18n/routing.ts`), so the canonical smoke-test URLs are:
+
+| Page | Canonical URL | Legacy alias (308) |
+| --- | --- | --- |
+| English index | `/blog` | — |
+| Persian index | `/fa/وبلاگ` | `/fa/blog` |
+| English article | `/{slug}` | `/blog/{slug}` |
+| Persian article | `/fa/{slug}` | `/fa/blog/{slug}` |
+| Persian feed | `/fa/وبلاگ/feed.xml` | `/fa/blog/feed.xml` |
+| Sitemap | `/sitemap.xml` | — |
+
+A `308` on an alias is expected; the canonical paths must return `200`.
 
 Rollback does not require a database restore: set `CONTENT_SOURCE=file`, rebuild
 and deploy. The checked-in `src/content/blog/posts.json` remains the read-only
