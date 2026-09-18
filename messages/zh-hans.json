@@ -887,6 +887,8 @@
     "essentialBody": "网站运行所必需——加载、您的偏好和安全。无法关闭。",
     "externalMediaLabel": "外部市场数据",
     "externalMediaBody": "加载 TradingView 小工具。启用后，您的 IP 地址和本页面网址将与 TradingView 共享，以提供市场数据。",
+    "liveChatLabel": "在线客服",
+    "liveChatBody": "加载我们的在线客服组件。提供商设置访客 Cookie 并保存您与客服的对话记录。",
     "externalBlockedTitle": "外部市场数据已关闭",
     "externalBlockedBody": "请在 Cookie 设置中启用外部市场数据，以加载此 TradingView 小工具。",
     "openSettings": "Cookie 设置",

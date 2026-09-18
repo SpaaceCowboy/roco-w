@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { useLocale } from "next-intl";
+import { useConsentChoice } from "@/lib/consent";
 import {
   CHATWOOT_BASE_URL,
   CHATWOOT_WEBSITE_TOKEN,
@@ -35,6 +36,9 @@ declare global {
     chatwootSettings?: ChatwootSettings;
     chatwootSDK?: {
       run: (options: { websiteToken: string; baseUrl: string; customCSS?: string }) => void;
+    };
+    $chatwoot?: {
+      reset: () => void;
     };
     $crisp?: CrispCommand[];
     CRISP_WEBSITE_ID?: string;
@@ -251,15 +255,62 @@ function loadTawk(locale: Locale) {
   return () => window.clearTimeout(timer);
 }
 
-/** Loads the selected live-chat provider once for the entire localized app. */
+/** Removes every trace of the Chatwoot widget injected by `loadChatwoot`. */
+function teardownChatwoot() {
+  window.$chatwoot?.reset?.();
+  document.getElementById(CHATWOOT_SCRIPT_ID)?.remove();
+  document.getElementById("chatwoot_live_chat_widget")?.remove();
+  document.getElementById("cw-widget-holder")?.remove();
+  document.getElementById("cw-bubble-holder")?.remove();
+  document.getElementById(CHATWOOT_HOST_STYLE_ID)?.remove();
+  window.$chatwoot = undefined;
+  window.chatwootSDK = undefined;
+  window.chatwootSettings = undefined;
+}
+
+/** Best-effort removal of the Crisp widget (rollback/testing provider only). */
+function teardownCrisp() {
+  document.getElementById(CRISP_SCRIPT_ID)?.remove();
+  window.$crisp = undefined;
+  window.CRISP_WEBSITE_ID = undefined;
+  window.CRISP_RUNTIME_CONFIG = undefined;
+}
+
+/** Best-effort removal of the tawk.to widget (rollback/testing provider only). */
+function teardownTawk() {
+  document.getElementById(TAWK_SCRIPT_ID)?.remove();
+  window.Tawk_API = undefined;
+  window.Tawk_LoadStart = undefined;
+}
+
+function teardownLiveChat() {
+  if (LIVE_CHAT_PROVIDER === "tawk") return teardownTawk();
+  if (LIVE_CHAT_PROVIDER === "crisp") return teardownCrisp();
+  return teardownChatwoot();
+}
+
+/** Loads the selected live-chat provider only after live-chat consent is given. */
 export function LiveChat() {
   const locale = useLocale() as Locale;
+  const { ready, choice } = useConsentChoice();
+  const allowed = ready && choice?.liveChat === true;
 
   useEffect(() => {
-    if (LIVE_CHAT_PROVIDER === "tawk") return loadTawk(locale);
-    if (LIVE_CHAT_PROVIDER === "crisp") return loadCrisp(locale);
-    return loadChatwoot(locale);
-  }, [locale]);
+    if (!allowed) {
+      teardownLiveChat();
+      return;
+    }
+    if (LIVE_CHAT_PROVIDER === "tawk") {
+      loadTawk(locale);
+      return teardownTawk;
+    }
+    if (LIVE_CHAT_PROVIDER === "crisp") {
+      loadCrisp(locale);
+      return teardownCrisp;
+    }
+    loadChatwoot(locale);
+    return teardownChatwoot;
+  }, [allowed, locale]);
 
   return null;
 }

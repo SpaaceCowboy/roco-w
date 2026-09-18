@@ -4,12 +4,13 @@ Last updated: 2026-09-18 (Asia/Tehran)
 
 Picking up from `currentstate.md`, which records how the deployment is put
 together and why. This file is only what is left to do, in the order I would do
-it. Repository baseline at the time of writing: `085116a`; the deployed commit
+it. Repository baseline at the time of writing: `05e2c40`; the deployed commit
 is tracked in `currentstate.md`.
 
-The site is serving over HTTPS at `https://next.rocobroker.com` through Apache.
-WordPress still serves the production apex. Nothing below is required to keep
-that working — item 1 is required before the site takes public traffic.
+The site is serving over HTTPS at `https://rocobroker.com` through Apache after
+the apex cutover; `next.rocobroker.com` still works and redirects to the apex.
+The public blog remains file-backed until the read cutover below completes.
+Item 1 below is required before the site takes public traffic.
 
 ---
 
@@ -182,7 +183,7 @@ unchanged until Phase 5 intentionally enables database reads and redirects.
 **Goal:** migrate all current content without losing URLs, rankings, or article
 fidelity.
 
-**Status (2026-09-18): complete in code; production import and flag activation
+**Status (2026-09-18): production import and parity complete; flag activation
 pending.** The idempotent `sourceId` importer covers all 69 snapshot articles,
 taxonomies, dates, authors, reading time, featured images, table-of-contents,
 slugs, immutable revisions, media usage, and audit records. Its dry run reports
@@ -194,9 +195,12 @@ media, and historical-slug reads now use a repository selected by
 checks counts, URLs, metadata, content, media, taxonomy, publication, initial
 redirect state, and index eligibility before database activation. The file
 fallback and rollback procedure are documented in `docs/admin-content.md` and
-the default file-backed production build passes. Production still requires the
-database/R2 configuration, backup, write import, zero-mismatch parity result,
-and smoke test before changing the flag.
+the default file-backed production build passes. The production database/R2
+configuration is done, the write import succeeded (69 articles, 0 failures),
+and `npm run content:parity` returns zero mismatches. Remaining before the flag
+changes: a smoke test against `CONTENT_SOURCE=database` (English and Persian
+index, a table article, RSS, sitemap, canonicals, social images, an old-slug
+redirect) and the actual flag flip.
 
 - Build an idempotent importer keyed by the existing WordPress `sourceId`.
 - Import all 69 English and Persian articles, taxonomy data, dates, authors,
@@ -228,9 +232,13 @@ session expiry, stored-XSS sanitization, and rate-limit behavior, alongside the
 existing authorization and redirect tests. `docs/admin-runbook.md` documents
 ownership, key rotation, provider outages, the launch checklist, and the
 security/accessibility QA checklists; `docs/dependency-advisories.md` classifies
-the six known toolchain advisories. Still open: the PostgreSQL and object-storage
-restore drill has not been performed, alert destinations and owners are
-placeholders, and the manual keyboard/RTL/mobile QA has not been run.
+the six known toolchain advisories. Still open: the PostgreSQL database password
+must be rotated (a value was exposed during the import session), the PostgreSQL
+and object-storage restore drill has not been performed, alert destinations and
+owners are placeholders, the scheduled-publication timer must be pointed at the
+apex and verified, PM2 log rotation is not configured, origin lockdown (CSF
+Cloudflare ranges) is not applied, and the manual keyboard/RTL/mobile QA has not
+been run.
 
 - Exercise backup and point-in-time restore for PostgreSQL and object storage.
 - Add structured logs and alerts for authentication failures, upload failures,
@@ -262,7 +270,7 @@ placeholders, and the manual keyboard/RTL/mobile QA has not been run.
 
 ---
 
-## 1. Cookie policy copy — blocking for public launch
+## 1. Cookie policy — gate live chat behind consent (blocking for public launch)
 
 The live-chat widget loads for every visitor on every page **before** any
 cookie-consent choice, and it sets its own visitor cookies at that moment. The
@@ -272,21 +280,23 @@ and keeps tawk.to and Crisp selectable for rollback or testing). Whichever
 provider is active, live chat is the only third party on the site that runs
 ungated.
 
-The cookie policy text in `messages/*.json` still describes TradingView only, so
-the site currently discloses less than it does. On a regulated brokerage serving
-MENA and EU-adjacent markets that is the one item here with actual regulatory
-exposure — everything else on this list is operational.
+**Decision (2026-09-18): gate it.** Move the injection in
+`src/components/ui/LiveChat/LiveChat.tsx` behind a new `liveChat` category in
+`@/lib/consent`, exactly as the TradingView widgets already are. This means:
 
-Two ways to resolve, and this is a business decision rather than a technical one:
+- `src/lib/consent.ts` gains a `liveChat: boolean` category and bumps the storage
+  key to `roco.cookieConsent.v3` (re-prompt, remove `v2`).
+- `LiveChat.tsx` subscribes to `useConsentChoice()` and injects the provider only
+  when `liveChat === true`; on revocation it tears the widget down (Chatwoot
+  `reset()`, remove the injected script and host style).
+- `CookieConsent.tsx` gains an off-by-default live-chat toggle wired into Accept
+  all / Reject all / Save, and discloses that the provider sets visitor cookies
+  and collects conversations.
+- The six-locale copy and translation keys are drafted but need compliance
+  sign-off, same as the risk-disclosure wording, before launch.
 
-- **Disclose it.** Add live chat to the cookie policy in all six locales. Fast,
-  keeps the widget on every page.
-- **Gate it.** Move the injection in
-  `src/components/ui/LiveChat/LiveChat.tsx` behind a consent category in
-  `@/lib/consent`, as the TradingView widgets already are.
-
-Whichever way, the translations need compliance sign-off, same as the risk
-disclosure wording did.
+This is the one item here with actual regulatory exposure — everything else on
+this list is operational.
 
 ---
 
@@ -311,10 +321,12 @@ the module survives `systemctl restart pm2-rocoweb`.
 
 ---
 
-## 3. Apex cutover — `rocobroker.com` to Next.js
+## 3. Apex cutover — `rocobroker.com` to Next.js — DONE
 
-The riskiest step left. Three things have to be right *together*; getting any
-one wrong breaks something visitors or staff depend on.
+**Done (2026-09-18).** The apex is proxied to Next.js with the `Host`-conditional
+include; `next.rocobroker.com` redirects to the apex and remains as fallback.
+Webmail/cPanel hostnames still serve cPanel. The details below are retained for
+rollback reference only.
 
 ### 3a. The proxy must be conditioned on `Host`
 
@@ -418,9 +430,41 @@ certificate.
 
 ## 6. Small tidy-ups
 
-- `/opt/rocobroker-next/.env.production` still carries the unused
-  `RESEND_API_KEY` line from when contact mail went through Resend. Harmless,
-  but it invites someone to think it matters.
+- ~~`/opt/rocobroker-next/.env.production` still carries the unused
+  `RESEND_API_KEY` line~~ — removed 2026-09-18.
 - Confirm `CONTACT_EMAIL_TO` points at a mailbox somebody actually reads. A
   wrong-but-valid address gives a `200` and a lost enquiry, which looks healthier
   than a failure.
+
+---
+
+## 7. PostgreSQL database password rotation
+
+A `DATABASE_URL` value was pasted into the import session, so the database
+password is treated as exposed. Rotate it before the read cutover:
+
+```bash
+sudo -u postgres psql -c "ALTER ROLE rocobroker WITH PASSWORD '<new>';"
+```
+
+Then update `DATABASE_URL` in `/opt/rocobroker-next/.env.production` (and any
+backup/restore invocation or runbook reference), restart the app, and re-run
+`npm run content:parity` to confirm the connection.
+
+---
+
+## 8. Scheduled-publication timer — apex URL
+
+The timer command in `docs/admin-content.md` points at
+`https://next.rocobroker.com/...`, which now 301s to the apex. Point it at
+`https://rocobroker.com/api/admin/scheduled-publications` and confirm the next
+run returns 2xx. Keep `SCHEDULED_PUBLISH_SECRET` in the timer's protected
+environment file.
+
+---
+
+## 9. Restore drill and alert ownership
+
+The PostgreSQL and object-storage restore drill from `docs/admin-runbook.md`
+has not been run, and every ownership/alert destination in that runbook is still
+`TODO`. Complete both before the read cutover.

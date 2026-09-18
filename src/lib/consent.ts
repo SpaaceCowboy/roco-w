@@ -2,7 +2,7 @@
 
 import { useSyncExternalStore } from "react";
 
-export const CONSENT_STORAGE_KEY = "roco.cookieConsent.v2";
+export const CONSENT_STORAGE_KEY = "roco.cookieConsent.v3";
 export const CONSENT_EVENT = "cookie-consent";
 export const CONSENT_OPEN_EVENT = "cookie-consent:open";
 const TTL_DAYS = 365;
@@ -13,11 +13,12 @@ export type ConsentChoice = {
   analytics: boolean;
   marketing: boolean;
   externalMedia: boolean;
+  liveChat: boolean;
   ts: string;
   expires: string;
 };
 
-type OptionalCategories = Pick<ConsentChoice, "analytics" | "marketing" | "externalMedia">;
+type OptionalCategories = Pick<ConsentChoice, "analytics" | "marketing" | "externalMedia" | "liveChat">;
 
 function parseChoice(raw: string | null | undefined): ConsentChoice | null {
   if (!raw) return null;
@@ -28,6 +29,7 @@ function parseChoice(raw: string | null | undefined): ConsentChoice | null {
       typeof parsed.analytics !== "boolean" ||
       typeof parsed.marketing !== "boolean" ||
       typeof parsed.externalMedia !== "boolean" ||
+      typeof parsed.liveChat !== "boolean" ||
       typeof parsed.expires !== "string" ||
       new Date(parsed.expires).getTime() < Date.now()
     ) {
@@ -80,7 +82,7 @@ export function saveConsent(categories: OptionalCategories): ConsentChoice {
   memorySnapshot = serialized;
   try {
     window.localStorage.setItem(CONSENT_STORAGE_KEY, serialized);
-    window.localStorage.removeItem("roco.cookieConsent.v1");
+    window.localStorage.removeItem("roco.cookieConsent.v2");
   } catch {
     // Private mode or a full quota: keep the choice for this page via the event.
   }

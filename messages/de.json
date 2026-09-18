@@ -894,6 +894,8 @@
     "essentialBody": "Erforderlich, damit die Website funktioniert – Laden, Ihre Einstellungen und Sicherheit. Diese können nicht deaktiviert werden.",
     "externalMediaLabel": "Externe Marktdaten",
     "externalMediaBody": "Lädt TradingView-Widgets. Bei Aktivierung werden Ihre IP-Adresse und die URL dieser Seite zur Bereitstellung der Marktdaten an TradingView übermittelt.",
+    "liveChatLabel": "Live-Chat",
+    "liveChatBody": "Lädt unser Live-Chat-Widget. Der Anbieter setzt ein Besucher-Cookie und speichert die Unterhaltung, die Sie mit dem Support führen.",
     "externalBlockedTitle": "Externe Marktdaten sind deaktiviert",
     "externalBlockedBody": "Aktivieren Sie externe Marktdaten in den Cookie-Einstellungen, um dieses TradingView-Widget zu laden.",
     "openSettings": "Cookie-Einstellungen",

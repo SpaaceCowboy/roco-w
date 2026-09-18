@@ -34,15 +34,16 @@ export function CookieConsent() {
   const [analytics, setAnalytics] = useState(false);
   const [marketing, setMarketing] = useState(false);
   const [externalMedia, setExternalMedia] = useState(false);
+  const [liveChat, setLiveChat] = useState(false);
   const open = ready && (forcedOpen || !choice);
 
   const save = useCallback((a: boolean, m: boolean) => {
-    saveConsent({ analytics: a, marketing: m, externalMedia });
+    saveConsent({ analytics: a, marketing: m, externalMedia, liveChat });
     setAnalytics(a);
     setMarketing(m);
     setForcedOpen(false);
     setShowDetails(false);
-  }, [externalMedia]);
+  }, [externalMedia, liveChat]);
 
   useEffect(() => {
     const reopen = () => {
@@ -50,6 +51,7 @@ export function CookieConsent() {
       setAnalytics(existing?.analytics ?? false);
       setMarketing(existing?.marketing ?? false);
       setExternalMedia(existing?.externalMedia ?? false);
+      setLiveChat(existing?.liveChat ?? false);
       setForcedOpen(true);
       setShowDetails(true);
     };
@@ -116,6 +118,20 @@ export function CookieConsent() {
               <span className={styles.choiceBody}>{t("externalMediaBody")}</span>
             </label>
 
+            <label className={styles.choice} htmlFor="cookie-live-chat">
+              <span className={styles.choiceHead}>
+                <span className={styles.choiceLabel}>{t("liveChatLabel")}</span>
+                <input
+                  id="cookie-live-chat"
+                  type="checkbox"
+                  className={styles.toggle}
+                  checked={liveChat}
+                  onChange={(e) => setLiveChat(e.target.checked)}
+                />
+              </span>
+              <span className={styles.choiceBody}>{t("liveChatBody")}</span>
+            </label>
+
             <label className={styles.choice} htmlFor="cookie-marketing">
               <span className={styles.choiceHead}>
                 <span className={styles.choiceLabel}>{t("marketingLabel")}</span>
@@ -144,7 +160,8 @@ export function CookieConsent() {
             variant="secondary"
             onClick={() => {
               setExternalMedia(false);
-              saveConsent({ analytics: false, marketing: false, externalMedia: false });
+              setLiveChat(false);
+              saveConsent({ analytics: false, marketing: false, externalMedia: false, liveChat: false });
               setAnalytics(false);
               setMarketing(false);
               setForcedOpen(false);
@@ -158,7 +175,8 @@ export function CookieConsent() {
             variant="primary"
             onClick={() => {
               setExternalMedia(true);
-              saveConsent({ analytics: true, marketing: true, externalMedia: true });
+              setLiveChat(true);
+              saveConsent({ analytics: true, marketing: true, externalMedia: true, liveChat: true });
               setAnalytics(true);
               setMarketing(true);
               setForcedOpen(false);

@@ -920,6 +920,8 @@
     "essentialBody": "Required for the site to function — loading, your preferences, and security. These can't be turned off.",
     "externalMediaLabel": "External market data",
     "externalMediaBody": "Loads TradingView widgets. When enabled, your IP address and this page's URL are shared with TradingView to deliver market data.",
+    "liveChatLabel": "Live chat",
+    "liveChatBody": "Loads our live-chat widget. The provider sets a visitor cookie and stores the conversation you have with support.",
     "externalBlockedTitle": "External market data is off",
     "externalBlockedBody": "Enable external market data in Cookie settings to load this TradingView widget.",
     "openSettings": "Cookie settings",

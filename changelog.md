@@ -73,7 +73,34 @@ work should be added here in the same change that implements it.
 
 - The database read cutover is deliberately incomplete. Public content stays on
   the checked-in `posts.json` snapshot until a production import, a
-  zero-mismatch parity run, and a staging smoke test complete.
+  zero-mismatch parity run, and a smoke test complete.
+
+### Production content import and cutover fixes
+
+#### Fixed
+
+- Fixed the content parity verifier's `sameJson` comparison to canonicalize
+  object keys before comparing, so PostgreSQL `jsonb` key reordering no longer
+  reports table-of-contents, category, and tag metadata as false mismatches.
+- Fixed the importer to derive each featured image's MIME type from its file
+  extension instead of hardcoding `image/webp`, so the two non-WebP images
+  (`8854.jpg`, `65.png`) import instead of failing.
+- Fixed admin same-origin enforcement behind the TLS-terminating reverse proxy
+  by rebuilding the expected origin from `x-forwarded-host`/`host` and
+  `x-forwarded-proto`.
+
+#### Changed
+
+- Removed the unused `RESEND_API_KEY` line from the production environment file.
+
+#### Verification
+
+- Production import completed against PostgreSQL with 69 articles: 67 skipped,
+  2 created, 0 failed.
+- `npm run content:parity` against production data returns zero mismatches
+  (69 expected, 69 actual, 69 indexable).
+- `npm run typecheck` and `npm run lint` passed after the importer and parity
+  changes.
 
 ## 2026-09-16
 
