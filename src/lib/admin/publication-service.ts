@@ -9,6 +9,13 @@ import { auditEvents, postLocalizations, postRevisions, publicationOperations, p
 import type { AdminSession } from "./session";
 import { requireAdminPermission } from "./permissions";
 import { allowedPublicationSourceStatuses, publicationActions, publicationPermission } from "./publication-policy";
+import { adminEvents, reportAdminFailure, reportAdminSuccess } from "./observability";
+
+/** A due item older than this is treated as a scheduler delay worth alerting on. */
+function scheduledDelayGraceMs(): number {
+  const value = Number(process.env.ADMIN_SCHEDULED_DELAY_GRACE_MS ?? 5 * 60_000);
+  return Number.isFinite(value) && value > 0 ? value : 5 * 60_000;
+}
 
 const transitionSchema = z.object({
   action: z.enum(publicationActions),
@@ -34,7 +41,10 @@ export async function transitionPublication(localizationId: string, rawInput: un
     .update(JSON.stringify({ localizationId, action: input.action, scheduledAt: input.scheduledAt ?? null }))
     .digest("hex");
 
-  return getDatabase().transaction(async (tx) => {
+  type TransitionResult = { operationId: string; action: string; result: unknown; replayed: boolean };
+  let result: TransitionResult;
+  try {
+    result = await getDatabase().transaction(async (tx) => {
     const [operation] = await tx.insert(publicationOperations).values({
       idempotencyKey: input.idempotencyKey,
       localizationId,
@@ -126,7 +136,18 @@ export async function transitionPublication(localizationId: string, rawInput: un
       metadata: { status: updated.status, revisionNumber: latestRevision, system: !session },
     });
     return { operationId: operation.id, action: input.action, result, replayed: false };
-  });
+    });
+  } catch (error) {
+    if (!(error instanceof PublicationTransitionError)) {
+      reportAdminFailure(adminEvents.publish, {
+        action: input.action,
+        errorCode: error instanceof Error ? error.name : "UnknownError",
+      });
+    }
+    throw error;
+  }
+  reportAdminSuccess(adminEvents.publish, { action: input.action, replayed: result.replayed });
+  return result;
 }
 
 export async function refreshPublication(operationId: string, locale: string, slug: string) {
@@ -136,6 +157,7 @@ export async function refreshPublication(operationId: string, locale: string, sl
 
 async function refreshPublicationTargets(operationId: string, targets: string[]) {
   const warnings: string[] = [];
+  let hadFailure = false;
   for (const target of targets) {
     const startedAt = performance.now();
     let outcome: "success" | "failure" = "success";
@@ -144,9 +166,10 @@ async function refreshPublicationTargets(operationId: string, targets: string[])
       revalidatePath(target);
     } catch (error) {
       outcome = "failure";
+      hadFailure = true;
       errorCode = error instanceof Error ? error.name : "UnknownError";
       warnings.push(`${target}: ${errorCode}`);
-      console.error("Publication cache refresh failed", { operationId, target, errorCode });
+      reportAdminFailure(adminEvents.cacheRefresh, { operationId, target, errorCode });
     }
     try {
       await getDatabase().insert(publicationRefreshes).values({
@@ -155,9 +178,10 @@ async function refreshPublicationTargets(operationId: string, targets: string[])
     } catch (error) {
       const recordError = error instanceof Error ? error.name : "UnknownError";
       warnings.push(`${target}: refresh outcome logging failed (${recordError})`);
-      console.error("Publication refresh outcome logging failed", { operationId, target, recordError });
+      reportAdminFailure(adminEvents.cacheRefresh, { operationId, target, stage: "record", errorCode: recordError });
     }
   }
+  if (!hadFailure) reportAdminSuccess(adminEvents.cacheRefresh, { operationId, targets: targets.length });
   return warnings;
 }
 
@@ -192,20 +216,35 @@ export async function retryPublicationRefresh(operationId: string, session: Admi
 }
 
 export async function publishDueScheduledContent(limit = 50) {
+  const now = new Date();
   const due = await getDatabase().select({
     id: postLocalizations.id,
     approvedRevisionNumber: postLocalizations.approvedRevisionNumber,
+    scheduledAt: postLocalizations.scheduledAt,
   }).from(postLocalizations)
-    .where(and(eq(postLocalizations.status, "scheduled"), lte(postLocalizations.scheduledAt, new Date())))
+    .where(and(eq(postLocalizations.status, "scheduled"), lte(postLocalizations.scheduledAt, now)))
     .orderBy(asc(postLocalizations.scheduledAt)).limit(limit);
   const outcomes = [];
+  let overdueCount = 0;
+  let maxOverdueMs = 0;
   for (const item of due) {
+    if (item.scheduledAt) {
+      const overdueMs = now.getTime() - item.scheduledAt.getTime();
+      if (overdueMs > scheduledDelayGraceMs()) {
+        overdueCount += 1;
+        maxOverdueMs = Math.max(maxOverdueMs, overdueMs);
+      }
+    }
     const digest = createHash("sha256").update(`scheduled:${item.id}:${item.approvedRevisionNumber}`).digest("hex");
     const key = `${digest.slice(0, 8)}-${digest.slice(8, 12)}-4${digest.slice(13, 16)}-8${digest.slice(17, 20)}-${digest.slice(20, 32)}`;
     const transition = await transitionPublication(item.id, { action: "publish", idempotencyKey: key }, null);
     const result = transition.result as { item: { locale: string; slug: string } };
     const warnings = transition.replayed ? [] : await refreshPublication(transition.operationId, result.item.locale, result.item.slug);
     outcomes.push({ id: item.id, published: true, replayed: transition.replayed, warnings });
+  }
+  if (due.length) {
+    if (overdueCount) reportAdminFailure(adminEvents.scheduledDelay, { overdueCount, maxOverdueMs, processed: due.length });
+    else reportAdminSuccess(adminEvents.scheduledDelay, { processed: due.length });
   }
   return outcomes;
 }

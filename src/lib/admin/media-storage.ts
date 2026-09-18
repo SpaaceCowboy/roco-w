@@ -11,6 +11,7 @@ import { getDatabase } from "@/db/client";
 import { auditEvents, media } from "@/db/schema";
 import type { AdminSession } from "./session";
 import { requireAdminPermission } from "./permissions";
+import { adminEvents, reportAdminFailure, reportAdminSuccess } from "./observability";
 
 const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
 const MAX_IMAGE_EDGE = 12_000;
@@ -138,6 +139,7 @@ export async function completeMediaUpload(completionToken: string, session: Admi
   const startedAt = performance.now();
   let shouldDelete = true;
   let outcome = "failure";
+  let errorCode: string | undefined;
   try {
     const head = await storage.send(new HeadObjectCommand({ Bucket: config.bucket, Key: grant.key }));
     if (head.ContentLength !== grant.byteSize || head.ContentLength > MAX_IMAGE_BYTES) throw new Error("Uploaded size does not match the grant");
@@ -190,17 +192,18 @@ export async function completeMediaUpload(completionToken: string, session: Admi
     shouldDelete = false;
     outcome = "success";
     return { item, url: `${config.publicBaseUrl}/${item.storageKey}`, deduplicated: false };
+  } catch (error) {
+    errorCode = error instanceof Error ? error.name : "UnknownError";
+    throw error;
   } finally {
     if (shouldDelete) {
       await storage.send(new DeleteObjectCommand({ Bucket: config.bucket, Key: grant.key })).catch((error) => {
         console.error("Failed to remove rejected media object", { correlationId, name: error instanceof Error ? error.name : "UnknownError" });
       });
     }
-    console.info("Content media validation completed", {
-      correlationId,
-      outcome,
-      latencyMs: Math.round(performance.now() - startedAt),
-    });
+    const latencyMs = Math.round(performance.now() - startedAt);
+    if (outcome === "failure") reportAdminFailure(adminEvents.mediaUpload, { correlationId, errorCode, latencyMs });
+    else reportAdminSuccess(adminEvents.mediaUpload, { correlationId, outcome, latencyMs });
   }
 }
 
@@ -242,12 +245,12 @@ export async function importTrustedMedia(input: {
       width: details.width,
       height: details.height,
     }).returning();
-    console.info("Imported content media", { correlationId, outcome: "success", latencyMs: Math.round(performance.now() - startedAt) });
+    reportAdminSuccess(adminEvents.mediaUpload, { correlationId, source: "import", latencyMs: Math.round(performance.now() - startedAt) });
     return item;
   } catch (error) {
-    console.error("Content media import failed", {
-      correlationId, outcome: "failure", latencyMs: Math.round(performance.now() - startedAt),
-      name: error instanceof Error ? error.name : "UnknownError",
+    reportAdminFailure(adminEvents.mediaUpload, {
+      correlationId, source: "import", latencyMs: Math.round(performance.now() - startedAt),
+      errorCode: error instanceof Error ? error.name : "UnknownError",
     });
     if (uploaded) await storage.send(new DeleteObjectCommand({ Bucket: config.bucket, Key: input.storageKey })).catch(() => undefined);
     throw error;

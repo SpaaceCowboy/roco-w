@@ -2,6 +2,8 @@ import createMiddleware from "next-intl/middleware";
 import { NextResponse, NextRequest } from "next/server";
 import { resolveLegacyRedirect } from "./config/legacyRedirects.mjs";
 import { routing } from "./i18n/routing";
+import { clientIp } from "./lib/rateLimit";
+import { enforceAdminRateLimit } from "./lib/admin/rate-limit";
 
 // Detects the visitor's language (URL → cookie → Accept-Language header) and
 // redirects to the correct locale prefix.
@@ -24,6 +26,20 @@ export default function middleware(request: NextRequest) {
   // forever. Let those internal re-entries through untouched.
   if (request.headers.has("x-next-intl-locale")) {
     return NextResponse.next();
+  }
+
+  // Token-based draft previews are reachable without a session, so they are
+  // limited per client IP before the page renders. Runs after the re-entry
+  // check above so one preview request consumes a single token.
+  if (request.nextUrl.pathname.includes("/preview/")) {
+    try {
+      enforceAdminRateLimit("preview", clientIp(request));
+    } catch {
+      return new NextResponse("Too many requests", {
+        status: 429,
+        headers: { "Retry-After": "60", "Cache-Control": "no-store" },
+      });
+    }
   }
 
   // Redirect only direct browser requests. If these rules run after

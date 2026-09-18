@@ -2,11 +2,13 @@ import { adminApiErrorResponse, assertSameOrigin, requireAdminApiSession } from 
 import { getAdminLocalization } from "@/lib/admin/content-service";
 import { createPreviewToken } from "@/lib/admin/preview-token";
 import { requireAdminPermission } from "@/lib/admin/permissions";
+import { enforceAdminRateLimit } from "@/lib/admin/rate-limit";
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     assertSameOrigin(request);
     const session = await requireAdminApiSession();
+    enforceAdminRateLimit("preview", session.userId);
     requireAdminPermission(session.role, "content:read");
     const { id } = await params;
     const item = await getAdminLocalization(id);

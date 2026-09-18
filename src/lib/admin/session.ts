@@ -7,6 +7,7 @@ import { getDatabase } from "@/db/client";
 import { adminUsers } from "@/db/schema";
 import type { AdminRole } from "./permissions";
 import { getAdminAuth } from "./auth";
+import { isSessionActive } from "./session-policy";
 
 export type AdminSession = {
   userId: string;
@@ -41,6 +42,6 @@ export async function getAdminSession(): Promise<AdminSession | null> {
 
 export async function requireAdminSession(): Promise<AdminSession> {
   const session = await getAdminSession();
-  if (!session || session.expiresAt <= new Date()) redirect("/admin/sign-in");
+  if (!isSessionActive(session)) redirect("/admin/sign-in");
   return session;
 }

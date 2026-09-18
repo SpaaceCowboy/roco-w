@@ -27,3 +27,45 @@ test("requires uploaded media ids and alt text", () => {
     /uploaded media item/,
   );
 });
+
+test("strips non-https image sources", () => {
+  const result = renderEditorDocument({
+    type: "doc",
+    content: [{
+      type: "image",
+      attrs: { mediaId: "00000000-0000-4000-8000-000000000000", alt: "diagram", src: "http://evil.example.com/a.png" },
+    }],
+  });
+  assert.doesNotMatch(result.html, /evil\.example\.com/i);
+  assert.doesNotMatch(result.html, /http:\/\//i);
+});
+
+test("strips javascript, data, and vbscript link schemes", () => {
+  for (const href of ["javascript:alert(1)", "data:text/html,<script>alert(1)</script>", "vbscript:msgbox(1)"]) {
+    const result = renderEditorDocument({
+      type: "doc",
+      content: [{ type: "paragraph", content: [{ type: "text", text: "click", marks: [{ type: "link", attrs: { href } }] }] }],
+    });
+    assert.doesNotMatch(result.html, /(javascript|vbscript|data:text\/html):/i);
+  }
+});
+
+test("drops event-handler attributes from links and hardens target", () => {
+  const result = renderEditorDocument({
+    type: "doc",
+    content: [{
+      type: "paragraph",
+      content: [{ type: "text", text: "click", marks: [{ type: "link", attrs: { href: "https://rocobroker.com", onclick: "alert(1)", target: "_blank" } }] }],
+    }],
+  });
+  assert.doesNotMatch(result.html, /onclick/i);
+  assert.match(result.html, /rel="noopener noreferrer"/);
+});
+
+test("escapes script-like text so it cannot execute", () => {
+  const result = renderEditorDocument({
+    type: "doc",
+    content: [{ type: "paragraph", content: [{ type: "text", text: "</p><script>alert(1)</script>" }] }],
+  });
+  assert.doesNotMatch(result.html, /<script/i);
+});

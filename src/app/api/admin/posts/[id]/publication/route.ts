@@ -1,10 +1,12 @@
 import { adminApiErrorResponse, assertSameOrigin, readJsonBody, requireAdminApiSession } from "@/lib/admin/api";
 import { refreshPublication, transitionPublication } from "@/lib/admin/publication-service";
+import { enforceAdminRateLimit } from "@/lib/admin/rate-limit";
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     assertSameOrigin(request);
     const session = await requireAdminApiSession();
+    enforceAdminRateLimit("mutation", session.userId);
     const { id } = await params;
     const transition = await transitionPublication(id, await readJsonBody(request, 10_000), session);
     const result = transition.result as { item?: { locale?: string; slug?: string } };

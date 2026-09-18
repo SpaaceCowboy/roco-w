@@ -219,6 +219,19 @@ and smoke test before changing the flag.
 
 **Goal:** prove the system can be operated and recovered safely.
 
+**Status (2026-09-18): in progress.** Per-user rate limits (autosave, uploads,
+previews, mutations) and preview-page IP limiting are implemented on top of
+Better Auth's authentication limit. Structured single-line JSON logging with
+consecutive-failure alerting covers auth, media upload, publication, cache
+refresh, scheduler delay, and API failures. Security tests cover CSRF/origin,
+session expiry, stored-XSS sanitization, and rate-limit behavior, alongside the
+existing authorization and redirect tests. `docs/admin-runbook.md` documents
+ownership, key rotation, provider outages, the launch checklist, and the
+security/accessibility QA checklists; `docs/dependency-advisories.md` classifies
+the six known toolchain advisories. Still open: the PostgreSQL and object-storage
+restore drill has not been performed, alert destinations and owners are
+placeholders, and the manual keyboard/RTL/mobile QA has not been run.
+
 - Exercise backup and point-in-time restore for PostgreSQL and object storage.
 - Add structured logs and alerts for authentication failures, upload failures,
   publish failures, scheduled-publication delay, and cache refresh failures.

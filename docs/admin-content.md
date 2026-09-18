@@ -93,6 +93,30 @@ in one transaction. It does not delete their audit history.
 - Missing or partial authentication configuration fails closed.
 - `/admin` and its sign-in page are `noindex` and do not use locale routing.
 
+## Rate limits and operational logging
+
+Admin mutations are protected by per-signed-in-user fixed-window limits on top
+of Better Auth's own per-IP authentication limit (20 requests per minute):
+
+- Autosave (`PATCH` article): 120 requests per minute.
+- Create, publish, rollback, translation, and refresh-retry: 40 per minute.
+- Media upload URL issuance and completion: 30 per minute.
+- Draft preview token issuance: 30 per minute.
+- Draft preview page access: 30 per minute per client IP, enforced in middleware
+  before the page renders.
+
+Exceeded limits return HTTP 429 with a `Retry-After` header. The limiter is
+in-process and resets on deploy; move it to Redis before running PM2 in cluster
+mode or adding a second application host.
+
+The application emits one-line JSON records with `event` and `outcome` fields
+for `admin.auth`, `admin.rate_limit`, `admin.media.upload`, `admin.publish`,
+`admin.cache_refresh`, `admin.scheduled_publication.delay`, and `admin.api`.
+After `ADMIN_ALERT_FAILURE_THRESHOLD` consecutive failures on one stream
+(default 5) it emits an `admin.alert` record; a success clears the streak.
+Records never contain article bodies, tokens, email addresses, or other
+customer data. Ship them to the log monitor and alert on `event=admin.alert`.
+
 ## Article image storage
 
 The media adapter uses the S3 protocol and is configured for Cloudflare R2 by

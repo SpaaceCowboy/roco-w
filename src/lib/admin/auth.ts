@@ -16,6 +16,7 @@ import {
 } from "@/db/schema";
 import { normalizeAdminEmail } from "./identity";
 import { readAdminAuthConfig, type AdminAuthConfig } from "./auth-config";
+import { adminEvents, reportAdminFailure, reportAdminSuccess } from "./observability";
 
 type AdminAuth = ReturnType<typeof createAdminAuth>;
 let cachedAuth: AdminAuth | null | undefined;
@@ -86,13 +87,15 @@ function createAdminAuth(config: AdminAuthConfig) {
               .limit(1);
 
             if (!user.emailVerified || !allowlisted) {
+              const reason = !user.emailVerified ? "email_unverified" : "not_allowlisted";
               await db.insert(auditEvents).values({
                 action: "auth.google.denied",
                 entityType: "admin_session",
                 outcome: "denied",
                 correlationId: randomUUID(),
-                metadata: { reason: !user.emailVerified ? "email_unverified" : "not_allowlisted" },
+                metadata: { reason },
               });
+              reportAdminFailure(adminEvents.auth, { stage: "user_create", reason });
               throw new APIError("FORBIDDEN", { message: "Admin access is not permitted." });
             }
 
@@ -119,6 +122,7 @@ function createAdminAuth(config: AdminAuthConfig) {
                 .where(eq(adminUsers.normalizedEmail, normalizedEmail))
                 .limit(1);
               if (existing?.authUserId !== user.id) {
+                reportAdminFailure(adminEvents.auth, { stage: "identity_binding", reason: "binding_failed" });
                 throw new APIError("FORBIDDEN", { message: "Admin identity binding failed." });
               }
             }
@@ -140,7 +144,10 @@ function createAdminAuth(config: AdminAuthConfig) {
               .from(adminUsers)
               .where(and(eq(adminUsers.authUserId, session.userId), eq(adminUsers.isActive, true)))
               .limit(1);
-            if (!admin) throw new APIError("FORBIDDEN", { message: "Admin access is not permitted." });
+            if (!admin) {
+              reportAdminFailure(adminEvents.auth, { stage: "session_create", reason: "not_allowlisted" });
+              throw new APIError("FORBIDDEN", { message: "Admin access is not permitted." });
+            }
             return { data: session };
           },
           after: async (session) => {
@@ -158,6 +165,7 @@ function createAdminAuth(config: AdminAuthConfig) {
               correlationId: randomUUID(),
               metadata: { provider: "google" },
             });
+            reportAdminSuccess(adminEvents.auth, { provider: "google" });
           },
         },
       },
