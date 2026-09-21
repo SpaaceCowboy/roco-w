@@ -5,6 +5,75 @@ work should be added here in the same change that implements it.
 
 ## 2026-09-21
 
+### Admin dashboard redesign
+
+#### Changed
+
+- Replaced the top header and horizontal view tabs with a persistent left
+  sidebar shell (brand, Articles / View site navigation, role and sign-out),
+  collapsing to a horizontal bar below 1000px.
+- Added a compact overview of clickable metric cards that double as the view
+  filters: one accent hero card ("Needs attention") plus Awaiting review, My
+  drafts, Scheduled soon, and Recently published, each showing a live count.
+- Replaced the always-visible seven-field filter panel with a toolbar: a
+  prominent search box, a ghost "Filters" popover for the advanced fields, and
+  removable active-filter chips with a clear-all link.
+- Refined the table: sentence-case sticky headers, compact rows, hover state,
+  monospace locale tags, and status shown as a colored dot plus label instead
+  of a pill badge. Kept the responsive card layout and accessible sort state.
+- Polished empty, loading, and error states inside the new shell.
+
+#### Added
+
+- `getDashboardSummary()` in `src/lib/admin/content-service.ts`: one aggregate
+  query returning per-view counts (total, mine, review, scheduled, recent,
+  attention) for the overview cards, independent of the active filters.
+
+#### Verification
+
+- `npm run typecheck`, `npm run lint`, `npm test` (57 passing), and the Webpack
+  production build pass. Every `styles.*` reference in the admin components was
+  checked against `admin.module.css`. The authenticated dashboard was not
+  rendered in a browser in this checkout because it has no admin credentials.
+- Superseded dashboard CSS (the old view tabs, filter panel, and status badges)
+  is left in `admin.module.css`; a follow-up pass can remove those ~110 lines.
+
+### Permanent post and draft deletion
+
+#### Added
+
+- Admins can permanently delete content from the article workspace: one
+  localization, or an entire post with every localization, revision, taxonomy
+  link, media usage, and slug-history entry. Deletion is transactional and
+  irreversible; there is no trash or restore.
+- `DELETE /api/admin/posts/{localizationId}` accepts `{ scope, expectedVersion }`
+  and runs through the existing mutation pipeline (same-origin, session,
+  permission, mutation rate limit, Zod validation, atomic transaction, audit).
+- A dashboard delete dialog with a typed `DELETE` confirmation, scope selection,
+  and a support reference on unexpected failure.
+- `content:delete` permission. Editors may delete only never-published drafts
+  they created; reviewers and administrators may delete any never-published
+  draft; only administrators may delete archived content. Published content must
+  be archived first, and whole-post deletion is refused while any localization
+  is published.
+- `content.delete` audit events (actor, scope, locale, previous status,
+  outcome), including denied attempts; no content or personal data is recorded.
+- Pure `deletion-policy` module with nine unit tests covering ownership, state,
+  and whole-post rules, plus validation tests for the deletion payload.
+
+#### Changed
+
+- `listAdminPosts` now takes the admin session and returns per-row deletion
+  decisions, so the workspace only offers deletion where it is permitted.
+- Unexpected admin API failures now return a non-sensitive `supportRef` and log
+  it with the failure, for correlation.
+
+#### Verification
+
+- `npm run typecheck`, `npm run lint`, `npm test` (57 passing), and the Webpack
+  production build pass. Service-level deletion was not run against a database
+  in this checkout; it follows the reviewed transaction and policy paths.
+
 ### Admin dashboard usability and accessibility
 
 #### Changed

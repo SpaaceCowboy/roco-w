@@ -7,6 +7,7 @@ export const adminPermissions = [
   "content:review",
   "content:publish",
   "content:archive",
+  "content:delete",
   "media:write",
   "taxonomy:write",
   "users:manage",
@@ -16,13 +17,14 @@ export const adminPermissions = [
 export type AdminPermission = (typeof adminPermissions)[number];
 
 const rolePermissions: Record<AdminRole, ReadonlySet<AdminPermission>> = {
-  editor: new Set(["content:read", "content:write", "media:write"]),
+  editor: new Set(["content:read", "content:write", "content:delete", "media:write"]),
   reviewer: new Set([
     "content:read",
     "content:write",
     "content:review",
     "content:publish",
     "content:archive",
+    "content:delete",
     "media:write",
     "taxonomy:write",
     "audit:read",

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { normalizeSlug, saveDraftSchema } from "./content-validation";
+import { deleteContentSchema, normalizeSlug, saveDraftSchema } from "./content-validation";
 
 test("normalizes Latin and Persian slugs without dropping script characters", () => {
   assert.equal(normalizeSlug("  Hello_World  "), "hello-world");
@@ -21,4 +21,16 @@ test("rejects malformed slugs", () => {
     },
   });
   assert.equal(result.success, false);
+});
+
+test("accepts a localization or whole-post deletion with a positive version", () => {
+  assert.equal(deleteContentSchema.safeParse({ scope: "localization", expectedVersion: 3 }).success, true);
+  assert.equal(deleteContentSchema.safeParse({ scope: "post", expectedVersion: 1 }).success, true);
+});
+
+test("rejects an unknown scope or a missing/non-positive version", () => {
+  assert.equal(deleteContentSchema.safeParse({ scope: "everything", expectedVersion: 1 }).success, false);
+  assert.equal(deleteContentSchema.safeParse({ scope: "post" }).success, false);
+  assert.equal(deleteContentSchema.safeParse({ scope: "post", expectedVersion: 0 }).success, false);
+  assert.equal(deleteContentSchema.safeParse({ scope: "post", expectedVersion: -1 }).success, false);
 });

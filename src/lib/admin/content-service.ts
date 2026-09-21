@@ -1,6 +1,7 @@
 import "server-only";
 
 import { and, asc, countDistinct, desc, eq, gte, ilike, inArray, isNull, lt, lte, max, ne, or, sql, type SQL } from "drizzle-orm";
+import { revalidatePath } from "next/cache";
 import { getDatabase } from "@/db/client";
 import {
   adminUsers,
@@ -22,12 +23,16 @@ import type { AdminSession } from "./session";
 import {
   createPostSchema,
   createTranslationSchema,
+  deleteContentSchema,
   postListFiltersSchema,
   saveDraftSchema,
   slugFromTitle,
   type ContentLocale,
   type SaveDraftInput,
 } from "./content-validation";
+import { canDeleteLocalization, canDeletePost, type DeletionDecision } from "./deletion-policy";
+import { ContentDeletionError } from "./errors";
+import { adminEvents, reportAdminFailure, reportAdminSuccess } from "./observability";
 import { hasAdminPermission, requireAdminPermission } from "./permissions";
 import { getMediaPublicUrl } from "./media-storage";
 import {
@@ -150,8 +155,9 @@ function addDashboardViewConditions(conditions: Array<SQL | undefined>, query: D
   }
 }
 
-export async function listAdminPosts(rawFilters: unknown, actorId: string, now = new Date()) {
+export async function listAdminPosts(rawFilters: unknown, session: AdminSession, now = new Date()) {
   const filters = dashboardQuerySchema.parse(rawFilters);
+  const actorId = session.userId;
   const conditions: Array<SQL | undefined> = [isNull(posts.deletedAt)];
   if (filters.locale) conditions.push(eq(postLocalizations.locale, filters.locale));
   if (filters.status) conditions.push(eq(postLocalizations.status, filters.status));
@@ -184,6 +190,7 @@ export async function listAdminPosts(rawFilters: unknown, actorId: string, now =
       version: postLocalizations.version,
       authorName: postLocalizations.authorName,
       effectiveAuthor,
+      createdById: posts.createdById,
       updatedAt: postLocalizations.updatedAt,
     })
     .from(postLocalizations)
@@ -208,8 +215,37 @@ export async function listAdminPosts(rawFilters: unknown, actorId: string, now =
   const page = cursor?.page ?? 1;
   const total = Number(totalResult[0]?.total ?? 0);
 
+  const actor = { role: session.role, userId: session.userId };
+  const siblingRows = items.length === 0 ? [] : await database
+    .select({
+      id: postLocalizations.id,
+      postId: postLocalizations.postId,
+      locale: postLocalizations.locale,
+      slug: postLocalizations.slug,
+      status: postLocalizations.status,
+      publishedAt: postLocalizations.publishedAt,
+      createdById: posts.createdById,
+    })
+    .from(postLocalizations)
+    .innerJoin(posts, eq(posts.id, postLocalizations.postId))
+    .where(and(inArray(postLocalizations.postId, items.map((item) => item.postId)), isNull(posts.deletedAt)));
+  const siblingsByPost = new Map<string, typeof siblingRows>();
+  for (const sibling of siblingRows) {
+    const group = siblingsByPost.get(sibling.postId);
+    if (group) group.push(sibling);
+    else siblingsByPost.set(sibling.postId, [sibling]);
+  }
+
+  const itemsWithDeletion = items.map((item) => ({
+    ...item,
+    deletion: {
+      localization: canDeleteLocalization(actor, item),
+      post: canDeletePost(actor, siblingsByPost.get(item.postId) ?? [item]),
+    } satisfies { localization: DeletionDecision; post: DeletionDecision },
+  }));
+
   return {
-    items,
+    items: itemsWithDeletion,
     total,
     page,
     pageSize: adminPostPageSize,
@@ -236,6 +272,45 @@ export async function listAdminCategories(locale?: ContentLocale) {
     .from(categoryLocalizations)
     .where(locale ? eq(categoryLocalizations.locale, locale) : undefined)
     .orderBy(asc(categoryLocalizations.name));
+}
+
+export type DashboardSummary = {
+  total: number;
+  mine: number;
+  review: number;
+  scheduled: number;
+  recent: number;
+  attention: number;
+};
+
+/**
+ * Global editorial counts for the dashboard overview. Independent of the active
+ * filters, so the overview always reflects the whole workspace. Each count
+ * mirrors the matching view condition in `addDashboardViewConditions`.
+ */
+export async function getDashboardSummary(session: AdminSession, now = new Date()): Promise<DashboardSummary> {
+  const sevenDays = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1_000);
+  const thirtyDays = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1_000);
+  const [row] = await getDatabase()
+    .select({
+      total: sql<number>`count(*)`,
+      mine: sql<number>`count(*) filter (where ${posts.createdById} = ${session.userId} and ${postLocalizations.status} = 'draft')`,
+      review: sql<number>`count(*) filter (where ${postLocalizations.status} = 'review')`,
+      scheduled: sql<number>`count(*) filter (where ${postLocalizations.status} = 'scheduled' and ${postLocalizations.scheduledAt} >= ${now} and ${postLocalizations.scheduledAt} <= ${sevenDays})`,
+      recent: sql<number>`count(*) filter (where ${postLocalizations.status} = 'published' and ${postLocalizations.publishedAt} >= ${thirtyDays})`,
+      attention: sql<number>`count(*) filter (where ${postLocalizations.status} = 'scheduled' and ${postLocalizations.scheduledAt} < ${now})`,
+    })
+    .from(postLocalizations)
+    .innerJoin(posts, eq(posts.id, postLocalizations.postId))
+    .where(isNull(posts.deletedAt));
+  return {
+    total: Number(row?.total ?? 0),
+    mine: Number(row?.mine ?? 0),
+    review: Number(row?.review ?? 0),
+    scheduled: Number(row?.scheduled ?? 0),
+    recent: Number(row?.recent ?? 0),
+    attention: Number(row?.attention ?? 0),
+  };
 }
 
 export async function getAdminLocalization(localizationId: string) {
@@ -323,6 +398,132 @@ export async function createAdminPost(rawInput: unknown, session: AdminSession) 
     });
     return localization;
   });
+}
+
+/**
+ * Permanently deletes a localization or a whole post. Atomic: the policy check,
+ * the version check, the delete, and the audit record share one transaction.
+ * Published content is refused (archive first) and archived content is
+ * administrator-only, both enforced here rather than in the interface.
+ */
+export async function deleteAdminContent(
+  localizationId: string,
+  rawInput: unknown,
+  session: AdminSession,
+) {
+  requireAdminPermission(session.role, "content:delete");
+  const input = deleteContentSchema.parse(rawInput);
+
+  const result = await getDatabase().transaction(async (tx) => {
+    const [target] = await tx.select({
+      id: postLocalizations.id,
+      postId: postLocalizations.postId,
+      locale: postLocalizations.locale,
+      slug: postLocalizations.slug,
+      status: postLocalizations.status,
+      version: postLocalizations.version,
+      createdById: posts.createdById,
+    }).from(postLocalizations)
+      .innerJoin(posts, eq(posts.id, postLocalizations.postId))
+      .where(and(eq(postLocalizations.id, localizationId), isNull(posts.deletedAt)))
+      .limit(1);
+    if (!target) throw new ContentNotFoundError();
+    if (target.version !== input.expectedVersion) throw new ContentConflictError(target.version);
+
+    const siblings = await tx.select({
+      id: postLocalizations.id,
+      postId: postLocalizations.postId,
+      locale: postLocalizations.locale,
+      slug: postLocalizations.slug,
+      status: postLocalizations.status,
+      publishedAt: postLocalizations.publishedAt,
+      createdById: posts.createdById,
+    }).from(postLocalizations)
+      .innerJoin(posts, eq(posts.id, postLocalizations.postId))
+      .where(eq(postLocalizations.postId, target.postId));
+
+    const actor = { role: session.role, userId: session.userId };
+    const anchor = siblings.find((sibling) => sibling.id === target.id) ?? { ...target, publishedAt: null };
+    const decision = input.scope === "post"
+      ? canDeletePost(actor, siblings)
+      : canDeleteLocalization(actor, anchor);
+
+    const correlationId = crypto.randomUUID();
+    const entityType = input.scope === "post" ? "post" : "post_localization";
+    const entityId = input.scope === "post" ? target.postId : target.id;
+
+    if (!decision.allowed) {
+      await tx.insert(auditEvents).values({
+        actorId: session.userId,
+        action: "content.delete",
+        entityType,
+        entityId,
+        outcome: "denied",
+        correlationId,
+        metadata: { scope: input.scope, locale: target.locale, status: target.status, reason: decision.code },
+      });
+      throw new ContentDeletionError(decision.code, decision.message);
+    }
+
+    const wholePost = input.scope === "post" || siblings.length === 1;
+    const deleted = wholePost
+      ? await tx.delete(posts).where(eq(posts.id, target.postId)).returning({ id: posts.id })
+      : await tx.delete(postLocalizations).where(eq(postLocalizations.id, target.id)).returning({ id: postLocalizations.id });
+    if (deleted.length === 0) {
+      throw new ContentNotFoundError();
+    }
+
+    await tx.insert(auditEvents).values({
+      actorId: session.userId,
+      action: "content.delete",
+      entityType: wholePost ? "post" : "post_localization",
+      entityId: wholePost ? target.postId : target.id,
+      outcome: "success",
+      correlationId,
+      metadata: {
+        scope: wholePost ? "post" : "localization",
+        locale: target.locale,
+        previousStatus: target.status,
+        deletedLocalizations: wholePost ? siblings.length : 1,
+      },
+    });
+
+    const removed = wholePost ? siblings : [anchor];
+    return {
+      postId: target.postId,
+      locale: target.locale,
+      slug: target.slug,
+      wasPublished: removed.some((item) => item.publishedAt !== null),
+      removedPublicSurfaces: removed
+        .filter((item) => item.publishedAt !== null)
+        .flatMap((item) => [
+          publishedArticlePath(item.locale, item.slug),
+          publishedBlogIndexPath(item.locale),
+          `${publishedBlogIndexPath(item.locale)}/feed.xml`,
+        ]),
+      deletedLocalizations: wholePost ? siblings.length : 1,
+    };
+  });
+
+  if (result.wasPublished) {
+    const targets = [...new Set([...result.removedPublicSurfaces, "/sitemap.xml"])];
+    for (const target of targets) {
+      try {
+        revalidatePath(target);
+      } catch (error) {
+        reportAdminFailure(adminEvents.contentDelete, {
+          target,
+          errorCode: error instanceof Error ? error.name : "UnknownError",
+        });
+      }
+    }
+  }
+  reportAdminSuccess(adminEvents.contentDelete, {
+    scope: input.scope,
+    locale: result.locale,
+    deletedLocalizations: result.deletedLocalizations,
+  });
+  return result;
 }
 
 export async function saveAdminDraft(localizationId: string, rawInput: unknown, session: AdminSession) {

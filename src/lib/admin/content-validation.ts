@@ -58,6 +58,13 @@ export const postListFiltersSchema = z.object({
   q: z.string().trim().max(100).optional(),
 });
 
+export const deleteContentSchema = z.object({
+  scope: z.enum(["localization", "post"]),
+  expectedVersion: z.number().int().positive(),
+});
+
+export type DeleteContentInput = z.infer<typeof deleteContentSchema>;
+
 export function normalizeSlug(value: string): string {
   return value
     .normalize("NFKC")

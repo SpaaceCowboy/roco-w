@@ -199,6 +199,31 @@ the timer's protected environment file, not in the unit or the repository. The
 endpoint returns non-2xx when the batch itself fails; cache refresh warnings are
 returned per item for alerting.
 
+## Deleting content
+
+Deletion is permanent. There is no trash bin, undo, or restore; the article,
+its localizations, revisions, taxonomy links, media usages, and slug history are
+removed in one transaction (`DELETE /api/admin/posts/{localizationId}`). Stored
+image objects are retained; only their usage links are removed.
+
+- The workspace offers "Delete" on a row with a typed `DELETE` confirmation.
+  The dialog removes either the single localization or the entire post, and the
+  destructive button stays unavailable until the confirmation word matches.
+- Editors may delete only never-published drafts they created. Reviewers and
+  administrators may delete any never-published draft. Only administrators may
+  delete archived (once-published) content.
+- Published content can never be deleted directly. Archive or unpublish it
+  first, then delete it. A whole-post delete is refused while any localization
+  is still published.
+- The server re-checks permission, ownership, and the row version at execution
+  and rejects a stale version with `409`. A refusal returns `403` (forbidden) or
+  `409` (archive required).
+- Every attempt, successful or denied, writes an append-only `content.delete`
+  audit event with actor, scope, locale, previous status, and outcome. No
+  article content or personal data is recorded.
+- Deleted public content is revalidated out of the article, localized index, and
+  sitemap; its former URL returns not-found.
+
 ## SEO and route policy
 
 - Article title and excerpt are safe fallbacks for SEO title and description;

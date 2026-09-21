@@ -5,7 +5,7 @@ import { getAdminSession } from "./session";
 import { ContentConflictError, ContentLockedError, ContentNotFoundError, ContentRouteConflictError, ContentSeoError } from "./content-service";
 import { AdminAuthorizationError } from "./permissions";
 import { PublicationTransitionError } from "./publication-service";
-import { AdminApiError, RateLimitExceededError } from "./errors";
+import { AdminApiError, ContentDeletionError, RateLimitExceededError } from "./errors";
 import { isSessionActive } from "./session-policy";
 import { adminEvents, logAdminEvent, reportAdminFailure } from "./observability";
 
@@ -52,6 +52,13 @@ export function adminApiErrorResponse(error: unknown): Response {
   if (error instanceof ContentLockedError) return Response.json({ error: error.message, code: "content_locked" }, { status: 409 });
   if (error instanceof ContentRouteConflictError) return Response.json({ error: error.message, code: "route_collision" }, { status: 409 });
   if (error instanceof ContentSeoError) return Response.json({ error: error.message, code: "invalid_seo" }, { status: 400 });
+  if (error instanceof ContentDeletionError) {
+    logAdminEvent(adminEvents.contentDelete, "denied", { code: error.code });
+    return Response.json(
+      { error: error.message, code: error.code },
+      { status: error.code === "forbidden" ? 403 : 409 },
+    );
+  }
   if (error instanceof AdminAuthorizationError) {
     logAdminEvent(adminEvents.auth, "denied", { reason: "permission_denied", role: error.role, permission: error.permission });
     return Response.json({ error: "Permission denied" }, { status: 403 });
@@ -64,8 +71,12 @@ export function adminApiErrorResponse(error: unknown): Response {
     return Response.json({ error: "Invalid input", issues: error.issues.map((issue) => ({ path: issue.path.join("."), message: issue.message })) }, { status: 400 });
   }
   if (isPostgresUniqueViolation(error)) return Response.json({ error: "That slug or translation already exists", code: "duplicate" }, { status: 409 });
-  reportAdminFailure(adminEvents.api, { name: error instanceof Error ? error.name : "UnknownError" });
-  return Response.json({ error: "The operation could not be completed" }, { status: 500 });
+  const supportRef = crypto.randomUUID();
+  reportAdminFailure(adminEvents.api, {
+    supportRef,
+    name: error instanceof Error ? error.name : "UnknownError",
+  });
+  return Response.json({ error: "The operation could not be completed", supportRef }, { status: 500 });
 }
 
 function isPostgresUniqueViolation(error: unknown): boolean {

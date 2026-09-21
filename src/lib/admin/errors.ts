@@ -13,3 +13,16 @@ export class RateLimitExceededError extends AdminApiError {
     this.name = "RateLimitExceededError";
   }
 }
+
+export type ContentDeletionCode = "published_requires_archive" | "forbidden";
+
+/**
+ * A deletion refused by content state or ownership. Kept free of `server-only`
+ * so the policy and its mapping stay unit-testable.
+ */
+export class ContentDeletionError extends Error {
+  constructor(readonly code: ContentDeletionCode, message: string) {
+    super(message);
+    this.name = "ContentDeletionError";
+  }
+}

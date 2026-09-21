@@ -35,3 +35,6 @@ next-env.d.ts
 Example.zip
 Example1.zip
 .aider*
+
+# agent harness tooling (machine-local)
+.dsh/
