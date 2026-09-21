@@ -5,6 +5,56 @@ work should be added here in the same change that implements it.
 
 ## 2026-09-21
 
+### Admin dashboard follow-up
+
+#### Fixed
+
+- The dashboard toolbar reused the editor's `.toolbar` class in the shared
+  stylesheet, so the editor's sticky positioning, border, and background leaked
+  onto the search/filter row, and the editor toolbar picked up the dashboard gap
+  and margin. The dashboard class is now `.listToolbar`.
+- The "Updated to" date filter treated its calendar date as midnight and
+  excluded that whole day; the upper bound is now exclusive of the following
+  day, so the named day is included.
+- The "Author" filter filtered on the post creator while the Author column and
+  sort showed a different value. The filter is now labelled "Created by".
+- Dashboard load failures logged an unregistered `admin.dashboard.load` key; it
+  is now part of the `adminEvents` registry.
+
+#### Changed
+
+- The category filter uses an `EXISTS` subquery instead of joining
+  `post_categories`, so a post with several categories no longer multiplies rows
+  or forces `DISTINCT`; the count query no longer joins the author table.
+- Category filter options are collapsed to one entry per category instead of one
+  per category localization.
+- `listAdminPosts` and `getDashboardSummary` now enforce `content:read`.
+- The hero metric card is only accentuated when its count is non-zero.
+- Filter selects and date inputs apply immediately, and the filter popover closes
+  on outside click or Escape.
+- The loading skeleton matches the new overview and toolbar layout.
+
+#### Added
+
+- Translation coverage per row (`n/6`, with the missing locales in the title) and
+  a "Missing translations" view counting articles with fewer than six locales.
+- Row-level workflow action: request review for a draft, publish for content in
+  review, or archive for published content, reusing the publication endpoint so
+  permission, idempotency, and revalidation are unchanged.
+- Page-size selector (10/25/50/100), bound into the dashboard cursor key.
+
+#### Removed
+
+- Superseded dashboard CSS: the old top header/brand/session shell, view tabs,
+  filter panel, and status/locale badge rules.
+
+#### Verification
+
+- `npm run typecheck`, `npm run lint`, `npm test` (57 passing), and the Webpack
+  production build pass. The new queries (untranslated view, category `EXISTS`,
+  inclusive date range, page size, summary coverage) were run against a
+  disposable PostgreSQL 17 database with all migrations applied.
+
 ### Blog redesign and step-by-step guide series
 
 #### Changed

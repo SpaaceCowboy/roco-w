@@ -22,6 +22,7 @@ export const adminEvents = {
   mediaUpload: "admin.media.upload",
   publish: "admin.publish",
   contentDelete: "admin.content.delete",
+  dashboardLoad: "admin.dashboard.load",
   scheduledDelay: "admin.scheduled_publication.delay",
   cacheRefresh: "admin.cache_refresh",
   api: "admin.api",

@@ -8,11 +8,16 @@ import {
   listAdminCategories,
   listAdminPosts,
 } from "@/lib/admin/content-service";
-import { type DashboardSort, type DashboardView } from "@/lib/admin/dashboard-query";
-import { reportAdminFailure } from "@/lib/admin/observability";
+import { dashboardPageSizes, type DashboardSort, type DashboardView } from "@/lib/admin/dashboard-query";
+import { adminEvents, reportAdminFailure } from "@/lib/admin/observability";
+import { hasAdminPermission, type AdminRole } from "@/lib/admin/permissions";
+import type { PublicationAction } from "@/lib/admin/publication-policy";
 import { requireAdminSession } from "@/lib/admin/session";
 import { NewPostButton } from "./NewPostButton";
 import { DeletePostDialog } from "./DeletePostDialog";
+import { AutoSubmitInput, AutoSubmitSelect } from "./AutoSubmit";
+import { Popover } from "./Popover";
+import { RowWorkflowAction } from "./RowWorkflowAction";
 import { RelativeTime } from "./RelativeTime";
 import styles from "../admin.module.css";
 
@@ -25,7 +30,16 @@ const viewLabels: Record<DashboardView, { label: string; description: string }> 
   scheduled: { label: "Scheduled soon", description: "Due in the next 7 days" },
   recent: { label: "Recently published", description: "Published in the last 30 days" },
   attention: { label: "Needs attention", description: "Scheduled time has passed" },
+  untranslated: { label: "Missing translations", description: "Fewer than six locales" },
 };
+
+/** The single most useful next transition for a row, or null when none applies. */
+function quickAction(role: AdminRole, status: string): { action: PublicationAction; label: string } | null {
+  if (status === "draft" && hasAdminPermission(role, "content:write")) return { action: "request_review", label: "Request review" };
+  if (status === "review" && hasAdminPermission(role, "content:publish")) return { action: "publish", label: "Publish" };
+  if (status === "published" && hasAdminPermission(role, "content:archive")) return { action: "archive", label: "Archive" };
+  return null;
+}
 
 const localeLabels: Record<(typeof contentLocales)[number], string> = {
   en: "English",
@@ -122,8 +136,8 @@ function DashboardLoadError({ supportRef, retryHref }: { supportRef: string; ret
 function DashboardLoading() {
   return <main id="admin-main" className={styles.mainInner} aria-busy="true" aria-label="Loading articles">
     <div className={`${styles.skeleton} ${styles.skeletonHeading}`} />
-    <div className={`${styles.skeleton} ${styles.skeletonViews}`} />
-    <div className={`${styles.skeleton} ${styles.skeletonFilters}`} />
+    <div className={`${styles.skeleton} ${styles.skeletonKpis}`} />
+    <div className={`${styles.skeleton} ${styles.skeletonToolbar}`} />
     <div className={`${styles.skeleton} ${styles.skeletonTable}`} />
     <span className={styles.srOnly}>Loading articles…</span>
   </main>;
@@ -135,7 +149,7 @@ async function DashboardContent({ searchParams }: { searchParams: Promise<Search
   const filters = {
     locale: one(raw.locale), status: one(raw.status), author: one(raw.author), category: one(raw.category),
     from: one(raw.from), to: one(raw.to), q: one(raw.q), view: one(raw.view), sort: one(raw.sort),
-    order: one(raw.order), cursor: one(raw.cursor),
+    order: one(raw.order), cursor: one(raw.cursor), pageSize: one(raw.pageSize),
   };
 
   let result;
@@ -151,7 +165,7 @@ async function DashboardContent({ searchParams }: { searchParams: Promise<Search
     ]);
   } catch (error) {
     const supportRef = crypto.randomUUID();
-    reportAdminFailure("admin.dashboard.load", {
+    reportAdminFailure(adminEvents.dashboardLoad, {
       supportRef,
       errorType: error instanceof Error ? error.name : "UnknownError",
     });
@@ -168,7 +182,7 @@ async function DashboardContent({ searchParams }: { searchParams: Promise<Search
     { view: "review", label: "Awaiting review", hint: "Ready for a decision", value: summary.review },
     { view: "mine", label: "My drafts", hint: "Drafts you created", value: summary.mine },
     { view: "scheduled", label: "Scheduled soon", hint: "Due in the next 7 days", value: summary.scheduled },
-    { view: "recent", label: "Recently published", hint: "Last 30 days", value: summary.recent },
+    { view: "untranslated", label: "Missing translations", hint: "Fewer than six locales", value: summary.untranslated },
   ];
 
   const chips: Array<{ label: string; href: string }> = [];
@@ -177,7 +191,7 @@ async function DashboardContent({ searchParams }: { searchParams: Promise<Search
   if (query.status) chips.push({ label: `Status: ${statusLabels[query.status] ?? query.status}`, href: dashboardHref(raw, { status: undefined }) });
   if (query.author) {
     const author = authors.find((entry) => entry.id === query.author);
-    chips.push({ label: `Author: ${author?.name ?? author?.email ?? query.author}`, href: dashboardHref(raw, { author: undefined }) });
+    chips.push({ label: `Created by: ${author?.name ?? author?.email ?? query.author}`, href: dashboardHref(raw, { author: undefined }) });
   }
   if (query.category) {
     const category = categories.find((entry) => entry.id === query.category);
@@ -185,6 +199,10 @@ async function DashboardContent({ searchParams }: { searchParams: Promise<Search
   }
   if (one(raw.from)) chips.push({ label: `From: ${one(raw.from)}`, href: dashboardHref(raw, { from: undefined }) });
   if (one(raw.to)) chips.push({ label: `To: ${one(raw.to)}`, href: dashboardHref(raw, { to: undefined }) });
+
+  // A category has one localization per locale; the filter keys on the category,
+  // so collapse the localized duplicates to a single option.
+  const categoryOptions = [...new Map(categories.map((category) => [category.id, category])).values()];
 
   return (
     <main id="admin-main" tabIndex={-1} className={styles.mainInner}>
@@ -203,7 +221,7 @@ async function DashboardContent({ searchParams }: { searchParams: Promise<Search
             key={card.view}
             href={viewHref(card.view)}
             aria-current={query.view === card.view ? "page" : undefined}
-            className={`${styles.kpi} ${card.hero ? styles.kpiHero : ""} ${query.view === card.view ? styles.kpiActive : ""}`}
+            className={`${styles.kpi} ${card.hero && card.value > 0 ? styles.kpiHero : ""} ${query.view === card.view ? styles.kpiActive : ""}`}
           >
             <span className={styles.kpiLabel}>{card.label}</span>
             <strong className={styles.kpiValue}>{card.value}</strong>
@@ -226,7 +244,7 @@ async function DashboardContent({ searchParams }: { searchParams: Promise<Search
           {(hasFilters || query.view !== "all") && <Link className={styles.resetLink} href="/admin">Reset dashboard</Link>}
         </div>
 
-        <form className={styles.toolbar} method="get">
+        <form className={styles.listToolbar} method="get">
           <input type="hidden" name="view" value={query.view} />
           <input type="hidden" name="sort" value={query.sort} />
           <input type="hidden" name="order" value={query.order} />
@@ -236,25 +254,25 @@ async function DashboardContent({ searchParams }: { searchParams: Promise<Search
             <input name="q" type="search" defaultValue={query.q} placeholder="Search title or slug" />
           </label>
           <button type="submit" className={styles.ghostButton}>Search</button>
-          <details className={styles.filterDetails}>
-            <summary className={styles.ghostButton}>
-              <FilterIcon />
-              Filters
-              {chips.length > 0 && <span className={styles.countBubble}>{chips.length}</span>}
-            </summary>
+          <Popover summary={<>
+            <FilterIcon />
+            Filters
+            {chips.length > 0 && <span className={styles.countBubble}>{chips.length}</span>}
+          </>}>
             <div className={styles.filterGrid}>
-              <label>Locale<select name="locale" defaultValue={query.locale ?? ""}><option value="">All locales</option>{contentLocales.map((locale) => <option key={locale} value={locale}>{localeLabels[locale]}</option>)}</select></label>
-              <label>Status<select name="status" defaultValue={query.status ?? ""}><option value="">All statuses</option>{["draft", "review", "scheduled", "published", "archived"].map((status) => <option key={status} value={status}>{statusLabels[status]}</option>)}</select></label>
-              <label>Author<select name="author" defaultValue={query.author ?? ""}><option value="">All authors</option>{authors.map((author) => <option key={author.id} value={author.id}>{author.name ?? author.email}</option>)}</select></label>
-              <label>Category<select name="category" defaultValue={query.category ?? ""}><option value="">All categories</option>{categories.map((category) => <option key={`${category.id}-${category.locale}`} value={category.id}>{category.name}</option>)}</select></label>
-              <label>Updated from<input type="date" name="from" defaultValue={one(raw.from)} /></label>
-              <label>Updated to<input type="date" name="to" defaultValue={one(raw.to)} /></label>
+              <label>Locale<AutoSubmitSelect name="locale" defaultValue={query.locale ?? ""}><option value="">All locales</option>{contentLocales.map((locale) => <option key={locale} value={locale}>{localeLabels[locale]}</option>)}</AutoSubmitSelect></label>
+              <label>Status<AutoSubmitSelect name="status" defaultValue={query.status ?? ""}><option value="">All statuses</option>{["draft", "review", "scheduled", "published", "archived"].map((status) => <option key={status} value={status}>{statusLabels[status]}</option>)}</AutoSubmitSelect></label>
+              <label>Created by<AutoSubmitSelect name="author" defaultValue={query.author ?? ""}><option value="">Anyone</option>{authors.map((author) => <option key={author.id} value={author.id}>{author.name ?? author.email}</option>)}</AutoSubmitSelect></label>
+              <label>Category<AutoSubmitSelect name="category" defaultValue={query.category ?? ""}><option value="">All categories</option>{categoryOptions.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}</AutoSubmitSelect></label>
+              <label>Updated from<AutoSubmitInput type="date" name="from" label="Updated from" defaultValue={one(raw.from)} /></label>
+              <label>Updated to<AutoSubmitInput type="date" name="to" label="Updated to" defaultValue={one(raw.to)} /></label>
+              <label>Per page<AutoSubmitSelect name="pageSize" defaultValue={String(query.pageSize)}>{dashboardPageSizes.map((size) => <option key={size} value={size}>{size}</option>)}</AutoSubmitSelect></label>
               <div className={styles.filterActions}>
                 <button type="submit" className={styles.applyButton}>Apply filters</button>
                 {hasFilters && <Link className={styles.resetLink} href={viewHref(query.view)}>Clear filters</Link>}
               </div>
             </div>
-          </details>
+          </Popover>
         </form>
 
         {chips.length > 0 && <ul className={styles.chips}>
@@ -275,29 +293,41 @@ async function DashboardContent({ searchParams }: { searchParams: Promise<Search
               <SortHeading field="updated" label="Updated" raw={raw} activeSort={query.sort} activeOrder={query.order} />
               <th><span className={styles.srOnly}>Actions</span></th>
             </tr></thead>
-            <tbody>{items.map((item) => <tr key={item.id}>
-              <td data-label="Article">
-                <Link className={styles.tableTitleLink} href={`/admin/posts/${item.id}`}>{item.title}</Link>
-                {item.status === "published"
-                  ? <a className={styles.publicPathLink} href={publishedArticlePath(item.locale, item.slug)} target="_blank" rel="noreferrer">{publishedArticlePath(item.locale, item.slug)}</a>
-                  : <span className={styles.publicPath}>{publishedArticlePath(item.locale, item.slug)}</span>}
-              </td>
-              <td data-label="Locale"><span className={styles.localeTag}>{item.locale}</span></td>
-              <td data-label="Status"><span className={styles.status} data-status={item.status}><i className={styles.statusDot} aria-hidden="true" />{statusLabels[item.status] ?? item.status}</span></td>
-              <td data-label="Author">{item.effectiveAuthor}</td>
-              <td data-label="Updated"><RelativeTime value={item.updatedAt.toISOString()} /></td>
-              <td data-label="Actions"><div className={styles.rowActions}>
-                <Link className={styles.tableLink} href={`/admin/posts/${item.id}`}>Edit</Link>
-                <DeletePostDialog
-                  localizationId={item.id}
-                  version={item.version}
-                  title={item.title}
-                  locale={item.locale}
-                  localization={item.deletion.localization}
-                  post={item.deletion.post}
-                />
-              </div></td>
-            </tr>)}</tbody>
+            <tbody>{items.map((item) => {
+              const quick = quickAction(session.role, item.status);
+              return <tr key={item.id}>
+                <td data-label="Article">
+                  <Link className={styles.tableTitleLink} href={`/admin/posts/${item.id}`}>{item.title}</Link>
+                  {item.status === "published"
+                    ? <a className={styles.publicPathLink} href={publishedArticlePath(item.locale, item.slug)} target="_blank" rel="noreferrer">{publishedArticlePath(item.locale, item.slug)}</a>
+                    : <span className={styles.publicPath}>{publishedArticlePath(item.locale, item.slug)}</span>}
+                </td>
+                <td data-label="Locale">
+                  <span className={styles.localeTag}>{item.locale}</span>
+                  <span className={styles.coverage} title={item.missingLocales.length
+                    ? `Missing: ${item.missingLocales.map((locale) => localeLabels[locale]).join(", ")}`
+                    : "All six locales present"}>
+                    <span className={styles.srOnly}>Translation coverage: </span>
+                    {contentLocales.length - item.missingLocales.length}/{contentLocales.length}
+                  </span>
+                </td>
+                <td data-label="Status"><span className={styles.status} data-status={item.status}><i className={styles.statusDot} aria-hidden="true" />{statusLabels[item.status] ?? item.status}</span></td>
+                <td data-label="Author">{item.effectiveAuthor}</td>
+                <td data-label="Updated"><RelativeTime value={item.updatedAt.toISOString()} /></td>
+                <td data-label="Actions"><div className={styles.rowActions}>
+                  <Link className={styles.tableLink} href={`/admin/posts/${item.id}`}>Edit</Link>
+                  {quick && <RowWorkflowAction localizationId={item.id} action={quick.action} label={quick.label} />}
+                  <DeletePostDialog
+                    localizationId={item.id}
+                    version={item.version}
+                    title={item.title}
+                    locale={item.locale}
+                    localization={item.deletion.localization}
+                    post={item.deletion.post}
+                  />
+                </div></td>
+              </tr>;
+            })}</tbody>
           </table>
           {!items.length && <div className={styles.emptyState}><strong>No articles found</strong><p>Try another view or remove one of the active filters.</p>{(hasFilters || query.view !== "all") && <Link className={styles.primaryActionLink} href="/admin">Show all articles</Link>}</div>}
         </div>

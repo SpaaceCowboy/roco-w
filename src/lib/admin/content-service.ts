@@ -30,6 +30,7 @@ import {
   type ContentLocale,
   type SaveDraftInput,
 } from "./content-validation";
+import { contentLocales } from "./content-locales";
 import { canDeleteLocalization, canDeletePost, type DeletionDecision } from "./deletion-policy";
 import { ContentDeletionError } from "./errors";
 import { adminEvents, reportAdminFailure, reportAdminSuccess } from "./observability";
@@ -83,7 +84,6 @@ export class ContentSeoError extends Error {
 
 export type PostListFilters = ReturnType<typeof postListFiltersSchema.parse>;
 
-const adminPostPageSize = 25;
 const effectiveAuthor = sql<string>`coalesce(${adminUsers.displayName}, ${postLocalizations.authorName})`;
 
 function dashboardSortColumn(sort: DashboardSort) {
@@ -152,10 +152,14 @@ function addDashboardViewConditions(conditions: Array<SQL | undefined>, query: D
     );
   } else if (query.view === "attention") {
     conditions.push(eq(postLocalizations.status, "scheduled"), lt(postLocalizations.scheduledAt, now));
+  } else if (query.view === "untranslated") {
+    conditions.push(sql`(select count(*) from ${postLocalizations} "other_locale"
+      where "other_locale"."post_id" = ${postLocalizations.postId}) < ${contentLocales.length}`);
   }
 }
 
 export async function listAdminPosts(rawFilters: unknown, session: AdminSession, now = new Date()) {
+  requireAdminPermission(session.role, "content:read");
   const filters = dashboardQuerySchema.parse(rawFilters);
   const actorId = session.userId;
   const conditions: Array<SQL | undefined> = [isNull(posts.deletedAt)];
@@ -163,9 +167,15 @@ export async function listAdminPosts(rawFilters: unknown, session: AdminSession,
   if (filters.status) conditions.push(eq(postLocalizations.status, filters.status));
   if (filters.author) conditions.push(eq(posts.createdById, filters.author));
   if (filters.from) conditions.push(gte(postLocalizations.updatedAt, filters.from));
-  if (filters.to) conditions.push(lte(postLocalizations.updatedAt, filters.to));
+  // `to` names a calendar date; include the whole day rather than just its start.
+  if (filters.to) conditions.push(lt(postLocalizations.updatedAt, new Date(filters.to.getTime() + 86_400_000)));
   if (filters.q) conditions.push(or(ilike(postLocalizations.title, `%${filters.q}%`), ilike(postLocalizations.slug, `%${filters.q}%`)));
-  if (filters.category) conditions.push(eq(postCategories.categoryId, filters.category));
+  // An EXISTS subquery avoids joining post_categories, which would multiply
+  // rows for posts with several categories and force a DISTINCT.
+  if (filters.category) {
+    conditions.push(sql`exists (select 1 from ${postCategories}
+      where ${postCategories.postId} = ${posts.id} and ${postCategories.categoryId} = ${filters.category})`);
+  }
   addDashboardViewConditions(conditions, filters, actorId, now);
 
   const filterKey = dashboardFilterKey(filters, actorId);
@@ -176,41 +186,40 @@ export async function listAdminPosts(rawFilters: unknown, session: AdminSession,
     : filters.order;
   const order = requestedOrder === "asc" ? asc : desc;
   const sortColumn = dashboardSortColumn(filters.sort);
+  const pageSize = filters.pageSize;
   const database = getDatabase();
 
   const [rows, totalResult] = await Promise.all([
     database
-    .selectDistinct({
-      id: postLocalizations.id,
-      postId: postLocalizations.postId,
-      locale: postLocalizations.locale,
-      title: postLocalizations.title,
-      slug: postLocalizations.slug,
-      status: postLocalizations.status,
-      version: postLocalizations.version,
-      authorName: postLocalizations.authorName,
-      effectiveAuthor,
-      createdById: posts.createdById,
-      updatedAt: postLocalizations.updatedAt,
-    })
-    .from(postLocalizations)
-    .innerJoin(posts, eq(posts.id, postLocalizations.postId))
-    .leftJoin(adminUsers, eq(adminUsers.id, posts.createdById))
-    .leftJoin(postCategories, eq(postCategories.postId, posts.id))
-    .where(and(...conditions, cursorCondition))
-    .orderBy(order(sortColumn), order(postLocalizations.id))
-    .limit(adminPostPageSize + 1),
+      .select({
+        id: postLocalizations.id,
+        postId: postLocalizations.postId,
+        locale: postLocalizations.locale,
+        title: postLocalizations.title,
+        slug: postLocalizations.slug,
+        status: postLocalizations.status,
+        version: postLocalizations.version,
+        authorName: postLocalizations.authorName,
+        effectiveAuthor,
+        createdById: posts.createdById,
+        updatedAt: postLocalizations.updatedAt,
+      })
+      .from(postLocalizations)
+      .innerJoin(posts, eq(posts.id, postLocalizations.postId))
+      .leftJoin(adminUsers, eq(adminUsers.id, posts.createdById))
+      .where(and(...conditions, cursorCondition))
+      .orderBy(order(sortColumn), order(postLocalizations.id))
+      .limit(pageSize + 1),
+    // Count only needs the filter joins; the author join feeds display only.
     database
       .select({ total: countDistinct(postLocalizations.id) })
       .from(postLocalizations)
       .innerJoin(posts, eq(posts.id, postLocalizations.postId))
-      .leftJoin(adminUsers, eq(adminUsers.id, posts.createdById))
-      .leftJoin(postCategories, eq(postCategories.postId, posts.id))
       .where(and(...conditions)),
   ]);
 
-  const hasMore = rows.length > adminPostPageSize;
-  let items = rows.slice(0, adminPostPageSize);
+  const hasMore = rows.length > pageSize;
+  let items = rows.slice(0, pageSize);
   if (cursor?.direction === "previous") items = items.reverse();
   const page = cursor?.page ?? 1;
   const total = Number(totalResult[0]?.total ?? 0);
@@ -230,25 +239,33 @@ export async function listAdminPosts(rawFilters: unknown, session: AdminSession,
     .innerJoin(posts, eq(posts.id, postLocalizations.postId))
     .where(and(inArray(postLocalizations.postId, items.map((item) => item.postId)), isNull(posts.deletedAt)));
   const siblingsByPost = new Map<string, typeof siblingRows>();
+  const localesByPost = new Map<string, string[]>();
   for (const sibling of siblingRows) {
     const group = siblingsByPost.get(sibling.postId);
     if (group) group.push(sibling);
     else siblingsByPost.set(sibling.postId, [sibling]);
+    const locales = localesByPost.get(sibling.postId);
+    if (locales) locales.push(sibling.locale);
+    else localesByPost.set(sibling.postId, [sibling.locale]);
   }
 
-  const itemsWithDeletion = items.map((item) => ({
-    ...item,
-    deletion: {
-      localization: canDeleteLocalization(actor, item),
-      post: canDeletePost(actor, siblingsByPost.get(item.postId) ?? [item]),
-    } satisfies { localization: DeletionDecision; post: DeletionDecision },
-  }));
+  const itemsWithDeletion = items.map((item) => {
+    const present = localesByPost.get(item.postId) ?? [item.locale];
+    return {
+      ...item,
+      deletion: {
+        localization: canDeleteLocalization(actor, item),
+        post: canDeletePost(actor, siblingsByPost.get(item.postId) ?? [item]),
+      } satisfies { localization: DeletionDecision; post: DeletionDecision },
+      missingLocales: contentLocales.filter((locale) => !present.includes(locale)) as ContentLocale[],
+    };
+  });
 
   return {
     items: itemsWithDeletion,
     total,
     page,
-    pageSize: adminPostPageSize,
+    pageSize,
     nextCursor: items.length > 0 && ((cursor?.direction !== "previous" && hasMore) || cursor?.direction === "previous")
       ? dashboardCursorFor(items.at(-1)!, filters, "next", page + 1, filterKey)
       : undefined,
@@ -281,6 +298,7 @@ export type DashboardSummary = {
   scheduled: number;
   recent: number;
   attention: number;
+  untranslated: number;
 };
 
 /**
@@ -289,6 +307,7 @@ export type DashboardSummary = {
  * mirrors the matching view condition in `addDashboardViewConditions`.
  */
 export async function getDashboardSummary(session: AdminSession, now = new Date()): Promise<DashboardSummary> {
+  requireAdminPermission(session.role, "content:read");
   const sevenDays = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1_000);
   const thirtyDays = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1_000);
   const [row] = await getDatabase()
@@ -299,6 +318,8 @@ export async function getDashboardSummary(session: AdminSession, now = new Date(
       scheduled: sql<number>`count(*) filter (where ${postLocalizations.status} = 'scheduled' and ${postLocalizations.scheduledAt} >= ${now} and ${postLocalizations.scheduledAt} <= ${sevenDays})`,
       recent: sql<number>`count(*) filter (where ${postLocalizations.status} = 'published' and ${postLocalizations.publishedAt} >= ${thirtyDays})`,
       attention: sql<number>`count(*) filter (where ${postLocalizations.status} = 'scheduled' and ${postLocalizations.scheduledAt} < ${now})`,
+      untranslated: sql<number>`count(*) filter (where (select count(*) from ${postLocalizations} "other_locale"
+        where "other_locale"."post_id" = ${postLocalizations.postId}) < ${contentLocales.length})`,
     })
     .from(postLocalizations)
     .innerJoin(posts, eq(posts.id, postLocalizations.postId))
@@ -310,6 +331,7 @@ export async function getDashboardSummary(session: AdminSession, now = new Date(
     scheduled: Number(row?.scheduled ?? 0),
     recent: Number(row?.recent ?? 0),
     attention: Number(row?.attention ?? 0),
+    untranslated: Number(row?.untranslated ?? 0),
   };
 }
 

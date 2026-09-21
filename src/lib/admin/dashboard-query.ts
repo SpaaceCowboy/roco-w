@@ -2,14 +2,17 @@ import { createHash } from "node:crypto";
 import { z } from "zod";
 import { postListFiltersSchema } from "./content-validation";
 
-export const dashboardViews = ["all", "mine", "review", "scheduled", "recent", "attention"] as const;
+export const dashboardViews = ["all", "mine", "review", "scheduled", "recent", "attention", "untranslated"] as const;
 export const dashboardSorts = ["updated", "title", "author", "status", "locale"] as const;
 export const dashboardOrders = ["asc", "desc"] as const;
+export const dashboardPageSizes = [10, 25, 50, 100] as const;
 
 export const dashboardQuerySchema = postListFiltersSchema.extend({
   view: z.enum(dashboardViews).default("all"),
   sort: z.enum(dashboardSorts).default("updated"),
   order: z.enum(dashboardOrders).default("desc"),
+  pageSize: z.coerce.number().int().optional().transform((value) =>
+    dashboardPageSizes.includes(value as (typeof dashboardPageSizes)[number]) ? (value as number) : 25),
   cursor: z.string().max(2_000).optional(),
 });
 
@@ -43,6 +46,7 @@ export function dashboardFilterKey(query: DashboardQuery, actorId: string): stri
     view: query.view,
     sort: query.sort,
     order: query.order,
+    pageSize: query.pageSize,
     actorId: query.view === "mine" ? actorId : null,
   });
   return createHash("sha256").update(serialized).digest("base64url");
