@@ -36,6 +36,13 @@
       "when": 1789653248930,
       "tag": "0004_whole_jigsaw",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1789988738876,
+      "tag": "0005_content_deletion",
+      "breakpoints": true
     }
   ]
 }

@@ -5,6 +5,21 @@ work should be added here in the same change that implements it.
 
 ## 2026-09-21
 
+### Fixed
+
+- Permanent deletion returned a generic `500` ("The operation could not be
+  completed") because the `post_revisions` immutability trigger also blocked the
+  `ON DELETE CASCADE` from `post_localizations`, raising SQLSTATE 55000.
+  Migration `drizzle/0005_content_deletion.sql` narrows that trigger to
+  `UPDATE`, so content deletion removes its revisions while revision history
+  stays unrewritable; `audit_events` keeps its full update/delete guard.
+  Verified end-to-end against a disposable PostgreSQL 17 database: delete and
+  whole-post cascade succeed, revision `UPDATE` and `audit_events` `DELETE`
+  remain blocked. Added `scripts/verify-content-deletion.sql` as a repeatable
+  check.
+- Unexpected admin API failures now log the Postgres SQLSTATE alongside the
+  support reference, so a support reference maps to a diagnosable cause.
+
 ### Admin dashboard redesign
 
 #### Changed

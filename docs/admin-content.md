@@ -206,6 +206,12 @@ its localizations, revisions, taxonomy links, media usages, and slug history are
 removed in one transaction (`DELETE /api/admin/posts/{localizationId}`). Stored
 image objects are retained; only their usage links are removed.
 
+Migration `0005_content_deletion.sql` narrows the `post_revisions` immutability
+trigger to `UPDATE`, so a content deletion can cascade to its revisions while
+revision history stays unrewritable. Apply migrations (`npm run db:migrate`)
+before enabling deletion. `scripts/verify-content-deletion.sql` checks the
+cascade and the remaining immutability guarantees against a disposable database.
+
 - The workspace offers "Delete" on a row with a typed `DELETE` confirmation.
   The dialog removes either the single localization or the entire post, and the
   destructive button stays unavailable until the confirmation word matches.

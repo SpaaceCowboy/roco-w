@@ -72,8 +72,10 @@ export function adminApiErrorResponse(error: unknown): Response {
   }
   if (isPostgresUniqueViolation(error)) return Response.json({ error: "That slug or translation already exists", code: "duplicate" }, { status: 409 });
   const supportRef = crypto.randomUUID();
+  const sqlState = error && typeof error === "object" && "code" in error ? String(error.code) : undefined;
   reportAdminFailure(adminEvents.api, {
     supportRef,
+    code: sqlState,
     name: error instanceof Error ? error.name : "UnknownError",
   });
   return Response.json({ error: "The operation could not be completed", supportRef }, { status: 500 });
