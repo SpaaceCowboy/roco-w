@@ -24,6 +24,32 @@ work should be added here in the same change that implements it.
 - Added a "Skip to content" link and focusable `<main>` landmarks; the "New
   article" dialog now locks background scroll.
 
+### Admin dashboard workflow and navigation
+
+#### Changed
+
+- Replaced the silent 200-row article limit with deterministic 25-row cursor
+  pagination and an accurate filtered result count.
+- Added URL-backed editorial views for all articles, the current administrator's
+  drafts, review requests, upcoming scheduled publications, recently published
+  content, and overdue scheduled content.
+- Added URL-backed sorting for title, locale, workflow status, author, and last
+  update, with accessible sort state on each table heading.
+- Added a recoverable load-failure panel with a retry action and non-sensitive
+  support reference emitted to structured server logs.
+- Updated timestamps to show relative age and the exact local date, time, and
+  timezone; added dashboard-only loading skeletons and a responsive card layout
+  for narrow screens.
+- Added page-level session enforcement before dashboard queries, independent of
+  the protected layout's authorization boundary.
+
+#### Verification
+
+- `npm run typecheck`, `npm run lint`, `npm test` (13 test files), and the
+  Webpack production build pass.
+- Added cursor tests covering query defaults, filter/user binding, sort binding,
+  and malformed cursor handling.
+
 ## 2026-09-18
 
 ### Admin content, publishing, and SEO system

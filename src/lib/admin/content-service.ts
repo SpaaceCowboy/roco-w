@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, asc, desc, eq, gte, ilike, inArray, isNull, lte, max, ne, or, sql, type SQL } from "drizzle-orm";
+import { and, asc, countDistinct, desc, eq, gte, ilike, inArray, isNull, lt, lte, max, ne, or, sql, type SQL } from "drizzle-orm";
 import { getDatabase } from "@/db/client";
 import {
   adminUsers,
@@ -30,6 +30,16 @@ import {
 } from "./content-validation";
 import { hasAdminPermission, requireAdminPermission } from "./permissions";
 import { getMediaPublicUrl } from "./media-storage";
+import {
+  dashboardFilterKey,
+  dashboardQuerySchema,
+  decodeDashboardCursor,
+  encodeDashboardCursor,
+  type DashboardCursor,
+  type DashboardOrder,
+  type DashboardQuery,
+  type DashboardSort,
+} from "./dashboard-query";
 
 export class ContentConflictError extends Error {
   constructor(readonly currentVersion: number) {
@@ -68,8 +78,80 @@ export class ContentSeoError extends Error {
 
 export type PostListFilters = ReturnType<typeof postListFiltersSchema.parse>;
 
-export async function listAdminPosts(rawFilters: unknown) {
-  const filters = postListFiltersSchema.parse(rawFilters);
+const adminPostPageSize = 25;
+const effectiveAuthor = sql<string>`coalesce(${adminUsers.displayName}, ${postLocalizations.authorName})`;
+
+function dashboardSortColumn(sort: DashboardSort) {
+  if (sort === "title") return postLocalizations.title;
+  if (sort === "author") return effectiveAuthor;
+  if (sort === "status") return postLocalizations.status;
+  if (sort === "locale") return postLocalizations.locale;
+  return postLocalizations.updatedAt;
+}
+
+function dashboardCursorValue(item: { updatedAt: Date; title: string; effectiveAuthor: string; status: string; locale: string }, sort: DashboardSort): string {
+  if (sort === "updated") return item.updatedAt.toISOString();
+  if (sort === "title") return item.title;
+  if (sort === "author") return item.effectiveAuthor;
+  if (sort === "status") return item.status;
+  return item.locale;
+}
+
+function dashboardCursorComparable(cursor: DashboardCursor, sort: DashboardSort): string | Date {
+  return sort === "updated" ? new Date(cursor.value) : cursor.value;
+}
+
+function dashboardCursorCondition(query: DashboardQuery, cursor: DashboardCursor | undefined): SQL | undefined {
+  if (!cursor) return undefined;
+  const column = dashboardSortColumn(query.sort);
+  const value = dashboardCursorComparable(cursor, query.sort);
+  const ascendingFromCursor = (query.order === "asc") === (cursor.direction === "next");
+  const comparison = ascendingFromCursor ? sql.raw(">") : sql.raw("<");
+  return sql`(${column} ${comparison} ${value} or (${column} = ${value} and ${postLocalizations.id} ${comparison} ${cursor.id}))`;
+}
+
+function dashboardCursorFor(
+  item: { id: string; updatedAt: Date; title: string; effectiveAuthor: string; status: string; locale: string },
+  query: DashboardQuery,
+  direction: DashboardCursor["direction"],
+  page: number,
+  filterKey: string,
+): string {
+  return encodeDashboardCursor({
+    version: 1,
+    direction,
+    sort: query.sort,
+    order: query.order,
+    value: dashboardCursorValue(item, query.sort),
+    id: item.id,
+    page,
+    filterKey,
+  });
+}
+
+function addDashboardViewConditions(conditions: Array<SQL | undefined>, query: DashboardQuery, actorId: string, now: Date): void {
+  if (query.view === "mine") {
+    conditions.push(eq(posts.createdById, actorId), eq(postLocalizations.status, "draft"));
+  } else if (query.view === "review") {
+    conditions.push(eq(postLocalizations.status, "review"));
+  } else if (query.view === "scheduled") {
+    conditions.push(
+      eq(postLocalizations.status, "scheduled"),
+      gte(postLocalizations.scheduledAt, now),
+      lte(postLocalizations.scheduledAt, new Date(now.getTime() + 7 * 24 * 60 * 60 * 1_000)),
+    );
+  } else if (query.view === "recent") {
+    conditions.push(
+      eq(postLocalizations.status, "published"),
+      gte(postLocalizations.publishedAt, new Date(now.getTime() - 30 * 24 * 60 * 60 * 1_000)),
+    );
+  } else if (query.view === "attention") {
+    conditions.push(eq(postLocalizations.status, "scheduled"), lt(postLocalizations.scheduledAt, now));
+  }
+}
+
+export async function listAdminPosts(rawFilters: unknown, actorId: string, now = new Date()) {
+  const filters = dashboardQuerySchema.parse(rawFilters);
   const conditions: Array<SQL | undefined> = [isNull(posts.deletedAt)];
   if (filters.locale) conditions.push(eq(postLocalizations.locale, filters.locale));
   if (filters.status) conditions.push(eq(postLocalizations.status, filters.status));
@@ -78,8 +160,20 @@ export async function listAdminPosts(rawFilters: unknown) {
   if (filters.to) conditions.push(lte(postLocalizations.updatedAt, filters.to));
   if (filters.q) conditions.push(or(ilike(postLocalizations.title, `%${filters.q}%`), ilike(postLocalizations.slug, `%${filters.q}%`)));
   if (filters.category) conditions.push(eq(postCategories.categoryId, filters.category));
+  addDashboardViewConditions(conditions, filters, actorId, now);
 
-  return getDatabase()
+  const filterKey = dashboardFilterKey(filters, actorId);
+  const cursor = decodeDashboardCursor(filters.cursor, filterKey, { sort: filters.sort, order: filters.order });
+  const cursorCondition = dashboardCursorCondition(filters, cursor);
+  const requestedOrder: DashboardOrder = cursor?.direction === "previous"
+    ? (filters.order === "asc" ? "desc" : "asc")
+    : filters.order;
+  const order = requestedOrder === "asc" ? asc : desc;
+  const sortColumn = dashboardSortColumn(filters.sort);
+  const database = getDatabase();
+
+  const [rows, totalResult] = await Promise.all([
+    database
     .selectDistinct({
       id: postLocalizations.id,
       postId: postLocalizations.postId,
@@ -89,16 +183,44 @@ export async function listAdminPosts(rawFilters: unknown) {
       status: postLocalizations.status,
       version: postLocalizations.version,
       authorName: postLocalizations.authorName,
-      createdBy: adminUsers.displayName,
+      effectiveAuthor,
       updatedAt: postLocalizations.updatedAt,
     })
     .from(postLocalizations)
     .innerJoin(posts, eq(posts.id, postLocalizations.postId))
     .leftJoin(adminUsers, eq(adminUsers.id, posts.createdById))
     .leftJoin(postCategories, eq(postCategories.postId, posts.id))
-    .where(and(...conditions))
-    .orderBy(desc(postLocalizations.updatedAt), asc(postLocalizations.title))
-    .limit(200);
+    .where(and(...conditions, cursorCondition))
+    .orderBy(order(sortColumn), order(postLocalizations.id))
+    .limit(adminPostPageSize + 1),
+    database
+      .select({ total: countDistinct(postLocalizations.id) })
+      .from(postLocalizations)
+      .innerJoin(posts, eq(posts.id, postLocalizations.postId))
+      .leftJoin(adminUsers, eq(adminUsers.id, posts.createdById))
+      .leftJoin(postCategories, eq(postCategories.postId, posts.id))
+      .where(and(...conditions)),
+  ]);
+
+  const hasMore = rows.length > adminPostPageSize;
+  let items = rows.slice(0, adminPostPageSize);
+  if (cursor?.direction === "previous") items = items.reverse();
+  const page = cursor?.page ?? 1;
+  const total = Number(totalResult[0]?.total ?? 0);
+
+  return {
+    items,
+    total,
+    page,
+    pageSize: adminPostPageSize,
+    nextCursor: items.length > 0 && ((cursor?.direction !== "previous" && hasMore) || cursor?.direction === "previous")
+      ? dashboardCursorFor(items.at(-1)!, filters, "next", page + 1, filterKey)
+      : undefined,
+    previousCursor: items.length > 0 && page > 1
+      ? dashboardCursorFor(items[0], filters, "previous", page - 1, filterKey)
+      : undefined,
+    query: filters,
+  };
 }
 
 export async function listAdminAuthors() {

@@ -1,6 +1,6 @@
 # Pending Work
 
-Last updated: 2026-09-18 (Asia/Tehran)
+Last updated: 2026-09-21 (Asia/Tehran)
 
 Picking up from `currentstate.md`, which records how the deployment is put
 together and why. This file is only what is left to do, in the order I would do
@@ -11,6 +11,41 @@ The site is serving over HTTPS at `https://rocobroker.com` through Apache after
 the apex cutover; `next.rocobroker.com` still works and redirects to the apex.
 The public blog remains file-backed until the read cutover below completes.
 Item 1 below is required before the site takes public traffic.
+
+---
+
+## Admin dashboard usability follow-up
+
+**Status (2026-09-21): complete in code; authenticated environment QA
+pending.** The `/admin` article dashboard now has cursor pagination, an accurate
+filtered total, preset editorial views, sortable columns, retryable load
+failures with support references, relative and exact timestamps, dashboard-only
+loading feedback, and responsive table-to-card behavior. TypeScript, lint, unit
+tests, and the production build pass. A live authenticated/database-backed
+browser pass remains pending because this checkout does not contain admin auth
+or database credentials.
+
+- Replace the silent 200-row cap with cursor pagination, an accurate total, and
+  previous/next navigation.
+- Add useful default views for my drafts, awaiting review, scheduled soon,
+  recently published, and items needing attention.
+- Add URL-backed sorting for title, last updated, author, status, and locale.
+- Add a recoverable dashboard error state with a retry action and a server-side
+  support reference, without exposing internal error details.
+- Show relative update times with the exact date, time, and timezone available
+  to pointer and keyboard users.
+- Improve the overall dashboard hierarchy, filter ergonomics, responsive
+  behavior, loading feedback, focus states, and result navigation while
+  preserving LTR/RTL accessibility.
+
+**Exit criteria**
+
+- More than 200 localizations can be browsed without missing or duplicated rows.
+- Views, filters, sorting, and pagination are represented in the URL and remain
+  usable with keyboard navigation.
+- Data failures are retryable and logged with a non-sensitive reference ID.
+- Relative timestamps have accessible exact values and the dashboard remains
+  usable at mobile widths.
 
 ---
 
