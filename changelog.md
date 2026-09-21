@@ -5,6 +5,77 @@ work should be added here in the same change that implements it.
 
 ## 2026-09-21
 
+### Native guide series (PDF/Canva removal)
+
+#### Changed
+
+- Replaced the Canva/iframe guide embeds and downloadable PDFs with twelve
+  first-class Persian articles. Every guide now has semantic headings, numbered
+  steps, callouts and warnings, inline screenshots, and a lead paragraph, while
+  the existing series URLs
+  (`/fa/وبلاگ/مجموعه/راهنمای-گام-به-گام/<article>`) and series structure are
+  unchanged.
+- Rebuilt the series landing page as a table of contents with per-guide reading
+  time and topics, and gave each article a previous/next sequence, a series
+  index, an in-page table of contents, and a progress indicator.
+- Kept guide presentation visually distinct from normal blog posts: guides use a
+  numbered step timeline, progress rail, and sidebar series index, while the
+  blog keeps its card grid and magazine article layout. Both share ROCO's dark
+  gunmetal, lime, and soft-gray editorial palette and the Vazirmatn RTL
+  typography.
+- Moved guide content into a data-driven schema
+  (`src/content/blog/guide-types.ts` plus `src/content/blog/guides/*`) rendered
+  by `GuideArticleView`; no CMS or new dependency was added.
+- Corrected product facts against the current repository: account names use the
+  canonical Lion / Cheetah / Nano-Lion / Nano-Cheetah / Social Trade variants,
+  shared trading conditions come from `src/config/trading.ts`, crypto support
+  reflects the current payment configuration (USDT active; USDC/BTC/ETH listed
+  but inactive), and bonus terms follow the promotions page (40% first-deposit
+  up to $1,000, 1:100 maximum leverage, one bonus account per user, loyalty and
+  motivational rewards).
+- Reworked `ExternalMediaPlaceholder` to drop the contextual title/body props
+  that existed only for the Canva guide embed. The external-media consent
+  category itself stays because the TradingView calendar and ticker still need
+  it.
+
+#### Added
+
+- In-page section anchors, `TechArticle` and `BreadcrumbList` structured data,
+  localized canonical URLs, `dateModified`, and updated `CollectionPage`
+  metadata for every guide.
+- 25 optimized WebP screenshots extracted from the legacy PDFs (about 550 KB
+  total) under `public/guides/<guide>/`, each with descriptive Persian alt text
+  and captions. Screenshots showing wallet addresses, referral identifiers,
+  transaction references, or personal data were excluded.
+
+#### Removed
+
+- All twelve guide PDFs from `public/documents/guides/` (about 6.7 MB) and the
+  iframe-based `GuideEmbed` component. No guide route, sitemap entry, or
+  internal link references a PDF or an external embed anymore.
+- Obsolete Canva `/view?embed` URLs and the PDF download action.
+
+#### Verification
+
+- `npm run typecheck`, `npm run lint`, `npm test` (57 passing), and the Webpack
+  production build pass.
+- Repository-wide search for `documents/guides`, PDF, Canva, iframe, and
+  download references finds only historical changelog/comment mentions.
+
+#### Unverified procedural claims
+
+The legacy guides contained portal instructions that cannot be independently
+confirmed against the current client portal. These are retained as UI-neutral
+copy and flagged in an on-page "موارد نیازمند تأیید" callout on the relevant
+guide: the exact menu/button labels in the IB and account-creation flows, the
+"up to two business hours" KYC review window, the "no fees" and "exact amount"
+claims for TopChange deposits/withdrawals, the $3,000 per-withdrawal cap, the
+1,000 USC (≈ $10) minimum platform transaction, and the social-trading platform
+labels (which are third-party English UI strings). The registration, KYC,
+account-creation, deposit, withdrawal, and bonus screenshots were checked
+against the portal captures and the current repository's product copy before
+being reused.
+
 ### Admin dashboard follow-up
 
 #### Fixed

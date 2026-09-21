@@ -28,6 +28,14 @@ export default async function GuideSeriesPage({ params }: { params: Promise<{ lo
   setRequestLocale(locale);
 
   const url = localizedUrl(locale, `/blog/series/${series.slug}`);
+  const totalMinutes = series.articles.reduce((total, article) => total + article.content.readingMinutes, 0);
+  const latestUpdate = series.articles
+    .map((article) => article.content.updatedAt)
+    .sort()
+    .at(-1);
+  const updateLabel = latestUpdate
+    ? new Intl.DateTimeFormat(locale, { year: "numeric" }).format(new Date(latestUpdate))
+    : "";
   const collectionLd = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
@@ -56,21 +64,44 @@ export default async function GuideSeriesPage({ params }: { params: Promise<{ lo
           <span className={styles.eyebrow}>{series.eyebrow}</span>
           <h1>{series.title}</h1>
           <p>{series.description}</p>
-          <div className={styles.seriesMeta}><span>{series.articles.length.toLocaleString("fa-IR")}</span><span>راهنمای کاربردی</span></div>
+          <div className={styles.heroMeta}>
+            <span>{series.articles.length.toLocaleString("fa-IR")} راهنما</span>
+            <span>حدود {totalMinutes.toLocaleString("fa-IR")} دقیقه مطالعه</span>
+            {updateLabel && <span>آخرین بازبینی {updateLabel}</span>}
+          </div>
         </div>
       </header>
+
       <div className={styles.inner}>
-        <ol className={styles.list}>
-          {series.articles.map((article) => (
-            <li key={article.slug} className={styles.item}>
-              <Link href={guideArticleHref(series.slug, article.slug)}>
-                <span className={styles.number} aria-hidden="true" />
-                <div><h2>{article.title}</h2><p>{article.description}</p></div>
-                <span className={styles.arrow} aria-hidden="true">←</span>
-              </Link>
-            </li>
-          ))}
-        </ol>
+        <nav aria-label="فهرست راهنماهای این مجموعه">
+          <ol className={styles.list}>
+            {series.articles.map((article, index) => (
+              <li key={article.slug} className={styles.item}>
+                <Link href={guideArticleHref(series.slug, article.slug)}>
+                  <span className={styles.number} aria-hidden="true" />
+                  <div className={styles.itemBody}>
+                    <h2>{article.title}</h2>
+                    <p>{article.description}</p>
+                    <div className={styles.itemMeta}>
+                      <span>راهنمای {(index + 1).toLocaleString("fa-IR")}</span>
+                      <span>{article.content.readingMinutes.toLocaleString("fa-IR")} دقیقه</span>
+                      {article.content.topics?.slice(0, 2).map((topic) => <span key={topic}>{topic}</span>)}
+                    </div>
+                  </div>
+                  <span className={styles.arrow} aria-hidden="true">←</span>
+                </Link>
+              </li>
+            ))}
+          </ol>
+        </nav>
+
+        <div className={styles.landingFooter}>
+          <div>
+            <strong>از کجا شروع کنیم؟</strong>
+            <p>اگر تازه با روکو آشنا شده‌اید، از راهنمای «{series.articles[0].title}» شروع کنید. راهنماها به‌ترتیب مراحل آماده شده‌اند و در هر صفحه می‌توانید به راهنمای قبلی یا بعدی بروید.</p>
+          </div>
+          <Link href={guideArticleHref(series.slug, series.articles[0].slug)} className={styles.startButton}>{series.startLabel}</Link>
+        </div>
       </div>
       <Footer />
     </main>
