@@ -8,6 +8,9 @@
  * CMS or any per-article JSX.
  */
 
+/** Locales that ship the step-by-step guide series. */
+export type GuideLocale = "fa" | "en";
+
 export type GuideScreenshot = {
   /** Public path, e.g. `/guides/registration/registration-form.webp`. */
   src: string;

@@ -5,8 +5,10 @@ import { Footer } from "@/components/layout/Footer/Footer";
 import styles from "@/components/pages/BlogPage/GuideSeries.module.css";
 import { GuideArticleView } from "@/components/pages/BlogPage/GuideArticleView";
 import { getGuideSeries, guideSeries } from "@/content/blog/guide-series";
+import { getGuideUi } from "@/content/blog/guide-ui";
+import type { GuideLocale } from "@/content/blog/guide-types";
 import { guideSeriesHref, Link } from "@/i18n/navigation";
-import { routing } from "@/i18n/routing";
+import { isRtl, routing } from "@/i18n/routing";
 import { serializeJsonLd } from "@/lib/content/article-seo";
 import { buildMetadata, localizedUrl } from "@/lib/seo";
 
@@ -41,6 +43,9 @@ export default async function GuideArticlePage({ params }: { params: Promise<{ l
   const content = article.content;
   setRequestLocale(locale);
 
+  const guideLocale = series.locale as GuideLocale;
+  const ui = getGuideUi(guideLocale);
+  const num = (value: number) => value.toLocaleString(guideLocale === "fa" ? "fa-IR" : "en");
   const total = series.articles.length;
   const position = articleIndex + 1;
   const progress = (position / total) * 100;
@@ -63,31 +68,31 @@ export default async function GuideArticlePage({ params }: { params: Promise<{ l
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: [
-      { "@type": "ListItem", position: 1, name: "وبلاگ", item: localizedUrl(locale, "/blog") },
+      { "@type": "ListItem", position: 1, name: "Blog", item: localizedUrl(locale, "/blog") },
       { "@type": "ListItem", position: 2, name: series.title, item: seriesUrl },
       { "@type": "ListItem", position: 3, name: article.title, item: url },
     ],
   };
 
   return (
-    <main id="main-content" className={styles.page} dir="rtl">
+    <main id="main-content" className={styles.page} dir={isRtl(guideLocale) ? "rtl" : "ltr"}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(articleLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(breadcrumbLd) }} />
       <header className={`${styles.hero} ${styles.heroArticle}`}>
         <div className={styles.inner}>
-          <Link href={guideSeriesHref(series.slug)} className={styles.back}><span aria-hidden="true">→</span> {series.title}</Link>
+          <Link href={guideSeriesHref(series.slug)} className={styles.back}><span aria-hidden="true">{ui.backArrow}</span> {series.title}</Link>
           <span className={styles.eyebrow}>{series.eyebrow}</span>
           <h1>{content.pageTitle ?? article.title}</h1>
           <p>{content.lead}</p>
           <div className={styles.heroMeta}>
-            <span>راهنمای {position.toLocaleString("fa-IR")} از {total.toLocaleString("fa-IR")}</span>
-            <span>{content.readingMinutes.toLocaleString("fa-IR")} دقیقه مطالعه</span>
-            <span>آخرین بازبینی: <time dateTime={content.updatedAt}>{formatter.format(new Date(content.updatedAt))}</time></span>
+            <span>{ui.guideCounter(num(position), num(total))}</span>
+            <span>{content.readingMinutes.toLocaleString(locale)} {ui.minuteRead}</span>
+            <span>{ui.lastReviewed}: <time dateTime={content.updatedAt}>{formatter.format(new Date(content.updatedAt))}</time></span>
           </div>
           <div className={styles.heroProgress}>
             <div className={styles.heroProgressLabel}>
-              <span>پیشرفت مجموعه</span>
-              <strong>{position.toLocaleString("fa-IR")} از {total.toLocaleString("fa-IR")}</strong>
+              <span>{ui.progressLabel}</span>
+              <strong>{ui.guideCounter(num(position), num(total))}</strong>
             </div>
             <div className={styles.heroProgressTrack}>
               <span className={styles.heroProgressBar} style={{ width: `${progress}%` }} />
@@ -103,6 +108,8 @@ export default async function GuideArticlePage({ params }: { params: Promise<{ l
         seriesTitle={series.title}
         seriesEyebrow={series.eyebrow}
         index={articleIndex}
+        locale={guideLocale}
+        ui={ui}
       />
       <Footer />
     </main>

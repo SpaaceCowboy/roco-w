@@ -5,6 +5,37 @@ work should be added here in the same change that implements it.
 
 ## 2026-09-21
 
+### English step-by-step guide series
+
+#### Added
+
+- Added a full English translation of all twelve step-by-step guides at
+  `/blog/series/step-by-step-guide/...`, mirroring the Persian series'
+  structure, section anchors, step order, tables, callouts and reading times.
+  The English series is text-only because the source screenshots show the
+  Persian client portal.
+- Made the guide content locale-driven: articles now live under
+  `src/content/blog/guides/<locale>/`, and the landing and article pages take
+  their direction (`rtl`/`ltr`), number formatting and UI labels from the
+  active locale instead of hardcoded Persian.
+- The guide series now appears on the English blog index alongside the Persian
+  one, and is emitted in the sitemap for both locales.
+
+#### Changed
+
+- Localized the guide chrome (previous/next, series index, progress, in-page
+  contents, callout labels, "parts" and arrow direction) per locale.
+- Pointed the English guides' references at the English site paths
+  (`/accounts`, `/money-transfer-methods`, `/promotions`, `/partnership`,
+  `/social-trading-platform`, `/metatrader-5`).
+
+#### Verification
+
+- `npm run typecheck`, `npm run lint`, `npm test` (63 passing, including new
+  bilingual series tests), and the Webpack production build pass.
+- Reviewed the English landing and article pages in LTR and the Persian pages in
+  RTL.
+
 ### Native guide series (PDF/Canva removal)
 
 #### Changed

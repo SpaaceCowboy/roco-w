@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { blogHref, guideArticleHref, guideSeriesHref, Link, useRouter } from "@/i18n/navigation";
 import type { BlogPostSummary, BlogTaxonomy } from "@/lib/blog";
 import type { GuideSeries } from "@/content/blog/guide-series";
+import { getGuideUi } from "@/content/blog/guide-ui";
 import { PageBackground } from "@/components/ui/PageBackground/PageBackground";
 import { CornerMark } from "@/components/ui/CornerMark/CornerMark";
 import { Reveal } from "@/components/ui/Reveal/Reveal";
@@ -140,8 +141,8 @@ export function BlogView({ posts, categories, tags, locale, hasNativeContent, ui
                 <h2><Link href={guideSeriesHref(item.slug)}>{item.title}</Link></h2>
                 <p>{item.description}</p>
                 <div className={styles.seriesMeta}>
-                  <span>{item.articles.length.toLocaleString(locale)} قسمت</span>
-                  <Link href={guideSeriesHref(item.slug)}>{item.startLabel}<span aria-hidden="true">←</span></Link>
+                  <span>{item.articles.length.toLocaleString(locale)} {getGuideUi(item.locale).parts}</span>
+                  <Link href={guideSeriesHref(item.slug)}>{item.startLabel}<span aria-hidden="true">{getGuideUi(item.locale).arrow}</span></Link>
                 </div>
               </div>
               <ol className={styles.seriesPreview} aria-label={item.title}>

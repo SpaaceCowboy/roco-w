@@ -1,4 +1,4 @@
-import type { GuideArticleContent } from "../guide-types";
+import type { GuideArticleContent } from "../../guide-types";
 
 export const socialTradingGuide: GuideArticleContent = {
   slug: "social-trading",

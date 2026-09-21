@@ -1,4 +1,4 @@
-import type { GuideArticleContent } from "../guide-types";
+import type { GuideArticleContent } from "../../guide-types";
 
 export const rialDepositGuide: GuideArticleContent = {
   slug: "rial-deposit",
