@@ -54,6 +54,13 @@ export function NewPostButton() {
     return () => document.removeEventListener("keydown", onKeyDown);
   }, [open]);
 
+  useEffect(() => {
+    if (!open) return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = previous; };
+  }, [open]);
+
   async function create(formData: FormData) {
     setBusy(true); setError("");
     const response = await fetch("/api/admin/posts", {

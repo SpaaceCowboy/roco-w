@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { editorExtensions } from "@/lib/content/editor/extensions";
 import { rtlContentLocales, type ContentLocale } from "@/lib/admin/content-locales";
+import { publishedArticlePath } from "@/config/blog-routing";
 import styles from "../../../admin.module.css";
 
 type InitialArticle = {
@@ -102,6 +103,16 @@ export function EditorWorkspace({ initial, revisions, availableLocales, mediaCon
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentFingerprint]);
 
+  useEffect(() => {
+    if (saveState === "saved") return;
+    function onBeforeUnload(event: BeforeUnloadEvent) {
+      event.preventDefault();
+      event.returnValue = "";
+    }
+    window.addEventListener("beforeunload", onBeforeUnload);
+    return () => window.removeEventListener("beforeunload", onBeforeUnload);
+  }, [saveState]);
+
   async function preview() {
     const popup = window.open("about:blank", "_blank");
     const saved = await queueSave({ title, slug, excerpt, authorName, document, seo });
@@ -132,7 +143,7 @@ export function EditorWorkspace({ initial, revisions, availableLocales, mediaCon
     window.location.reload();
   }
 
-  return <main className={styles.editorPage}>
+  return <main id="admin-main" tabIndex={-1} className={styles.editorPage}>
     <div className={styles.editorTopbar}>
       <Link href="/admin" className={styles.backLink}>← Articles</Link>
       <div className={styles.saveState} data-state={saveState} role="status"><span />{saveState === "saved" ? `Saved · v${version}` : saveState}</div>
@@ -245,12 +256,96 @@ function EditorToolbar({ editor }: { editor: Editor | null }) {
     {button("Bullets", editor.isActive("bulletList"), () => editor.chain().focus().toggleBulletList().run())}
     {button("Numbers", editor.isActive("orderedList"), () => editor.chain().focus().toggleOrderedList().run())}
     {button("Quote", editor.isActive("blockquote"), () => editor.chain().focus().toggleBlockquote().run())}
-    <button type="button" onClick={() => { const href = window.prompt("HTTPS link URL"); if (href) editor.chain().focus().extendMarkRange("link").setLink({ href }).run(); }}>Link</button>
+    <LinkDialog editor={editor} />
     <button type="button" onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}>Table</button>
     <button type="button" onClick={() => editor.chain().focus().insertContent({ type: "callout", attrs: { tone: "note" }, content: [{ type: "paragraph", content: [{ type: "text", text: "Callout text" }] }] }).run()}>Callout</button>
     <button type="button" onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().undo()}>Undo</button>
     <button type="button" onClick={() => editor.chain().focus().redo().run()} disabled={!editor.can().redo()}>Redo</button>
   </div>;
+}
+
+function LinkDialog({ editor }: { editor: Editor | null }) {
+  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState("");
+  const [error, setError] = useState("");
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const focusEditorRef = useRef(false);
+
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+    if (open && !dialog.open) { dialog.showModal(); inputRef.current?.focus(); }
+    else if (!open && dialog.open) dialog.close();
+  }, [open]);
+
+  function start() {
+    if (!editor) return;
+    setValue((editor.getAttributes("link").href as string | undefined) ?? "");
+    setError("");
+    setOpen(true);
+  }
+
+  function finish() {
+    setOpen(false);
+  }
+
+  function resolveHref(raw: string): string | null {
+    const trimmed = raw.trim();
+    if (/^(https:|mailto:|tel:)/i.test(trimmed)) return trimmed;
+    if (/^[a-z][a-z0-9+.-]*:/i.test(trimmed)) return null;
+    return `https://${trimmed}`;
+  }
+
+  function apply() {
+    if (!editor) return;
+    const href = resolveHref(value);
+    if (href === null) { setError("Use an https, mailto, or tel link."); return; }
+    focusEditorRef.current = true;
+    editor.chain().focus().extendMarkRange("link").setLink({ href }).run();
+    finish();
+  }
+
+  function remove() {
+    if (!editor) return;
+    focusEditorRef.current = true;
+    editor.chain().focus().extendMarkRange("link").unsetLink().run();
+    finish();
+  }
+
+  return <span className={styles.linkControl}>
+    <button ref={triggerRef} type="button" aria-haspopup="dialog" onClick={start}>Link</button>
+    <dialog
+      ref={dialogRef}
+      className={styles.linkDialog}
+      aria-label="Insert or edit link"
+      onClose={() => {
+        setOpen(false);
+        if (focusEditorRef.current) { focusEditorRef.current = false; editor?.commands.focus(); }
+        else triggerRef.current?.focus();
+      }}
+    >
+      <label>Link URL
+        <input
+          ref={inputRef}
+          type="text"
+          inputMode="url"
+          dir="ltr"
+          value={value}
+          placeholder="https://example.com"
+          onChange={(event) => setValue(event.target.value)}
+          onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); apply(); } }}
+        />
+      </label>
+      {error && <p className={styles.error} role="alert">{error}</p>}
+      <div className={styles.linkDialogActions}>
+        <button type="button" onClick={apply} disabled={!value.trim()}>Apply</button>
+        <button type="button" onClick={remove} disabled={!editor?.isActive("link")}>Remove</button>
+        <button type="button" onClick={finish}>Cancel</button>
+      </div>
+    </dialog>
+  </span>;
 }
 
 async function uploadMediaFile(file: File, onState: (state: string) => void) {
@@ -298,10 +393,12 @@ function SeoPanel({ locale, slug, articleTitle, excerpt, seo, setSeo, checks, ca
   const previewDescription = seo.description || excerpt || "Article description";
   const socialTitle = seo.socialTitle || previewTitle;
   const socialDescription = seo.socialDescription || previewDescription;
+  const seoTitleLength = (seo.title || articleTitle).length;
+  const seoDescriptionLength = (seo.description || excerpt).length;
 
   return <section className={styles.seoPanel}><h2>SEO</h2>
-    <label>SEO title<input value={seo.title ?? ""} maxLength={120} placeholder={articleTitle} onChange={(event) => update("title", event.target.value || null)} /><small>{(seo.title || articleTitle).length}/60 recommended</small></label>
-    <label>Meta description<textarea value={seo.description ?? ""} maxLength={320} rows={3} placeholder={excerpt} onChange={(event) => update("description", event.target.value || null)} /><small>{(seo.description || excerpt).length}/160 recommended</small></label>
+    <label>SEO title<input value={seo.title ?? ""} maxLength={120} placeholder={articleTitle} onChange={(event) => update("title", event.target.value || null)} /><small data-over={seoTitleLength > 60}>{seoTitleLength}/60 recommended</small></label>
+    <label>Meta description<textarea value={seo.description ?? ""} maxLength={320} rows={3} placeholder={excerpt} onChange={(event) => update("description", event.target.value || null)} /><small data-over={seoDescriptionLength > 160}>{seoDescriptionLength}/160 recommended</small></label>
     <label>Canonical override<input type="url" dir="ltr" value={seo.canonicalOverride ?? ""} disabled={!canEditCanonical} placeholder="Generated automatically" onChange={(event) => update("canonicalOverride", event.target.value || null)} />{!canEditCanonical && <small>Reviewer permission required</small>}</label>
     <fieldset><legend>Robots</legend><label><input type="checkbox" checked={seo.noIndex} onChange={(event) => update("noIndex", event.target.checked)} /> noindex</label><label><input type="checkbox" checked={seo.noFollow} onChange={(event) => update("noFollow", event.target.checked)} /> nofollow</label></fieldset>
     <label>Featured image alt<input value={seo.featuredImageAlt} maxLength={300} onChange={(event) => update("featuredImageAlt", event.target.value)} /></label>
@@ -310,7 +407,7 @@ function SeoPanel({ locale, slug, articleTitle, excerpt, seo, setSeo, checks, ca
     <label>Social description<textarea value={seo.socialDescription ?? ""} maxLength={320} rows={3} placeholder={previewDescription} onChange={(event) => update("socialDescription", event.target.value || null)} /></label>
     {mediaConfigured && <div className={styles.seoUpload}><label>1200×630 social image<input type="file" accept="image/jpeg,image/png,image/webp,image/avif" onChange={(event) => setSocialFile(event.target.files?.[0] ?? null)} /></label><button type="button" disabled={!socialFile} onClick={() => upload("social")}>{seo.socialMediaId ? "Replace social" : "Upload social"}</button></div>}
     {uploadState && <p className={styles.uploadState} role="status">{uploadState}</p>}
-    <div className={styles.searchPreview} dir={rtlContentLocales.has(locale) ? "rtl" : "ltr"}><span>rocobroker.com › {locale} › blog › {slug}</span><strong>{previewTitle}</strong><p>{previewDescription}</p></div>
+    <div className={styles.searchPreview} dir={rtlContentLocales.has(locale) ? "rtl" : "ltr"}><span>rocobroker.com{publishedArticlePath(locale, slug).replaceAll("/", " › ")}</span><strong>{previewTitle}</strong><p>{previewDescription}</p></div>
     <div className={styles.socialPreview} dir={rtlContentLocales.has(locale) ? "rtl" : "ltr"}><div>{seo.socialMediaId ? "Custom 1200×630 image" : seo.featuredMediaId ? "Featured image fallback" : "Default social image"}</div><span>ROCOBROKER.COM</span><strong>{socialTitle}</strong><p>{socialDescription}</p></div>
     {!!checks.length && <div className={styles.seoChecks}><h3>Editorial checks</h3><ul>{checks.map((check) => <li key={`${check.code}-${check.message}`} data-severity={check.severity}>{check.message}</li>)}</ul></div>}
   </section>;

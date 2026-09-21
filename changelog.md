@@ -3,6 +3,27 @@
 This file records changes made during the launch-readiness remediation. New
 work should be added here in the same change that implements it.
 
+## 2026-09-21
+
+### Admin dashboard usability and accessibility
+
+#### Changed
+
+- Article list: the count now reads "localization(s)" instead of the inaccurate
+  "localized drafts"; the title links to the editor; each row shows the true
+  localized canonical path (`publishedArticlePath`) — a link to the public
+  article when published, plain text otherwise; added a "Clear" action when
+  filters are active and a clear CTA in the empty state.
+- Editor: replaced the `window.prompt` link flow with a native `<dialog>` link
+  control (add, edit, remove) that normalizes bare domains to `https://`,
+  rejects non-https/mailto/tel schemes, returns focus to the editor after
+  applying, and to the trigger on cancel; added a `beforeunload` guard while
+  changes are unsaved or a conflict is unresolved.
+- SEO panel: the search-preview breadcrumb now uses the localized canonical path,
+  and the title/description counters flag over-limit values.
+- Added a "Skip to content" link and focusable `<main>` landmarks; the "New
+  article" dialog now locks background scroll.
+
 ## 2026-09-18
 
 ### Admin content, publishing, and SEO system

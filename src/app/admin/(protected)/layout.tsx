@@ -8,6 +8,7 @@ export default async function ProtectedAdminLayout({ children }: { children: Rea
   const session = await requireAdminSession();
   return (
     <div className={styles.workspace}>
+      <a href="#admin-main" className={styles.skipLink}>Skip to content</a>
       <header className={styles.adminHeader}>
         <Link href="/admin" className={styles.brand}>ROCO <span>Content</span></Link>
         <nav aria-label="Admin navigation"><Link href="/admin">Articles</Link></nav>
