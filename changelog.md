@@ -5,6 +5,43 @@ work should be added here in the same change that implements it.
 
 ## 2026-09-21
 
+### Blog redesign and step-by-step guide series
+
+#### Changed
+
+- Refined the public blog toward the Termspace editorial pattern while keeping
+  ROCO's dark, lime, and soft-gray palette: reduced the oversized hero,
+  introduced rounded editorial cards, simplified search and filter controls,
+  and preserved the existing responsive and RTL behavior.
+- Changed the legacy Persian `راهنمای-گام-به-گام` redirect from the accounts
+  page to the new guide-series landing page.
+
+#### Added
+
+- Added a first-class Persian guide-series presentation, separate from normal
+  blog posts, with a dedicated landing page and 12 ordered guide pages covering
+  registration, KYC, IB, account creation, deposits, withdrawals, transfers,
+  bonuses, and social trading.
+- Added previous/next guide navigation, localized canonical URLs, collection and
+  article structured data, static generation, and sitemap entries for the
+  series and every guide.
+- Migrated all 12 legacy guide PDFs into `public/documents/guides/` (6.7 MB
+  total), removing the new pages' dependency on retiring WordPress download
+  paths. Canva walkthroughs remain external and are loaded only after external
+  media consent; the social-trading guide uses its local PDF because the legacy
+  page duplicated another guide's Canva embed.
+- Made the shared external-media consent placeholder accept contextual title
+  and body copy so non-TradingView embeds can accurately explain what is
+  blocked without changing the existing calendar and ticker behavior.
+
+#### Verification
+
+- `npm run typecheck`, `npm run lint`, `npm test` (14 passing), `git diff
+  --check`, and the Webpack production build pass.
+- Visually reviewed the Persian blog, series landing page, and guide article at
+  desktop width; verified RTL ordering, keyboard-visible links, localized
+  routes, and consent-safe external media behavior.
+
 ### Fixed
 
 - Permanent deletion returned a generic `500` ("The operation could not be

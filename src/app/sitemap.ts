@@ -5,6 +5,7 @@ import { CATEGORIES } from "@/components/pages/MarketsPage/categories";
 import { getPublishedContentRepository } from "@/lib/content/content-source";
 import { publishedArticlePath } from "@/config/blog-routing";
 import { SITE_URL } from "@/config/site-url";
+import { guideSeries } from "@/content/blog/guide-series";
 
 /** Every built route, one entry with hreflang alternates for all locales. */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -33,6 +34,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     alternates: { languages: languageAlternates(path) },
   }));
   const repository = getPublishedContentRepository();
+  const guides: MetadataRoute.Sitemap = guideSeries.flatMap((series) => {
+    const seriesPath = `/blog/series/${series.slug}`;
+    return [
+      {
+        url: localizedUrl(series.locale, seriesPath),
+        changeFrequency: "monthly" as const,
+        priority: 0.7,
+      },
+      ...series.articles.map((article) => ({
+        url: localizedUrl(series.locale, `${seriesPath}/${article.slug}`),
+        changeFrequency: "monthly" as const,
+        priority: 0.6,
+      })),
+    ];
+  });
   const articles = (await Promise.all(routing.locales.map((locale) => repository.listIndexablePosts(locale))))
     .flat()
     .filter((post, index, all) => all.findIndex((candidate) => candidate.locale === post.locale && candidate.slug === post.slug) === index)
@@ -48,5 +64,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         },
       },
     }));
-  return [...pages, ...articles];
+  return [...pages, ...guides, ...articles];
 }

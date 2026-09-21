@@ -61,7 +61,7 @@ const pageRedirects = [
   permanent("/fa/ictgift", encodeURI("/fa/تبلیغات")),
   permanent("/fa/promotions", encodeURI("/fa/تبلیغات")),
   permanent("/fa/payment-methods", encodeURI("/fa/روش-های-انتقال-وجه")),
-  permanent("/fa/راهنمای-گام-به-گام", encodeURI("/fa/حساب-های-roco")),
+  permanent("/fa/راهنمای-گام-به-گام", encodeURI("/fa/وبلاگ/مجموعه/راهنمای-گام-به-گام")),
   permanent("/fa/accounts", encodeURI("/fa/حساب-های-roco")),
   permanent("/fa/faq", encodeURI("/fa/سوالات-متداول")),
   permanent("/fa/partnership", encodeURI("/fa/مشارکت")),

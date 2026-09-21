@@ -6,6 +6,7 @@ import { routing } from "@/i18n/routing";
 import { buildMetadata, localizedUrl } from "@/lib/seo";
 import { getPublishedContentRepository } from "@/lib/content/content-source";
 import { serializeJsonLd } from "@/lib/content/article-seo";
+import { getGuideSeriesForLocale } from "@/content/blog/guide-series";
 import { BlogView, type BlogUi } from "@/components/pages/BlogPage/BlogView";
 import { Footer } from "@/components/layout/Footer/Footer";
 
@@ -27,6 +28,7 @@ export default async function BlogPage({ params }: { params: Promise<{ locale: s
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: "blogPage" });
   const repository = getPublishedContentRepository();
+  const series = getGuideSeriesForLocale(locale);
   const [posts, categories, tags, hasNativeContent] = await Promise.all([
     repository.listPosts(locale), repository.listCategories(locale), repository.listTags(locale),
     repository.hasNativeContent(locale),
@@ -52,6 +54,12 @@ export default async function BlogPage({ params }: { params: Promise<{ locale: s
       datePublished: post.publishedAt,
       url: localizedUrl(locale, `/blog/${post.slug}`),
     })),
+    hasPart: series.map((item) => ({
+      "@type": "CollectionPage",
+      name: item.title,
+      description: item.description,
+      url: localizedUrl(locale, `/blog/series/${item.slug}`),
+    })),
   };
 
   return (
@@ -65,6 +73,7 @@ export default async function BlogPage({ params }: { params: Promise<{ locale: s
           locale={locale}
           hasNativeContent={hasNativeContent}
           ui={ui}
+          series={series}
         />
       </Suspense>
       <Footer />

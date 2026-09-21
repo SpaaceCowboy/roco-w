@@ -127,6 +127,22 @@ export const routing = defineRouting({
       fa: "/[slug]",
       "zh-hans": "/blog/[slug]",
     },
+    "/blog/series/[series]": {
+      en: "/blog/series/[series]",
+      de: "/blog/series/[series]",
+      ru: "/blog/series/[series]",
+      ar: "/blog/series/[series]",
+      fa: "/وبلاگ/مجموعه/[series]",
+      "zh-hans": "/博客/series/[series]",
+    },
+    "/blog/series/[series]/[article]": {
+      en: "/blog/series/[series]/[article]",
+      de: "/blog/series/[series]/[article]",
+      ru: "/blog/series/[series]/[article]",
+      ar: "/blog/series/[series]/[article]",
+      fa: "/وبلاگ/مجموعه/[series]/[article]",
+      "zh-hans": "/博客/series/[series]/[article]",
+    },
     "/markets/forex": {
       en: "/services/forex-trading",
       de: "/services/forex-handel",

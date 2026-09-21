@@ -2,8 +2,9 @@
 
 import { useMemo } from "react";
 import { useSearchParams } from "next/navigation";
-import { blogHref, Link, useRouter } from "@/i18n/navigation";
+import { blogHref, guideArticleHref, guideSeriesHref, Link, useRouter } from "@/i18n/navigation";
 import type { BlogPostSummary, BlogTaxonomy } from "@/lib/blog";
+import type { GuideSeries } from "@/content/blog/guide-series";
 import { PageBackground } from "@/components/ui/PageBackground/PageBackground";
 import { CornerMark } from "@/components/ui/CornerMark/CornerMark";
 import { Reveal } from "@/components/ui/Reveal/Reveal";
@@ -41,9 +42,10 @@ type Props = {
   locale: string;
   hasNativeContent: boolean;
   ui: BlogUi;
+  series: GuideSeries[];
 };
 
-export function BlogView({ posts, categories, tags, locale, hasNativeContent, ui }: Props) {
+export function BlogView({ posts, categories, tags, locale, hasNativeContent, ui, series }: Props) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const query = searchParams.get("q") ?? "";
@@ -128,6 +130,34 @@ export function BlogView({ posts, categories, tags, locale, hasNativeContent, ui
           {!hasNativeContent && <p className={styles.languageNotice}>{ui.fallbackNotice}</p>}
         </div>
       </header>
+
+      {!!series.length && (
+        <div className={`${styles.inner} ${styles.seriesShelf}`}>
+          {series.map((item) => (
+            <article className={styles.seriesCard} key={item.slug}>
+              <div className={styles.seriesCopy}>
+                <span className={styles.seriesEyebrow}>{item.eyebrow}</span>
+                <h2><Link href={guideSeriesHref(item.slug)}>{item.title}</Link></h2>
+                <p>{item.description}</p>
+                <div className={styles.seriesMeta}>
+                  <span>{item.articles.length.toLocaleString(locale)} قسمت</span>
+                  <Link href={guideSeriesHref(item.slug)}>{item.startLabel}<span aria-hidden="true">←</span></Link>
+                </div>
+              </div>
+              <ol className={styles.seriesPreview} aria-label={item.title}>
+                {item.articles.slice(0, 4).map((article, index) => (
+                  <li key={article.slug}>
+                    <Link href={guideArticleHref(item.slug, article.slug)}>
+                      <span>{(index + 1).toLocaleString(locale, { minimumIntegerDigits: 2 })}</span>
+                      <strong>{article.title}</strong>
+                    </Link>
+                  </li>
+                ))}
+              </ol>
+            </article>
+          ))}
+        </div>
+      )}
 
       {featured && (
         <div className={`${styles.inner} ${styles.featuredWrap}`}>

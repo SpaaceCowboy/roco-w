@@ -1,0 +1,48 @@
+.page { min-height: 100vh; color: #10171b; background: #eef1ee; }
+.hero { padding: 158px 0 78px; color: #f4f7f7; background: linear-gradient(135deg,#0b1114,#222d32); }
+.inner { width: min(1120px,calc(100% - 64px)); margin-inline: auto; }
+.back { display: inline-flex; align-items: center; gap: 10px; color: #d7ff45; font: 700 .72rem/1.4 var(--font-secondary); text-decoration: none; }
+.eyebrow { display: block; margin-block-start: 38px; color: #d7ff45; font: 700 .7rem/1 var(--font-mono); letter-spacing: .15em; text-transform: uppercase; }
+.hero h1 { max-width: 880px; margin: 22px 0 18px; font: 700 clamp(2.9rem,6vw,6.2rem)/1.03 var(--font-brand); letter-spacing: -.055em; }
+.hero p { max-width: 760px; margin: 0; color: #bdc7ca; font: 400 clamp(1rem,1.4vw,1.2rem)/1.85 var(--font-secondary); }
+.seriesMeta { display: flex; gap: 10px; margin-block-start: 28px; color: #d7ff45; font: 700 .75rem/1 var(--font-secondary); }
+.list { display: grid; gap: 14px; margin: 0; padding: 70px 0 110px; list-style: none; counter-reset: guide; }
+.item { counter-increment: guide; }
+.item a { display: grid; grid-template-columns: 76px minmax(0,1fr) auto; align-items: center; gap: 24px; min-height: 124px; border: 1px solid #bcc6c4; border-radius: 16px; padding: 24px 30px; color: inherit; background: rgba(255,255,255,.72); text-decoration: none; transition: border-color .2s ease, transform .2s ease, box-shadow .2s ease; }
+.item a:hover { transform: translateY(-3px); border-color: #869396; box-shadow: 0 18px 46px rgba(13,21,24,.08); }
+.number { color: #667300; font: 700 1rem/1 var(--font-mono); }
+.number::before { content: counter(guide,decimal-leading-zero); }
+.item h2 { margin: 0 0 7px; font: 700 clamp(1.35rem,2.2vw,2rem)/1.2 var(--font-brand); letter-spacing: -.02em; }
+.item p { margin: 0; color: #5b686d; font: 400 .92rem/1.7 var(--font-secondary); }
+.arrow { color: #718000; font-size: 1.45rem; }
+.articleHero { padding-block-end: 64px; }
+.articleHero h1 { font-size: clamp(2.7rem,5.3vw,5.4rem); }
+.articleIndex { display: inline-flex; align-items: center; gap: 10px; margin-block-start: 36px; color: #d7ff45; font: 700 .72rem/1 var(--font-mono); }
+.articleBody { padding-block: 64px 110px; }
+.viewer { overflow: hidden; min-height: min(62.5vw,630px); border: 1px solid #aeb9b7; border-radius: 18px; color: #f4f7f7; background: #172126; box-shadow: 0 24px 70px rgba(13,21,24,.13); }
+.viewer iframe { display: block; width: 100%; aspect-ratio: 16 / 9; border: 0; background: #172126; }
+.actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; margin-block-start: 24px; }
+.download { display: inline-flex; min-height: 48px; align-items: center; justify-content: center; border-radius: 999px; padding: 0 22px; color: #11191d; background: #d7ff45; font: 700 .76rem/1 var(--font-secondary); text-decoration: none; }
+.sourceNote { margin: 0; color: #687579; font: 400 .78rem/1.6 var(--font-secondary); }
+.sequence { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-block-start: 62px; }
+.sequence a { display: flex; min-height: 92px; flex-direction: column; justify-content: center; border: 1px solid #bdc6c4; border-radius: 14px; padding: 20px 24px; color: inherit; background: rgba(255,255,255,.58); text-decoration: none; }
+.sequence a:last-child { text-align: end; }
+.sequence span { color: #657277; font: 700 .67rem/1 var(--font-mono); text-transform: uppercase; }
+.sequence strong { margin-block-start: 9px; font: 700 1.05rem/1.35 var(--font-secondary); }
+.back:focus-visible,.item a:focus-visible,.download:focus-visible,.sequence a:focus-visible { outline: 3px solid #93b000; outline-offset: 4px; }
+
+@media (max-width: 700px) {
+  .inner { width: min(100% - 32px,1120px); }
+  .hero { padding: 132px 0 60px; }
+  .item a { grid-template-columns: 42px minmax(0,1fr); gap: 12px; padding: 22px 18px; }
+  .arrow { display: none; }
+  .list { padding-block: 44px 78px; }
+  .articleBody { padding-block: 40px 78px; }
+  .viewer { border-radius: 12px; }
+  .sequence { grid-template-columns: 1fr; margin-block-start: 42px; }
+  .sequence a:last-child { text-align: start; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .item a { transition: none; }
+}

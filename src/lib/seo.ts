@@ -46,9 +46,33 @@ export function localizedPath(locale: string, path: string): string {
     });
   }
 
+  const guideArticleMatch = path.match(/^\/blog\/series\/([^/?#]+)\/([^/?#]+)$/);
+
+  if (guideArticleMatch) {
+    return getPathname({
+      locale: typedLocale,
+      href: {
+        pathname: "/blog/series/[series]/[article]",
+        params: { series: guideArticleMatch[1], article: guideArticleMatch[2] },
+      },
+    });
+  }
+
+  const guideSeriesMatch = path.match(/^\/blog\/series\/([^/?#]+)$/);
+
+  if (guideSeriesMatch) {
+    return getPathname({
+      locale: typedLocale,
+      href: {
+        pathname: "/blog/series/[series]",
+        params: { series: guideSeriesMatch[1] },
+      },
+    });
+  }
+
   return getPathname({
     locale: typedLocale,
-    href: path as Exclude<keyof typeof routing.pathnames, "/blog/[slug]">,
+    href: path as Exclude<keyof typeof routing.pathnames, "/blog/[slug]" | "/blog/series/[series]" | "/blog/series/[series]/[article]">,
   });
 }
 
