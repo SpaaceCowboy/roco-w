@@ -294,8 +294,23 @@ ungated.
 - `CookieConsent.tsx` gains an off-by-default live-chat toggle wired into Accept
   all / Reject all / Save, and discloses that the provider sets visitor cookies
   and collects conversations.
-- The six-locale copy and translation keys are drafted but need compliance
-  sign-off, same as the risk-disclosure wording, before launch.
+- The six locales are implemented, deployed, and live. The disclosure copy
+  requires compliance sign-off before public launch, same as the
+  risk-disclosure wording. The reviewer confirms the copy accurately describes
+  the provider's visitor cookie and conversation storage, and that the
+  off-by-default toggle is what gates loading. Copy is at
+  `messages/<locale>.json` under `cookies.liveChatLabel` / `cookies.liveChatBody`:
+
+  | Locale | Label | Body |
+  | --- | --- | --- |
+  | en | Live chat | Loads our live-chat widget. The provider sets a visitor cookie and stores the conversation you have with support. |
+  | fa | گفتگوی آنلاین | ابزارک گفتگوی آنلاین ما را بارگیری می‌کند. ارائه‌دهنده یک کوکی بازدیدکننده ذخیره می‌کند و گفتگویی که با پشتیبانی دارید را نگه می‌دارد. |
+  | ar | الدردشة المباشرة | يُحمّل أداة الدردشة المباشرة الخاصة بنا. يخزّن المزوّد ملف تعريف ارتباط للزائر ويحتفظ بالمحادثة التي تجريها مع الدعم. |
+  | de | Live-Chat | Lädt unser Live-Chat-Widget. Der Anbieter setzt ein Besucher-Cookie und speichert die Unterhaltung, die Sie mit dem Support führen. |
+  | ru | Онлайн-чат | Загружает наш виджет онлайн-чата. Поставщик устанавливает файл cookie посетителя и сохраняет переписку, которую вы ведёте со службой поддержки. |
+  | zh-hans | 在线客服 | 加载我们的在线客服组件。提供商设置访客 Cookie 并保存您与客服的对话记录。 |
+
+  Sign-off: ______________________  Date: ____________
 
 This is the one item here with actual regulatory exposure — everything else on
 this list is operational.
