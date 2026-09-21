@@ -6,18 +6,23 @@ Operational procedures for the `/admin` content system. Configuration lives in
 
 ## Ownership and alert destinations
 
+A single owner handles every area, and every alert goes to one destination.
+Set the destination before launch:
+
 | Area | Owner | Where alerts go |
 | --- | --- | --- |
-| Application logs and `admin.alert` records | TODO: name | TODO: log monitor / on-call channel |
-| PostgreSQL backups and restore | TODO: name | TODO |
-| Object storage (R2) backups and access | TODO: name | TODO |
-| Google OAuth and Workspace MFA policy | TODO: name | TODO |
-| Scheduled-publication timer | TODO: name | TODO |
+| Application logs and `admin.alert` records | Sole operator | The single destination below |
+| PostgreSQL backups and restore | Sole operator | The single destination below |
+| Object storage (R2) backups and access | Sole operator | The single destination below |
+| Google OAuth and Workspace MFA policy | Sole operator | The single destination below |
+| Scheduled-publication timer | Sole operator | The single destination below |
 
-Replace every `TODO` before launch. Alert on `event=admin.alert` in the log
-monitor, and on any `outcome=failure` for `admin.publish`,
-`admin.cache_refresh`, `admin.media.upload`, and
-`admin.scheduled_publication.delay`.
+**Single alert destination:** `<SET BEFORE LAUNCH>` — the channel the log monitor
+notifies for `event=admin.alert` and for any `outcome=failure` on
+`admin.publish`, `admin.cache_refresh`, `admin.media.upload`, and
+`admin.scheduled_publication.delay`. Alerts are emitted as structured log
+records, so the destination is the monitor's notification target, not an
+application setting.
 
 ## Grant and revoke access
 
@@ -130,13 +135,14 @@ sign-in and one media upload.
 
 ## Launch checklist
 
-- [ ] Workspace MFA policy is enforced; someone has verified it in the Google
-      Admin console for every allowed domain. **(Blocked: admin sign-in
-      currently uses a personal Google account on the External consent screen,
-      not Workspace, so there is no provider MFA policy to enforce. The
-      database allowlist still gates access. Decide whether allowlist-only is
-      acceptable or move to Workspace.)**
-- [ ] Every alert destination and owner above is filled in.
+- [ ] Admin sign-in requires a second factor. Sign-in is Google OIDC, so this is
+      the **Google account's own 2-Step Verification**, not an application
+      setting. Enable 2SV (passkey or security key preferred) on the Google
+      account used for admin sign-in. A Workspace policy is only needed if the
+      identity is moved into a Workspace domain; for a single operator, personal
+      2SV is the effective MFA and is sufficient.
+- [ ] The single alert destination in the table above is set (owner is the sole
+      operator).
 - [x] Initial administrators are allowlisted and non-allowlisted sign-in is
       denied.
 - [x] `CONTENT_SOURCE=file` until import and parity pass. (Cutover done
@@ -151,41 +157,128 @@ sign-in and one media upload.
 
 ## Security checklist
 
-- [ ] Unauthenticated `/admin` and every admin API route return 401/redirect.
-- [ ] A signed-in, non-allowlisted identity is denied at user create, identity
-      binding, and session create.
-- [ ] Cross-origin and missing-`Origin` admin mutations return 403.
-- [ ] Editor cannot publish or manage users; reviewer cannot manage users; admin
-      can do both.
-- [ ] Stored-XSS payloads in editor JSON (script tags, event handlers,
-      `javascript:`, `data:`, `vbscript:` links, non-HTTPS images) are stripped
-      by the renderer.
-- [ ] Malicious uploads (wrong MIME, wrong size, wrong checksum, non-image
-      bytes, oversized dimensions) are rejected and the object is deleted.
-- [ ] Slug changes produce a single permanent redirect; old slugs cannot be
-      reclaimed into a loop and cannot collide with live routes.
-- [ ] An expired session is treated as unauthenticated on both page and API.
-- [ ] Rate limits return 429 with `Retry-After` for autosave, uploads,
-      previews, and mutations.
-- [ ] Rotating a key does not leave it referenced anywhere in the repository.
+`npm test` (43 passing) covers the items marked **[unit-tested]** below;
+everything else needs this manual pass against a running instance. Commands use
+the apex host — substitute `http://127.0.0.1:3100` for a local run.
+
+> Ordering note: admin mutations verify the `Origin` header **before** the
+> session, so a request with no `Origin` returns `403`, not `401`. Send the
+> site's own `Origin` to reach the session check.
+
+### 1. Unauthenticated access is denied
+
+- [ ] Protected pages redirect to sign-in (expect `307` to `/admin/sign-in`):
+      ```bash
+      curl -sS -o /dev/null -w '%{http_code} %{redirect_url}\n' https://rocobroker.com/admin
+      curl -sS -o /dev/null -w '%{http_code} %{redirect_url}\n' https://rocobroker.com/admin/posts/00000000-0000-0000-0000-000000000000
+      ```
+- [ ] Every admin mutation returns `401` with no cookies:
+      ```bash
+      for m in \
+        "POST /api/admin/posts" \
+        "PATCH /api/admin/posts/00000000-0000-0000-0000-000000000000" \
+        "POST /api/admin/posts/00000000-0000-0000-0000-000000000000/publication" \
+        "POST /api/admin/posts/00000000-0000-0000-0000-000000000000/translations" \
+        "POST /api/admin/posts/00000000-0000-0000-0000-000000000000/rollback" \
+        "POST /api/admin/posts/00000000-0000-0000-0000-000000000000/preview-token" \
+        "POST /api/admin/publication-operations/00000000-0000-0000-0000-000000000000/retry-refresh" \
+        "POST /api/admin/media/uploads" \
+        "PUT /api/admin/media/uploads" \
+      ; do
+        method="${m%% *}"; path="${m#* }"
+        printf '%s %s -> ' "$method" "$path"
+        curl -sS -o /dev/null -w '%{http_code}\n' -X "$method" "https://rocobroker.com$path" \
+          -H 'Origin: https://rocobroker.com' -H 'Content-Type: application/json' -d '{}'
+      done
+      ```
+      Expect `401` on every line.
+- [ ] The scheduled-publication endpoint (cron target) is guarded by its bearer
+      secret, not a session: no token → `401`; the correct
+      `SCHEDULED_PUBLISH_SECRET` → `2xx`:
+      ```bash
+      curl -sS -o /dev/null -w '%{http_code}\n' -X POST https://rocobroker.com/api/admin/scheduled-publications
+      ```
+
+### 2. Non-allowlisted identity is denied
+
+- [ ] Sign in with a Google account absent from `admin_users`. Expect sign-in to
+      fail, no session cookie, `/admin` redirecting back to `/admin/sign-in`,
+      and no `admin_users` row created.
+
+### 3. Cross-origin and missing-Origin mutations are denied [unit-tested: `origin.test.ts`]
+
+- [ ] Missing `Origin` → `403 {"error":"Origin header is required"}`:
+      `curl -sS -X POST https://rocobroker.com/api/admin/posts -H 'Content-Type: application/json' -d '{}'`
+- [ ] Foreign `Origin` → `403 {"error":"Cross-origin mutation denied"}`:
+      `curl -sS -X POST https://rocobroker.com/api/admin/posts -H 'Origin: https://evil.example' -H 'Content-Type: application/json' -d '{}'`
+
+### 4. Role permissions [unit-tested: `permissions.test.ts`]
+
+- [ ] As `editor`: publishing and user management are denied.
+- [ ] As `reviewer`: user management is denied; publishing is allowed.
+- [ ] As `admin`: both are allowed.
+
+### 5. Stored-XSS payloads are stripped [unit-tested: `document.test.ts`]
+
+- [ ] In the editor, add each payload and confirm the published HTML contains no
+      `<script>`, no `on*=` attribute, and no `javascript:`/`data:`/`vbscript:`
+      link, with non-HTTPS image sources dropped: `<script>alert(1)</script>`,
+      `<img src=x onerror=alert(1)>`, `[x](javascript:alert(1))`,
+      `[x](data:text/html;base64,PHNjcmlwdD4=)`, `[x](vbscript:msgbox(1))`,
+      `![x](http://insecure.example/a.png)`.
+
+### 6. Malicious uploads are rejected
+
+- [ ] A file with the wrong MIME, an oversize file, a checksum mismatch,
+      non-image bytes, or oversize dimensions is rejected, and the uploaded
+      object is deleted from R2 (confirm the object is actually gone).
+
+### 7. Slug changes redirect cleanly
+
+- [ ] Changing a published slug produces a single `308` from the old canonical
+      to the new one, with no loop.
+- [ ] An old slug cannot be reclaimed into a loop and cannot collide with a live
+      route (create a post whose slug equals an existing route → `409`).
+
+### 8. Expired sessions are unauthenticated [unit-tested: `session-policy.test.ts`]
+
+- [ ] With an expired session cookie, `/admin` redirects to `/admin/sign-in` and
+      an admin API call returns `401`.
+
+### 9. Rate limits return 429 with Retry-After [unit-tested: `rate-limit.test.ts`]
+
+- [ ] Exceeding autosave, upload, preview, or mutation limits returns `429` with
+      a positive `Retry-After`; confirm the client surfaces the wait.
+
+### 10. Key rotation leaves no reference in the repository
+
+- [ ] For each rotated secret value, `grep -RIn '<value>' .` (excluding
+      `node_modules`) returns no matches.
 
 ## Accessibility and UX checklist
 
-References: `src/app/admin/admin.module.css` and the editor workspace.
+Code is implemented; this is the manual browser pass. Reference:
+`src/app/admin/admin.module.css` and the editor workspace. Run on desktop and a
+narrow viewport, in LTR (English) and RTL (Persian/Arabic).
 
-Implemented in code and still requiring a manual browser pass: visible
-focus-visible outlines on controls, a modal focus trap with Escape-to-close and
-focus return, 44px minimum touch targets on admin controls, labelled
-`role="status"`/`role="alert"` regions, reduced-motion handling, and RTL editor
-direction for Persian and Arabic.
-
-- [ ] Full keyboard path through sign-in, article list, editor, dialogs, and the
-      workflow panel; visible focus on every control.
-- [ ] Editor, dialogs, and tables usable in Persian and Arabic RTL, with correct
-      text direction in fields and alignment.
-- [ ] Touch targets at least 44×44 px on mobile for primary actions.
-- [ ] Loading and error states are labelled and announced; autosave conflict
-      (409) is visible and understandable.
-- [ ] Reduced-motion preference disables non-essential animation.
-- [ ] Contrast meets WCAG AA in both normal and disabled states.
-- [ ] Screen-reader names exist for icon-only buttons and the status regions.
+- [ ] Keyboard: from a cold load, Tab reaches every control in order through
+      sign-in, article list, editor, dialogs, and the workflow panel; the focus
+      ring is visible on every stop; Shift+Tab reverses; nothing traps focus
+      except an open modal.
+- [ ] Modal: opening any dialog moves focus inside, Tab cycles within it, Escape
+      closes it, and focus returns to the control that opened it.
+- [ ] Touch targets: primary actions are at least 44×44 px at mobile width, with
+      no overlapping hit areas.
+- [ ] Status/error regions: autosave (saving/saved), upload progress, and publish
+      results announce via `role="status"`; errors use `role="alert"`.
+- [ ] Autosave conflict: reproduce a `409` (edit in two tabs) and confirm the
+      conflict is visible and understandable with a clear resolution path.
+- [ ] Reduced motion: with the OS preference set, non-essential animation is
+      disabled.
+- [ ] RTL: in Persian and Arabic, fields, tables, and dialogs render
+      right-to-left with correct text direction and alignment, and directional
+      icons (back/next) are mirrored.
+- [ ] Contrast: text and controls meet WCAG AA in normal, hover, focus, and
+      disabled states.
+- [ ] Screen reader: icon-only buttons have accessible names, the session/role
+      label is read, and the two status regions announce changes.
