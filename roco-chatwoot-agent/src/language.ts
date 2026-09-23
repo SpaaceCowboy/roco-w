@@ -5,9 +5,13 @@ function countMatches(value: string, pattern: RegExp): number {
 }
 
 export function detectCustomerLanguage(message: string): CustomerLanguage {
+  // Persian-specific letters (including Farsi yeh) beat generic Arabic script.
+  // Without this, pure Arabic always ties/wins against fa's full-block count
+  // and is misread as Persian (fa accepts any Arabic-block reply).
+  if (countMatches(message, /[پچژگکی]/g) > 0) return "fa";
+  if (countMatches(message, /[؀-ۿ]/g) > 0) return "ar";
+
   const scores: Array<[CustomerLanguage, number]> = [
-    ["fa", countMatches(message, /[پچژگکی]/g) * 3 + countMatches(message, /[؀-ۿ]/g)],
-    ["ar", countMatches(message, /[ء-ي]/g)],
     ["zh", countMatches(message, /[一-鿿]/g)],
     ["ru", countMatches(message, /[А-Яа-яЁё]/g)],
     ["de", countMatches(message, /[äöüß]/gi)],
@@ -21,7 +25,8 @@ export function detectCustomerLanguage(message: string): CustomerLanguage {
 export function responseMatchesCustomerLanguage(message: string, response: string): boolean {
   const language = detectCustomerLanguage(message);
   if (language === "fa") return /[پچژگکی]/.test(response) || /[؀-ۿ]/.test(response);
-  if (language === "ar") return /[ء-ي]/.test(response);
+  // Arabic customers get English replies only — never Arabic-script bot output.
+  if (language === "ar") return /[A-Za-z]/.test(response) && !/[؀-ۿ]/.test(response);
   if (language === "zh") return /[一-鿿]/.test(response);
   if (language === "ru") return /[А-Яа-яЁё]/.test(response);
   if (language === "de") return /[A-Za-zÄÖÜäöüß]/.test(response);
