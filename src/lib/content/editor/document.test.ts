@@ -69,3 +69,27 @@ test("escapes script-like text so it cannot execute", () => {
   });
   assert.doesNotMatch(result.html, /<script/i);
 });
+
+test("keeps allowed text-align styles and drops other inline styles", () => {
+  const kept = renderEditorDocument({
+    type: "doc",
+    content: [{ type: "paragraph", attrs: { textAlign: "center" }, content: [{ type: "text", text: "aligned" }] }],
+  });
+  assert.match(kept.html, /text-align:\s*center/i);
+
+  const generated = renderEditorDocument({
+    type: "doc",
+    content: [{ type: "paragraph", attrs: { textAlign: "left" }, content: [{ type: "text", text: "left" }] }],
+  });
+  assert.doesNotMatch(generated.html, /expression\(/i);
+});
+
+test("rejects unsupported text alignment values", () => {
+  assert.throws(
+    () => renderEditorDocument({
+      type: "doc",
+      content: [{ type: "paragraph", attrs: { textAlign: "evil" }, content: [{ type: "text", text: "x" }] }],
+    }),
+    /Unsupported text alignment/,
+  );
+});

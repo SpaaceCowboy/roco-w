@@ -53,6 +53,12 @@ export function inspectEditorDocument(document: JSONContent): EditorDocumentInsp
     if (node.type === "callout" && !["note", "warning"].includes(String(node.attrs?.tone))) {
       throw new Error("Unsupported callout tone");
     }
+    if (node.attrs?.textAlign != null && node.attrs.textAlign !== "") {
+      const align = String(node.attrs.textAlign);
+      if (!["paragraph", "heading"].includes(node.type ?? "") || !["left", "right", "center", "justify"].includes(align)) {
+        throw new Error("Unsupported text alignment");
+      }
+    }
     if (node.type === "image") {
       const mediaId = String(node.attrs?.mediaId ?? "");
       const alt = String(node.attrs?.alt ?? "").trim();
@@ -83,7 +89,14 @@ export function renderEditorDocument(document: JSONContent): { html: string; ins
       th: ["colspan", "rowspan", "colwidth"],
       td: ["colspan", "rowspan", "colwidth"],
       aside: ["data-callout", "data-tone", "class"],
-      h2: ["id"], h3: ["id"], h4: ["id"],
+      h2: ["id", "style"], h3: ["id", "style"], h4: ["id", "style"],
+      p: ["style"],
+    },
+    allowedStyles: {
+      p: { "text-align": [/^left$/, /^right$/, /^center$/, /^justify$/] },
+      h2: { "text-align": [/^left$/, /^right$/, /^center$/, /^justify$/] },
+      h3: { "text-align": [/^left$/, /^right$/, /^center$/, /^justify$/] },
+      h4: { "text-align": [/^left$/, /^right$/, /^center$/, /^justify$/] },
     },
     allowedSchemes: ["https", "mailto", "tel"],
     allowedSchemesByTag: { img: ["https"] },

@@ -1,9 +1,39 @@
-import { Node, mergeAttributes } from "@tiptap/core";
+import { Extension, Node, mergeAttributes } from "@tiptap/core";
 import Image from "@tiptap/extension-image";
 import Link from "@tiptap/extension-link";
 import Heading from "@tiptap/extension-heading";
 import { TableKit } from "@tiptap/extension-table";
 import StarterKit from "@tiptap/starter-kit";
+
+const allowedTextAlign = new Set(["left", "right", "center", "justify"]);
+
+export const TextAlignment = Extension.create({
+  name: "textAlignment",
+  addGlobalAttributes() {
+    return [
+      {
+        types: ["paragraph", "heading"],
+        attributes: {
+          textAlign: {
+            default: null,
+            parseHTML: (element) => {
+              const fromStyle = element.style?.textAlign?.toLowerCase();
+              if (fromStyle && allowedTextAlign.has(fromStyle)) return fromStyle;
+              const fromAttr = element.getAttribute("text-align")?.toLowerCase();
+              if (fromAttr && allowedTextAlign.has(fromAttr)) return fromAttr;
+              return null;
+            },
+            renderHTML: (attributes) => {
+              const value = String(attributes.textAlign ?? "");
+              if (!allowedTextAlign.has(value)) return {};
+              return { style: `text-align: ${value}` };
+            },
+          },
+        },
+      },
+    ];
+  },
+});
 
 export const Callout = Node.create({
   name: "callout",
@@ -50,7 +80,13 @@ export const editorExtensions = [
     addAttributes() {
       return {
         ...this.parent?.(),
-        mediaId: { default: null, parseHTML: (element) => element.getAttribute("data-media-id") },
+        mediaId: {
+          default: null,
+          parseHTML: (element) => element.getAttribute("data-media-id"),
+          renderHTML: (attributes) => attributes.mediaId
+            ? { "data-media-id": attributes.mediaId }
+            : {},
+        },
         width: { default: null },
         height: { default: null },
       };
@@ -58,4 +94,5 @@ export const editorExtensions = [
   }).configure({ allowBase64: false }),
   TableKit.configure({ table: { resizable: false } }),
   Callout,
+  TextAlignment,
 ];

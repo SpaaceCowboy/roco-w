@@ -7,7 +7,7 @@ export async function POST(request: Request) {
     assertSameOrigin(request);
     const session = await requireAdminApiSession();
     enforceAdminRateLimit("mutation", session.userId);
-    const item = await createAdminPost(await readJsonBody(request, 10_000), session);
+    const item = await createAdminPost(await readJsonBody(request, 500_000), session);
     return Response.json({ item }, { status: 201 });
   } catch (error) {
     return adminApiErrorResponse(error);

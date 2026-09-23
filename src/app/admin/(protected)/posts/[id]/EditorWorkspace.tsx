@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { editorExtensions } from "@/lib/content/editor/extensions";
+import { importHtmlToDocument, sanitizeImportableHtml } from "@/lib/content/editor/html-import";
 import { rtlContentLocales, type ContentLocale } from "@/lib/admin/content-locales";
 import { publishedArticlePath } from "@/config/blog-routing";
 import styles from "../../../admin.module.css";
@@ -46,6 +47,7 @@ export function EditorWorkspace({ initial, revisions, availableLocales, mediaCon
   const [version, setVersion] = useState(initial.version);
   const [saveState, setSaveState] = useState<"saved" | "unsaved" | "saving" | "conflict" | "error">("saved");
   const [message, setMessage] = useState("");
+  const [importNotice, setImportNotice] = useState("");
   const versionRef = useRef(initial.version);
   const savedFingerprintRef = useRef(fingerprint({ title, slug, excerpt, authorName, document, seo }));
   const saveChainRef = useRef<Promise<boolean>>(Promise.resolve(true));
@@ -55,9 +57,25 @@ export function EditorWorkspace({ initial, revisions, availableLocales, mediaCon
     extensions: editorExtensions,
     content: initial.document,
     immediatelyRender: false,
-    editorProps: { attributes: { class: styles.editorSurface, dir: rtlContentLocales.has(initial.locale) ? "rtl" : "ltr", "aria-label": "Article body" } },
+    editorProps: {
+      attributes: { class: styles.editorSurface, dir: rtlContentLocales.has(initial.locale) ? "rtl" : "ltr", "aria-label": "Article body" },
+      transformPastedHTML: (html) => {
+        try {
+          const sanitized = sanitizeImportableHtml(html);
+          if (sanitized.warnings.length) queueMicrotask(() => setImportNotice(sanitized.warnings.join(" ")));
+          return sanitized.html;
+        } catch {
+          return html;
+        }
+      },
+    },
     onUpdate: ({ editor: current }) => setDocument(current.getJSON()),
   });
+
+  function applyImportWarnings(warnings: string[]) {
+    setImportNotice(warnings.length ? warnings.join(" ") : "HTML imported into the body.");
+    setSaveState("unsaved");
+  }
 
   async function performSave(snapshot: Snapshot): Promise<boolean> {
     const nextFingerprint = fingerprint(snapshot);
@@ -154,8 +172,9 @@ export function EditorWorkspace({ initial, revisions, availableLocales, mediaCon
       <section className={styles.editorMain} dir={rtlContentLocales.has(initial.locale) ? "rtl" : "ltr"}>
         <label className={styles.titleField}><span>Title</span><textarea value={title} maxLength={220} rows={2} onChange={(event) => setTitle(event.target.value)} /></label>
         <label><span>Excerpt</span><textarea value={excerpt} maxLength={600} rows={3} onChange={(event) => setExcerpt(event.target.value)} /></label>
-        <EditorToolbar editor={editor} />
+        <EditorToolbar editor={editor} onImported={applyImportWarnings} />
         <EditorContent editor={editor} />
+        {importNotice && <p className={styles.notice} role="status">{importNotice}</p>}
       </section>
       <aside className={styles.editorSidebar}>
         <WorkflowControls localizationId={initial.id} status={initial.status} permissions={workflowPermissions} />
@@ -246,7 +265,7 @@ function WorkflowControls({ localizationId, status, permissions }: {
   </section>;
 }
 
-function EditorToolbar({ editor }: { editor: Editor | null }) {
+function EditorToolbar({ editor, onImported }: { editor: Editor | null; onImported?: (warnings: string[]) => void }) {
   if (!editor) return <div className={styles.toolbar} role="status">Loading editor…</div>;
   const button = (label: string, active: boolean, action: () => void) => <button type="button" aria-pressed={active} onClick={action}>{label}</button>;
   return <div className={styles.toolbar} role="toolbar" aria-label="Text formatting">
@@ -259,9 +278,102 @@ function EditorToolbar({ editor }: { editor: Editor | null }) {
     <LinkDialog editor={editor} />
     <button type="button" onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}>Table</button>
     <button type="button" onClick={() => editor.chain().focus().insertContent({ type: "callout", attrs: { tone: "note" }, content: [{ type: "paragraph", content: [{ type: "text", text: "Callout text" }] }] }).run()}>Callout</button>
+    <ImportHtmlDialog editor={editor} onImported={onImported} />
     <button type="button" onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().undo()}>Undo</button>
     <button type="button" onClick={() => editor.chain().focus().redo().run()} disabled={!editor.can().redo()}>Redo</button>
   </div>;
+}
+
+function documentHasBody(document: JSONContent): boolean {
+  const visit = (node: JSONContent): boolean => {
+    if (node.text?.trim()) return true;
+    if (node.type === "image" || node.type === "horizontalRule" || node.type === "codeBlock") return true;
+    return (node.content ?? []).some(visit);
+  };
+  return visit(document);
+}
+
+function ImportHtmlDialog({ editor, onImported }: { editor: Editor | null; onImported?: (warnings: string[]) => void }) {
+  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState("");
+  const [error, setError] = useState("");
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const focusEditorRef = useRef(false);
+
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+    if (open && !dialog.open) { dialog.showModal(); textareaRef.current?.focus(); }
+    else if (!open && dialog.open) dialog.close();
+  }, [open]);
+
+  function start() {
+    setValue(""); setError(""); setOpen(true);
+  }
+
+  function finish() {
+    setOpen(false);
+  }
+
+  async function readFile(file: File) {
+    try {
+      setValue(await file.text());
+      setError("");
+    } catch {
+      setError("Could not read that file.");
+    }
+  }
+
+  function apply() {
+    if (!editor || !value.trim()) return;
+    try {
+      const result = importHtmlToDocument(value);
+      const hasBody = documentHasBody(editor.getJSON());
+      if (hasBody && !window.confirm("Replace the current article body with this HTML?")) return;
+      focusEditorRef.current = true;
+      editor.chain().setContent(result.document, { emitUpdate: true }).run();
+      onImported?.(result.warnings);
+      finish();
+    } catch (importError) {
+      setError(importError instanceof Error ? importError.message : "Could not import HTML");
+    }
+  }
+
+  return <span className={styles.linkControl}>
+    <button ref={triggerRef} type="button" aria-haspopup="dialog" onClick={start}>Import HTML</button>
+    <dialog
+      ref={dialogRef}
+      className={styles.linkDialog}
+      aria-label="Import HTML into article body"
+      onClose={() => {
+        setOpen(false);
+        if (focusEditorRef.current) { focusEditorRef.current = false; editor?.commands.focus(); }
+        else triggerRef.current?.focus();
+      }}
+    >
+      <label>Article HTML
+        <textarea
+          ref={textareaRef}
+          value={value}
+          rows={10}
+          maxLength={400_000}
+          placeholder="Paste HTML, or choose an .html file"
+          onChange={(event) => { setValue(event.target.value); setError(""); }}
+        />
+      </label>
+      <label className={styles.muted}>Or load a file
+        <input type="file" accept=".html,text/html" onChange={(event) => { const file = event.target.files?.[0]; if (file) void readFile(file); }} />
+      </label>
+      <p className={styles.muted}>Scripts and external images are removed. Limited text alignment is kept. Import replaces the body after confirmation.</p>
+      {error && <p className={styles.error} role="alert">{error}</p>}
+      <div className={styles.linkDialogActions}>
+        <button type="button" onClick={apply} disabled={!value.trim()}>Import (replace body)</button>
+        <button type="button" onClick={finish}>Cancel</button>
+      </div>
+    </dialog>
+  </span>;
 }
 
 function LinkDialog({ editor }: { editor: Editor | null }) {

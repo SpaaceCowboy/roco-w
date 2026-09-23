@@ -63,9 +63,15 @@ export function NewPostButton() {
 
   async function create(formData: FormData) {
     setBusy(true); setError("");
+    const html = String(formData.get("html") ?? "").trim();
     const response = await fetch("/api/admin/posts", {
       method: "POST", headers: { "content-type": "application/json" },
-      body: JSON.stringify({ locale: formData.get("locale"), title: formData.get("title"), authorName: formData.get("authorName") }),
+      body: JSON.stringify({
+        locale: formData.get("locale"),
+        title: formData.get("title"),
+        authorName: formData.get("authorName"),
+        ...(html ? { html } : {}),
+      }),
     });
     const body = await response.json();
     if (!response.ok) { setError(body.error ?? "Could not create article"); setBusy(false); return; }
@@ -81,6 +87,7 @@ export function NewPostButton() {
           <label>Working title<input name="title" required maxLength={220} autoFocus /></label>
           <label>Locale<select name="locale" defaultValue="en">{contentLocales.map((locale) => <option key={locale}>{locale}</option>)}</select></label>
           <label>Public author name<input name="authorName" required maxLength={160} defaultValue="RocoBroker Editorial" /></label>
+          <label>HTML body (optional)<textarea name="html" rows={6} maxLength={400_000} placeholder="Paste article HTML to seed the draft. Scripts, external images, and unsafe tags are stripped." /></label>
           {error && <p className={styles.error} role="alert">{error}</p>}
           <div className={styles.modalActions}><button type="button" className={styles.secondaryButton} onClick={close}>Cancel</button><button className={styles.primaryButton} disabled={busy}>{busy ? "Creating…" : "Create"}</button></div>
         </form>

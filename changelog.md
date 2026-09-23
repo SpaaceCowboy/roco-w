@@ -5,6 +5,37 @@ work should be added here in the same change that implements it.
 
 ## 2026-09-23
 
+### Admin blog — HTML import and limited inline styles
+
+Scope: `RocoBroker/` admin editor and content pipeline (nested Chatwoot agent
+untouched).
+
+#### Added
+
+- **Import HTML** in the post editor toolbar: paste HTML or load an `.html`
+  file; replaces the body only after confirmation. Shared
+  `importHtmlToDocument` sanitizes scripts/forms/iframes, strips images without
+  an uploaded media ID, keeps limited `text-align`, and returns warnings.
+- **New article** dialog accepts optional HTML body seed
+  (`createPostSchema.html` → `createAdminPost`); create body limit raised to
+  500 KB.
+- Paste path runs `sanitizeImportableHtml` so pasted Word/web HTML drops
+  scripts, event handlers, non-`text-align` styles, and untracked images.
+- Limited inline styles: paragraphs/headings may carry `text-align`
+  (`left|right|center|justify`) only; validated in `inspectEditorDocument` and
+  allowlisted in `sanitize-html`.
+
+#### Changed
+
+- Image `mediaId` now renders as `data-media-id` in generated HTML so
+  sanitize-html keeps the media reference.
+- Editor toolbar includes Import HTML alongside link/table/callout controls.
+
+#### Verification
+
+- `npm test`: **71/71** (new `html-import.test.ts` + document alignment cases).
+- `npm run typecheck` and `npm run lint`: clean.
+
 ### Chatwoot AI agent — language, intro, and handoff behavior
 
 Scope: nested agent under `roco-chatwoot-agent/` only (website and standalone

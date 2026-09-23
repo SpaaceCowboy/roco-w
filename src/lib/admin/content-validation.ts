@@ -14,6 +14,7 @@ export const createPostSchema = z.object({
   locale: z.enum(contentLocales),
   title: z.string().trim().min(1).max(220),
   authorName: z.string().trim().min(1).max(160),
+  html: z.string().max(400_000).optional(),
 });
 
 export const saveDraftSchema = z.object({

@@ -16,6 +16,7 @@ import {
   posts,
 } from "@/db/schema";
 import { emptyEditorDocument, normalizeHeadingIds, readingMinutesFor, renderEditorDocument } from "@/lib/content/editor/document";
+import { importHtmlToDocument } from "@/lib/content/editor/html-import";
 import { analyzeArticleSeo, normalizeCanonicalOverride } from "@/lib/content/article-seo";
 import { SITE_URL } from "@/config/site-url";
 import { publishedArticlePath, publishedBlogIndexPath } from "@/config/blog-routing";
@@ -382,7 +383,8 @@ export async function getAdminSeoChecks(localizationId: string) {
 export async function createAdminPost(rawInput: unknown, session: AdminSession) {
   requireAdminPermission(session.role, "content:write");
   const input = createPostSchema.parse(rawInput);
-  const rendered = renderEditorDocument(emptyEditorDocument);
+  const seedDocument = input.html?.trim() ? importHtmlToDocument(input.html).document : emptyEditorDocument;
+  const rendered = renderEditorDocument(seedDocument);
   const now = new Date();
 
   return getDatabase().transaction(async (tx) => {
@@ -393,7 +395,7 @@ export async function createAdminPost(rawInput: unknown, session: AdminSession) 
       slug: slugFromTitle(input.title),
       title: input.title,
       authorName: input.authorName,
-      editorDocument: emptyEditorDocument,
+      editorDocument: seedDocument,
       renderedHtml: rendered.html,
       createdAt: now,
       updatedAt: now,
