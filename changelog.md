@@ -32,6 +32,8 @@ Scope: nested agent under `roco-chatwoot-agent/` only (website and standalone
 - Replaced normal (non-sensitive) handoff copy: English thanks/keep-window-open
   message; Persian transfer thank-you and keep-page-open message. Safety
   handoffs keep the credential warning.
+- Persian first-turn intro and Persian replies write the brand as **روکو**
+  (not Latin `ROCO`); English keeps `ROCO`.
 
 #### Added
 

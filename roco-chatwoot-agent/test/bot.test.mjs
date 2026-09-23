@@ -78,7 +78,8 @@ test("validates the response script against the customer language", () => {
   assert.equal(responseMatchesCustomerLanguage("لطفاً کمک کنید", "A support specialist will help"), false);
   // Shared-script Persian greeting سلام → Persian, not Arabic-English rule.
   assert.equal(detectCustomerLanguage("سلام"), "fa");
-  assert.equal(responseMatchesCustomerLanguage("سلام", "سلام! من دستیار ROCO هستم."), true);
+  assert.equal(responseMatchesCustomerLanguage("سلام", "سلام! من دستیار هوش مصنوعی روکو هستم."), true);
+  assert.equal(responseMatchesCustomerLanguage("سلام", "سلام! من دستیار هوش مصنوعی ROCO هستم."), true);
   assert.equal(responseMatchesCustomerLanguage("سلام", "Hi! I'm ROCO's AI assistant."), false);
   // Pure Arabic (no Persian letters, not a shared greeting) → English only.
   assert.equal(detectCustomerLanguage("حساب من محدود شده"), "ar");
