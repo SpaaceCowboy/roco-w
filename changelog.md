@@ -29,6 +29,9 @@ Scope: nested agent under `roco-chatwoot-agent/` only (website and standalone
   customer message sets reply language even if earlier turns used another.
 - Injects `CUSTOMER_LANGUAGE` into every model call and retries once in the
   required language before handing off on a script mismatch.
+- Replaced normal (non-sensitive) handoff copy: English thanks/keep-window-open
+  message; Persian transfer thank-you and keep-page-open message. Safety
+  handoffs keep the credential warning.
 
 #### Added
 

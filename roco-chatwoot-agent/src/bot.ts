@@ -32,7 +32,7 @@ function handoffText(message: string, reason?: DecisionReason): string {
   if (language === "fa") {
     return safety
       ? "یک کارشناس پشتیبانی به‌زودی این گفتگو را ادامه می‌دهد. لطفاً رمز عبور، کد یک‌بارمصرف، اطلاعات کارت یا کلید خصوصی خود را ارسال نکنید."
-      : "یک کارشناس پشتیبانی به‌زودی این گفتگو را ادامه می‌دهد. لطفاً اطلاعات مرتبط با مشکل را بدون رمز عبور یا کد تأیید ارسال کنید.";
+      : "از پیام شما متشکریم. گفتگو به تیم پشتیبانی منتقل شد؛ یک کارشناس به‌زودی این گفتگو را ادامه می‌دهد. تا زمان پاسخ، صفحه را باز نگه دارید.";
   }
   if (language === "ru") return safety
     ? "Специалист поддержки скоро продолжит этот разговор. Не отправляйте пароль, код подтверждения, данные карты или закрытый ключ."
@@ -46,8 +46,8 @@ function handoffText(message: string, reason?: DecisionReason): string {
       : "Ein Support-Mitarbeiter wird dieses Gespräch in Kürze fortsetzen. Bitte senden Sie kein Passwort oder keinen Bestätigungscode.";
   }
   return safety
-    ? "A support specialist will continue this conversation shortly. Never send passwords, OTPs, card details, seed phrases, or private keys."
-    : "A support specialist will continue this conversation shortly. Please do not send passwords or verification codes.";
+    ? "Your chat has been handed to a support specialist. For your security, never send passwords, one-time codes, or card details here."
+    : "Thanks — your message is with our support team. A specialist will continue this chat shortly. Please keep this window open.";
 }
 
 function isIncoming(message: ChatwootMessage): boolean {
