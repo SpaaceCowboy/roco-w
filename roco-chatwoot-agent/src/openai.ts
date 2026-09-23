@@ -2,6 +2,7 @@ import type { Config } from "./config.js";
 import { SYSTEM_POLICY } from "./knowledge.js";
 import { decisionReasons, type BotDecision } from "./types.js";
 import { redactForModel, safetyIdentifier } from "./security.js";
+import { replyLanguageHint, type CustomerLanguage } from "./language.js";
 
 type ResponsePayload = {
   output_text?: string;
@@ -53,15 +54,25 @@ export async function decideResponse({
   config,
   contactId,
   messages,
+  customerLanguage,
+  requireLanguageOnly = false,
 }: {
   config: Config;
   contactId: string;
   messages: Array<{ role: "customer" | "support"; content: string }>;
+  customerLanguage: CustomerLanguage;
+  requireLanguageOnly?: boolean;
 }): Promise<BotDecision> {
   const transcript = messages
     .slice(-config.maxContextMessages)
     .map((message) => `${message.role.toUpperCase()}: ${redactForModel(message.content)}`)
     .join("\n");
+
+  const languageLine = `CUSTOMER_LANGUAGE=${customerLanguage}. Write message in ${replyLanguageHint(customerLanguage)}. ${
+    requireLanguageOnly
+      ? "The previous reply was in the wrong language; this attempt must match CUSTOMER_LANGUAGE only."
+      : "Match the newest customer message language even if earlier turns used another language."
+  }`;
 
   const startedAt = Date.now();
   let response: Response;
@@ -75,7 +86,7 @@ export async function decideResponse({
     body: JSON.stringify({
       model: config.openaiModel,
       instructions: SYSTEM_POLICY,
-      input: `Decide how to handle the newest customer message.\n\nCONVERSATION:\n${transcript}`,
+      input: `Decide how to handle the newest customer message.\n${languageLine}\n\nCONVERSATION:\n${transcript}`,
       reasoning: { effort: config.openaiReasoningEffort },
       text: {
         format: {

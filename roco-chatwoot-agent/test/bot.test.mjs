@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { deterministicHandoffReason, webhookJob } from "../dist/bot.js";
-import { responseMatchesCustomerLanguage } from "../dist/language.js";
+import { detectCustomerLanguage, responseMatchesCustomerLanguage } from "../dist/language.js";
 
 const config = {
   chatwootAccountId: 1,
@@ -55,6 +55,7 @@ test("turns a Chatwoot postback into the human-support command", () => {
 test("forces high-risk requests to handoff before model processing", () => {
   assert.equal(deterministicHandoffReason("I forgot my password and need an OTP"), "sensitive_information");
   assert.equal(deterministicHandoffReason("Why was my withdrawal rejected?"), "needs_account_access");
+  assert.equal(deterministicHandoffReason("My deposit is still pending"), "needs_account_access");
   assert.equal(deterministicHandoffReason("I want to file a complaint"), "complaint_or_legal");
   assert.equal(deterministicHandoffReason("Should I use 1:1000 leverage?"), "financial_advice");
   assert.equal(deterministicHandoffReason("Please connect me to a human"), "human_requested");
@@ -63,11 +64,24 @@ test("forces high-risk requests to handoff before model processing", () => {
   assert.equal(deterministicHandoffReason("What platforms do you support?"), null);
 });
 
+test("does not force handoff for general deposit/payment FAQ questions", () => {
+  assert.equal(deterministicHandoffReason("What deposit methods do you support?"), null);
+  assert.equal(deterministicHandoffReason("How can I deposit?"), null);
+  assert.equal(deterministicHandoffReason("Do you accept card payments?"), null);
+  assert.equal(deterministicHandoffReason("Tell me about withdrawal options"), null);
+  assert.equal(deterministicHandoffReason("Which payment methods are available?"), null);
+});
+
 test("validates the response script against the customer language", () => {
   // Persian (Persian-specific letters) → Persian reply required.
   assert.equal(responseMatchesCustomerLanguage("لطفاً کمک کنید", "یک کارشناس پاسخ خواهد داد"), true);
   assert.equal(responseMatchesCustomerLanguage("لطفاً کمک کنید", "A support specialist will help"), false);
-  // Pure Arabic (no Persian letters) → English reply required, never Arabic.
+  // Shared-script Persian greeting سلام → Persian, not Arabic-English rule.
+  assert.equal(detectCustomerLanguage("سلام"), "fa");
+  assert.equal(responseMatchesCustomerLanguage("سلام", "سلام! من دستیار ROCO هستم."), true);
+  assert.equal(responseMatchesCustomerLanguage("سلام", "Hi! I'm ROCO's AI assistant."), false);
+  // Pure Arabic (no Persian letters, not a shared greeting) → English only.
+  assert.equal(detectCustomerLanguage("حساب من محدود شده"), "ar");
   assert.equal(responseMatchesCustomerLanguage("حساب من محدود شده", "A support specialist will help"), true);
   assert.equal(responseMatchesCustomerLanguage("حساب من محدود شده", "سيتابع أحد مختصي الدعم هذه المحادثة"), false);
   assert.equal(responseMatchesCustomerLanguage("حساب من محدود شده", "یک کارشناس پاسخ خواهد داد"), false);
