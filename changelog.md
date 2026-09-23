@@ -3,6 +3,47 @@
 This file records changes made during the launch-readiness remediation. New
 work should be added here in the same change that implements it.
 
+## 2026-09-23
+
+### Chatwoot AI agent — language, intro, and handoff behavior
+
+Scope: nested agent under `roco-chatwoot-agent/` only (website and standalone
+`roco-chatwoot-agent/` repo untouched). Commits `c2d2dcb` and `aaf674f`.
+
+#### Changed
+
+- Arabic customers now receive **English** replies only (never Arabic script).
+  Persian customers keep Persian. Detection checks Persian-specific letters
+  first, then a shared-script greeting list (`سلام`, `هی`, `درود`, …), then
+  treats remaining Arabic-block text as Arabic.
+- Added a first-turn introduction only: *"Hi! I'm ROCO's AI assistant. How can
+  I help you today?"* (localized via `CUSTOMER_LANGUAGE`); never repeated on
+  later turns.
+- Removed Arabic canned handoff strings; Persian/Russian/Chinese/German handoff
+  text unchanged. Handoff language now follows `detectCustomerLanguage`.
+- Narrowed force-handoff so general deposit/payment/withdrawal FAQ questions
+  reach the model and approved knowledge. Account-specific phrases
+  (`my deposit`, `deposit status`, `withdrawal rejected`, balance, KYC, …)
+  still hand off immediately.
+- Policy now prefers knowledge answers for general product topics; the newest
+  customer message sets reply language even if earlier turns used another.
+- Injects `CUSTOMER_LANGUAGE` into every model call and retries once in the
+  required language before handing off on a script mismatch.
+
+#### Added
+
+- Shared-script Persian greeting detection (`سلام` and short openers) so pure
+  greetings classify as `fa` rather than `ar`.
+- One language-retry path on reply/language mismatch before human handoff.
+- Language-hint line (`CUSTOMER_LANGUAGE=…`) in the model input.
+
+#### Verification
+
+- Agent `npm test`: **12/12** passing (includes new deposit-FAQ no-handoff
+  cases and `سلام` → `fa` coverage).
+- Manual checks: `سلام` → Persian intro; deposit-methods FAQ → no forced
+  handoff; “my deposit pending” / “withdrawal rejected” → still forced.
+
 ## 2026-09-21
 
 ### English step-by-step guide series
