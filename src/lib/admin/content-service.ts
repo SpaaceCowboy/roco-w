@@ -17,6 +17,7 @@ import {
 } from "@/db/schema";
 import { emptyEditorDocument, normalizeHeadingIds, readingMinutesFor, renderEditorDocument } from "@/lib/content/editor/document";
 import { importHtmlToDocument } from "@/lib/content/editor/html-import";
+import { generateJSON } from "@tiptap/html/server";
 import { analyzeArticleSeo, normalizeCanonicalOverride } from "@/lib/content/article-seo";
 import { SITE_URL } from "@/config/site-url";
 import { publishedArticlePath, publishedBlogIndexPath } from "@/config/blog-routing";
@@ -383,7 +384,7 @@ export async function getAdminSeoChecks(localizationId: string) {
 export async function createAdminPost(rawInput: unknown, session: AdminSession) {
   requireAdminPermission(session.role, "content:write");
   const input = createPostSchema.parse(rawInput);
-  const seedDocument = input.html?.trim() ? importHtmlToDocument(input.html).document : emptyEditorDocument;
+  const seedDocument = input.html?.trim() ? importHtmlToDocument(input.html, generateJSON).document : emptyEditorDocument;
   const rendered = renderEditorDocument(seedDocument);
   const now = new Date();
 

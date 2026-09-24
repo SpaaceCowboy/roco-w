@@ -30,11 +30,16 @@ untouched).
 - Image `mediaId` now renders as `data-media-id` in generated HTML so
   sanitize-html keeps the media reference.
 - Editor toolbar includes Import HTML alongside link/table/callout controls.
+- `importHtmlToDocument` takes `generateJSON` as a parameter so the client uses
+  `@tiptap/html` (browser DOMParser) and the server uses `@tiptap/html/server`
+  (happy-dom). Prevents `happy-dom` from being bundled into the admin client
+  webpack graph (prod build failure: `node:perf_hooks` / missing `fs`).
 
 #### Verification
 
 - `npm test`: **71/71** (new `html-import.test.ts` + document alignment cases).
 - `npm run typecheck` and `npm run lint`: clean.
+- `npm run build` (webpack): succeeds locally.
 
 ### Chatwoot AI agent — language, intro, and handoff behavior
 

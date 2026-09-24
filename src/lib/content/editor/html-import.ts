@@ -1,13 +1,18 @@
 import type { JSONContent } from "@tiptap/core";
-import { generateJSON } from "@tiptap/html/server";
 import { editorExtensions } from "./extensions";
-import { emptyEditorDocument } from "./document";
 
 const MAX_IMPORT_BYTES = 400_000;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const ALLOWED_TEXT_ALIGN = new Set(["left", "right", "center", "justify"]);
 const DROP_TAGS = new Set(["script", "style", "iframe", "object", "embed", "form", "input", "button", "textarea", "select", "link", "meta", "noscript", "svg", "math"]);
 const DROP_SELECTOR = [...DROP_TAGS].join(", ");
+
+const emptyEditorDocument: JSONContent = {
+  type: "doc",
+  content: [{ type: "paragraph" }],
+};
+
+type GenerateJson = (html: string, extensions: typeof editorExtensions) => JSONContent;
 
 export type HtmlImportResult = {
   document: JSONContent;
@@ -153,7 +158,7 @@ export function sanitizeImportableHtml(rawHtml: string): { html: string; strippe
   return { html: parsed.body.innerHTML, strippedImages, warnings };
 }
 
-export function importHtmlToDocument(rawHtml: string): HtmlImportResult {
+export function importHtmlToDocument(rawHtml: string, generateJSON: GenerateJson): HtmlImportResult {
   const html = rawHtml.trim();
   if (!html) {
     return { document: emptyEditorDocument, strippedImages: 0, droppedEmptyBlocks: 0, warnings: [] };

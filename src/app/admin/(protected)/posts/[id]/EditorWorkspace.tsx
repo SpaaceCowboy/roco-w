@@ -1,6 +1,7 @@
 "use client";
 
 import type { Editor, JSONContent } from "@tiptap/core";
+import { generateJSON } from "@tiptap/html";
 import { EditorContent, useEditor } from "@tiptap/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -329,7 +330,7 @@ function ImportHtmlDialog({ editor, onImported }: { editor: Editor | null; onImp
   function apply() {
     if (!editor || !value.trim()) return;
     try {
-      const result = importHtmlToDocument(value);
+      const result = importHtmlToDocument(value, generateJSON);
       const hasBody = documentHasBody(editor.getJSON());
       if (hasBody && !window.confirm("Replace the current article body with this HTML?")) return;
       focusEditorRef.current = true;
