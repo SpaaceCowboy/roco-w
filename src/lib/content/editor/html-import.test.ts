@@ -61,6 +61,19 @@ test("sanitizeImportableHtml strips scripts and untracked images for paste", () 
   assert.equal(sanitized.strippedImages, 1);
 });
 
+test("source round-trip keeps supported links and alignment", () => {
+  const sanitized = sanitizeImportableHtml(
+    `<p style="color:red; text-align:justify" onclick="alert(1)">Read <a href="/fa/blog">the blog</a>.</p>`,
+  );
+  const result = importHtmlToDocument(sanitized.html, generateJSON);
+  const html = renderEditorDocument(result.document).html;
+
+  assert.match(html, /href="\/fa\/blog"/);
+  assert.match(html, /text-align:\s*justify/i);
+  assert.doesNotMatch(html, /color:\s*red/i);
+  assert.doesNotMatch(html, /onclick/i);
+});
+
 test("rejects unsupported alignment values at render", () => {
   assert.throws(
     () => renderEditorDocument({

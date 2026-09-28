@@ -29,6 +29,7 @@ type Revision = {
   renderedHtml: string; metadata: unknown; createdAt: string; createdBy: string | null;
 };
 type Snapshot = { title: string; slug: string; excerpt: string; authorName: string; document: JSONContent; seo: SeoSettings };
+type EditorMode = "visual" | "source";
 
 function fingerprint(snapshot: Snapshot): string { return JSON.stringify(snapshot); }
 
@@ -49,6 +50,10 @@ export function EditorWorkspace({ initial, revisions, availableLocales, mediaCon
   const [saveState, setSaveState] = useState<"saved" | "unsaved" | "saving" | "conflict" | "error">("saved");
   const [message, setMessage] = useState("");
   const [importNotice, setImportNotice] = useState("");
+  const [editorMode, setEditorMode] = useState<EditorMode>("visual");
+  const [sourceDraft, setSourceDraft] = useState("");
+  const [sourceError, setSourceError] = useState("");
+  const [sourceDirty, setSourceDirty] = useState(false);
   const versionRef = useRef(initial.version);
   const savedFingerprintRef = useRef(fingerprint({ title, slug, excerpt, authorName, document, seo }));
   const saveChainRef = useRef<Promise<boolean>>(Promise.resolve(true));
@@ -76,6 +81,47 @@ export function EditorWorkspace({ initial, revisions, availableLocales, mediaCon
   function applyImportWarnings(warnings: string[]) {
     setImportNotice(warnings.length ? warnings.join(" ") : "HTML imported into the body.");
     setSaveState("unsaved");
+  }
+
+  function openSourceMode() {
+    if (!editor) return;
+    setSourceDraft(editor.getHTML());
+    setSourceError("");
+    setSourceDirty(false);
+    setEditorMode("source");
+  }
+
+  function applySourceDraft(options: { switchToVisual?: boolean } = {}): JSONContent | null {
+    if (!editor) return null;
+    try {
+      const result = importHtmlToDocument(sourceDraft, generateJSON);
+      editor.commands.setContent(result.document, { emitUpdate: true });
+      setDocument(result.document);
+      setSourceError("");
+      setSourceDirty(false);
+      applyImportWarnings(result.warnings);
+      if (options.switchToVisual) setEditorMode("visual");
+      return result.document;
+    } catch (error) {
+      setSourceError(error instanceof Error ? error.message : "Could not apply HTML source");
+      return null;
+    }
+  }
+
+  function showVisualMode() {
+    if (!sourceDirty) {
+      setEditorMode("visual");
+      return;
+    }
+    applySourceDraft({ switchToVisual: true });
+  }
+
+  function discardSourceChanges() {
+    if (!editor) return;
+    setSourceDraft(editor.getHTML());
+    setSourceError("");
+    setSourceDirty(false);
+    setEditorMode("visual");
   }
 
   async function performSave(snapshot: Snapshot): Promise<boolean> {
@@ -123,18 +169,20 @@ export function EditorWorkspace({ initial, revisions, availableLocales, mediaCon
   }, [currentFingerprint]);
 
   useEffect(() => {
-    if (saveState === "saved") return;
+    if (saveState === "saved" && !sourceDirty) return;
     function onBeforeUnload(event: BeforeUnloadEvent) {
       event.preventDefault();
       event.returnValue = "";
     }
     window.addEventListener("beforeunload", onBeforeUnload);
     return () => window.removeEventListener("beforeunload", onBeforeUnload);
-  }, [saveState]);
+  }, [saveState, sourceDirty]);
 
   async function preview() {
     const popup = window.open("about:blank", "_blank");
-    const saved = await queueSave({ title, slug, excerpt, authorName, document, seo });
+    const previewDocument = editorMode === "source" && sourceDirty ? applySourceDraft() : document;
+    if (!previewDocument) { popup?.close(); return; }
+    const saved = await queueSave({ title, slug, excerpt, authorName, document: previewDocument, seo });
     if (!saved) { popup?.close(); return; }
     const response = await fetch(`/api/admin/posts/${initial.id}/preview-token`, { method: "POST" });
     const body = await response.json();
@@ -162,10 +210,12 @@ export function EditorWorkspace({ initial, revisions, availableLocales, mediaCon
     window.location.reload();
   }
 
+  const displayedSaveState = sourceDirty ? "unsaved" : saveState;
+
   return <main id="admin-main" tabIndex={-1} className={styles.editorPage}>
     <div className={styles.editorTopbar}>
       <Link href="/admin" className={styles.backLink}>← Articles</Link>
-      <div className={styles.saveState} data-state={saveState} role="status"><span />{saveState === "saved" ? `Saved · v${version}` : saveState}</div>
+      <div className={styles.saveState} data-state={displayedSaveState} role="status"><span />{sourceDirty ? "Source changes not applied" : saveState === "saved" ? `Saved · v${version}` : saveState}</div>
       <button type="button" className={styles.secondaryButton} onClick={preview}>Preview</button>
     </div>
     {message && <div className={saveState === "conflict" || saveState === "error" ? styles.conflictBanner : styles.notice} role="alert">{message}{saveState === "conflict" && <button type="button" onClick={() => window.location.reload()}>Reload latest</button>}</div>}
@@ -173,8 +223,38 @@ export function EditorWorkspace({ initial, revisions, availableLocales, mediaCon
       <section className={styles.editorMain} dir={rtlContentLocales.has(initial.locale) ? "rtl" : "ltr"}>
         <label className={styles.titleField}><span>Title</span><textarea value={title} maxLength={220} rows={2} onChange={(event) => setTitle(event.target.value)} /></label>
         <label><span>Excerpt</span><textarea value={excerpt} maxLength={600} rows={3} onChange={(event) => setExcerpt(event.target.value)} /></label>
-        <EditorToolbar editor={editor} onImported={applyImportWarnings} />
-        <EditorContent editor={editor} />
+        <div className={styles.editorModeBar} role="tablist" aria-label="Article body editing mode">
+          <button type="button" role="tab" aria-selected={editorMode === "visual"} onClick={showVisualMode}>Visual</button>
+          <button type="button" role="tab" aria-selected={editorMode === "source"} onClick={openSourceMode} disabled={!editor}>HTML source</button>
+        </div>
+        {editorMode === "visual" ? <>
+          <EditorToolbar editor={editor} onImported={applyImportWarnings} />
+          <EditorContent editor={editor} />
+        </> : <div className={styles.sourceEditorPanel}>
+          <label htmlFor="article-html-source">Article HTML</label>
+          <textarea
+            id="article-html-source"
+            className={styles.sourceEditor}
+            value={sourceDraft}
+            maxLength={400_000}
+            rows={28}
+            dir="ltr"
+            spellCheck={false}
+            aria-describedby="article-html-source-help"
+            aria-invalid={Boolean(sourceError)}
+            onChange={(event) => {
+              setSourceDraft(event.target.value);
+              setSourceError("");
+              setSourceDirty(true);
+            }}
+          />
+          <p id="article-html-source-help" className={styles.muted}>Only article-safe HTML is kept. Scripts, style blocks, event handlers, arbitrary CSS, and images without an uploaded media ID are removed. Text alignment is supported.</p>
+          {sourceError && <p className={styles.error} role="alert">{sourceError}</p>}
+          <div className={styles.sourceEditorActions}>
+            <button type="button" onClick={() => applySourceDraft({ switchToVisual: true })} disabled={!sourceDirty}>Apply and return to visual</button>
+            <button type="button" onClick={discardSourceChanges} disabled={!sourceDirty}>Discard source changes</button>
+          </div>
+        </div>}
         {importNotice && <p className={styles.notice} role="status">{importNotice}</p>}
       </section>
       <aside className={styles.editorSidebar}>
@@ -385,6 +465,7 @@ function LinkDialog({ editor }: { editor: Editor | null }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const focusEditorRef = useRef(false);
+  const activeHref = ((editor?.getAttributes("link").href as string | undefined) ?? "").trim();
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -406,6 +487,7 @@ function LinkDialog({ editor }: { editor: Editor | null }) {
 
   function resolveHref(raw: string): string | null {
     const trimmed = raw.trim();
+    if (/^(?:[/?#]|\.\.?\/)/.test(trimmed)) return trimmed;
     if (/^(https:|mailto:|tel:)/i.test(trimmed)) return trimmed;
     if (/^[a-z][a-z0-9+.-]*:/i.test(trimmed)) return null;
     return `https://${trimmed}`;
@@ -428,7 +510,8 @@ function LinkDialog({ editor }: { editor: Editor | null }) {
   }
 
   return <span className={styles.linkControl}>
-    <button ref={triggerRef} type="button" aria-haspopup="dialog" onClick={start}>Link</button>
+    <button ref={triggerRef} type="button" aria-haspopup="dialog" aria-pressed={Boolean(activeHref)} onClick={start}>{activeHref ? "Edit link" : "Link"}</button>
+    {activeHref && <span className={styles.linkDestination} dir="ltr" title={activeHref}><span className={styles.srOnly}>Current link: </span>{activeHref}</span>}
     <dialog
       ref={dialogRef}
       className={styles.linkDialog}
