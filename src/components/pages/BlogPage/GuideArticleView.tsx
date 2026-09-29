@@ -159,7 +159,7 @@ export function GuideArticleView({
 
   return (
     <div className={styles.shell}>
-      <article className={styles.article}>
+      <article className={styles.article} data-locale={locale}>
         <div className={styles.intro}>
           {article.intro?.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
         </div>

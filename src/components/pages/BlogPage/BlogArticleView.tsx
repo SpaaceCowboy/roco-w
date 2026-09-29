@@ -69,7 +69,7 @@ export function BlogArticleView({ post, related, recent, locale, ui }: { post: B
       </div>
 
       <div className={styles.contentShell}>
-        <div className={styles.content} dir={sourceDir}>
+        <div className={styles.content} dir={sourceDir} data-locale={post.locale}>
           <div className={styles.disclaimer}>{ui.educationalNotice}</div>
           <div className={styles.prose} dangerouslySetInnerHTML={{ __html: addLegacyHeadingAnchors(post.contentHtml) }} />
           <footer className={styles.articleFooter}>
@@ -86,7 +86,7 @@ export function BlogArticleView({ post, related, recent, locale, ui }: { post: B
           {!!post.tableOfContents.length && (
             <nav className={styles.toc} aria-label={ui.contents}>
               <strong>{ui.contents}</strong>
-              <ol>{post.tableOfContents.map((item) => <li key={item.id} className={item.level === 3 ? styles.tocNested : ""}><a href={`#${item.id}`}>{item.label}</a></li>)}</ol>
+              <ol>{post.tableOfContents.map((item) => <li key={item.id} className={item.level > 2 ? styles.tocNested : ""}><a href={`#${item.id}`}>{item.label}</a></li>)}</ol>
             </nav>
           )}
           {!!recent.length && (

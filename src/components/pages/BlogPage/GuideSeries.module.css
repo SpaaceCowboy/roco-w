@@ -172,6 +172,12 @@
   color: #2f3c42;
   font: 400 1.02rem/1.9 var(--font-secondary);
 }
+.article[data-locale="fa"] .intro > p,
+.article[data-locale="fa"] .section > p,
+.article[data-locale="fa"] .step > p {
+  text-align: justify;
+  text-align-last: start;
+}
 .section { scroll-margin-top: 118px; }
 .section + .section { margin-block-start: 62px; }
 .section h2 {

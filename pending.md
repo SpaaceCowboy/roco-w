@@ -1,6 +1,6 @@
 # Pending Work
 
-Last updated: 2026-09-28 (Asia/Tehran)
+Last updated: 2026-09-29 (Asia/Tehran)
 
 This file contains the remaining blog and admin work in implementation order.
 
@@ -54,21 +54,27 @@ requires an authorized legacy WordPress export and authenticated database audit.
 
 ### 4. Make article preview match the public article
 
-- [ ] Render draft preview through the complete public article layout,
-  including the article sidebar/table of contents.
-- [ ] Add a clear “View published article” action when the current localization
+**Status (2026-09-29): complete in code; authenticated responsive browser QA pending.**
+
+- [x] Render draft preview through the complete public article layout,
+  including the real featured media, taxonomy, related/recent sections, and an
+  article sidebar/table of contents derived from the saved editor document.
+- [x] Add a clear “View published article” action when the current localization
   is already published.
 - [ ] Verify preview parity for both LTR and RTL articles at desktop and mobile
-  widths.
+  widths in an authenticated environment with database content.
 
 ### 5. Improve public article typography
 
-- [ ] Justify Persian article body text without applying inappropriate
+**Status (2026-09-29): complete and locally verified.**
+
+- [x] Justify Persian article body text without applying inappropriate
   justification to headings, controls, or short labels.
-- [ ] Add consistent public styling for article tables.
-- [ ] Normalize oversized headings and heading-to-content spacing.
-- [ ] Increase and standardize paragraph-to-paragraph spacing.
-- [ ] Verify the result across existing English and Persian articles.
+- [x] Add consistent public styling for article tables.
+- [x] Normalize oversized headings and heading-to-content spacing.
+- [x] Increase and standardize paragraph-to-paragraph spacing.
+- [x] Verify the result across existing English and Persian articles at desktop
+  and mobile widths, including a Persian article with multiple tables.
 
 ### 6. Reduce the space before the main article content
 

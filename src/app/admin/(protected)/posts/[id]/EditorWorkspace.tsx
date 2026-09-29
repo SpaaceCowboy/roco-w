@@ -224,6 +224,7 @@ export function EditorWorkspace({ initial, revisions, availableLocales, mediaCon
     <div className={styles.editorTopbar}>
       <Link href="/admin" className={styles.backLink}>← Articles</Link>
       <div className={styles.saveState} data-state={displayedSaveState} role="status"><span />{sourceDirty ? "Source changes not applied" : saveState === "saved" ? `Saved · v${version}` : saveState}</div>
+      {initial.status === "published" && <Link className={styles.secondaryButton} href={publishedArticlePath(initial.locale, initial.slug)} target="_blank" rel="noopener noreferrer">View published article</Link>}
       <button type="button" className={styles.secondaryButton} onClick={preview}>Preview</button>
     </div>
     {message && <div className={saveState === "conflict" || saveState === "error" ? styles.conflictBanner : styles.notice} role="alert">{message}{saveState === "conflict" && <button type="button" onClick={() => window.location.reload()}>Reload latest</button>}</div>}

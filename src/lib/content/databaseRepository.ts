@@ -1,5 +1,6 @@
 import "server-only";
 
+import type { JSONContent } from "@tiptap/core";
 import { and, desc, eq, inArray, isNull } from "drizzle-orm";
 import { getDatabase } from "@/db/client";
 import {
@@ -8,18 +9,13 @@ import {
 } from "@/db/schema";
 import { getMediaPublicUrl } from "@/lib/admin/media-storage";
 import { safeDecodeURIComponent, type BlogPost, type BlogPostSummary, type BlogTaxonomy, type BlogTocItem } from "@/lib/blog";
+import { stableArticleSeed, tableOfContentsForDocument } from "./article-view";
 import type { PublishedContentRepository } from "./repository";
 
 type ContentLocale = typeof postLocalizations.$inferSelect.locale;
 
 function asLocale(value: string): ContentLocale | null {
   return ["en", "fa", "de", "ru", "ar", "zh-hans"].includes(value) ? value as ContentLocale : null;
-}
-
-function stableSeed(value: string): number {
-  let hash = 0;
-  for (const character of value) hash = (Math.imul(hash, 31) + character.codePointAt(0)!) | 0;
-  return Math.abs(hash || 1);
 }
 
 async function rowsForLocale(locale: ContentLocale, indexableOnly = false) {
@@ -35,6 +31,7 @@ async function rowsForLocale(locale: ContentLocale, indexableOnly = false) {
     title: postRevisions.title,
     excerpt: postRevisions.excerpt,
     contentHtml: postRevisions.renderedHtml,
+    editorDocument: postRevisions.editorDocument,
     featuredMediaId: postRevisions.featuredMediaId,
     featuredImageAlt: postRevisions.featuredImageAlt,
     metadata: postRevisions.metadata,
@@ -77,12 +74,15 @@ async function hydrate(locale: ContentLocale, indexableOnly = false): Promise<Bl
     const category = categoryRows.find((item) => item.postId === row.postId);
     const image = mediaRows.find((item) => item.id === row.featuredMediaId);
     const metadata = row.metadata && typeof row.metadata === "object" ? row.metadata as Record<string, unknown> : {};
-    const toc = Array.isArray(metadata.tableOfContents) ? metadata.tableOfContents as BlogTocItem[] : [];
+    const documentToc = tableOfContentsForDocument(row.editorDocument as JSONContent);
+    const toc = documentToc.length
+      ? documentToc
+      : Array.isArray(metadata.tableOfContents) ? metadata.tableOfContents as BlogTocItem[] : [];
     const importedCategory = metadata.category && typeof metadata.category === "object"
       ? metadata.category as BlogTaxonomy : null;
     const importedTags = Array.isArray(metadata.tags) ? metadata.tags as BlogTaxonomy[] : null;
     return {
-      sourceId: row.sourceId ?? stableSeed(row.postId),
+      sourceId: row.sourceId ?? stableArticleSeed(row.postId),
       locale: row.locale,
       slug: row.slug,
       title: row.title,

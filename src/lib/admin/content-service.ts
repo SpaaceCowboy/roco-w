@@ -13,7 +13,9 @@ import {
   postLocalizations,
   postRevisions,
   postSlugHistory,
+  postTags,
   posts,
+  tagLocalizations,
 } from "@/db/schema";
 import { emptyEditorDocument, normalizeHeadingIds, readingMinutesFor, renderEditorDocument } from "@/lib/content/editor/document";
 import { importHtmlToDocument } from "@/lib/content/editor/html-import";
@@ -884,5 +886,35 @@ export async function rollbackAdminRevision(localizationId: string, revisionNumb
 export async function getPreviewLocalization(localizationId: string) {
   const [item] = await getDatabase().select().from(postLocalizations).where(eq(postLocalizations.id, localizationId)).limit(1);
   if (!item) throw new ContentNotFoundError();
-  return item;
+  const [source, featured, category, previewTags] = await Promise.all([
+    getDatabase().select({ sourceId: posts.sourceId }).from(posts).where(eq(posts.id, item.postId)).limit(1),
+    item.featuredMediaId
+      ? getDatabase().select({ storageKey: media.storageKey, width: media.width, height: media.height })
+          .from(media).where(and(eq(media.id, item.featuredMediaId), isNull(media.deletedAt))).limit(1)
+      : Promise.resolve([]),
+    getDatabase().select({ slug: categoryLocalizations.slug, name: categoryLocalizations.name })
+      .from(postCategories)
+      .innerJoin(categoryLocalizations, and(
+        eq(categoryLocalizations.categoryId, postCategories.categoryId),
+        eq(categoryLocalizations.locale, item.locale),
+      ))
+      .where(eq(postCategories.postId, item.postId))
+      .limit(1),
+    getDatabase().select({ slug: tagLocalizations.slug, name: tagLocalizations.name })
+      .from(postTags)
+      .innerJoin(tagLocalizations, and(
+        eq(tagLocalizations.tagId, postTags.tagId),
+        eq(tagLocalizations.locale, item.locale),
+      ))
+      .where(eq(postTags.postId, item.postId)),
+  ]);
+  return {
+    ...item,
+    sourceId: source[0]?.sourceId ?? null,
+    featuredImage: featured[0] ? getMediaPublicUrl(featured[0].storageKey) : "",
+    featuredImageWidth: featured[0]?.width ?? 0,
+    featuredImageHeight: featured[0]?.height ?? 0,
+    category: category[0] ?? { slug: "uncategorized", name: "Uncategorized" },
+    tags: previewTags,
+  };
 }
