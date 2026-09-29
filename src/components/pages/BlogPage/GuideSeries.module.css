@@ -178,7 +178,7 @@
   text-align: justify;
   text-align-last: start;
 }
-.section { scroll-margin-top: 118px; }
+.section { scroll-margin-block-start: calc(var(--nav-h) + clamp(1rem, 2.5vw, 1.75rem)); }
 .section + .section { margin-block-start: 62px; }
 .section h2 {
   margin: 0 0 18px;
@@ -186,7 +186,7 @@
   font: 700 clamp(1.6rem, 2.6vw, 2.35rem)/1.12 var(--font-brand);
   letter-spacing: -0.035em;
 }
-.article h2 { scroll-margin-top: 118px; }
+.article h2 { scroll-margin-block-start: calc(var(--nav-h) + clamp(1rem, 2.5vw, 1.75rem)); }
 .lead { font-weight: 600; color: #3d4b51; }
 
 /* Steps timeline */

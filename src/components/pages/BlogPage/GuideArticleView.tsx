@@ -127,8 +127,8 @@ function Section({ section, ui, num }: { section: GuideSection; ui: GuideUi; num
 
 export type GuideArticleViewProps = {
   article: GuideArticleContent;
-  /** Ordered series articles (slug/title/description only). */
-  series: { slug: string; title: string; description: string }[];
+  /** Ordered series articles with the first content anchor for step navigation. */
+  series: { slug: string; title: string; description: string; firstSectionId: string }[];
   seriesSlug: string;
   seriesTitle: string;
   seriesEyebrow: string;
@@ -223,7 +223,7 @@ export function GuideArticleView({
             {series.map((item, itemIndex) => (
               <li key={item.slug} className={itemIndex === index ? styles.indexCurrent : undefined}>
                 <Link
-                  href={guideArticleHref(seriesSlug, item.slug)}
+                  href={guideArticleHref(seriesSlug, item.slug, item.firstSectionId)}
                   aria-current={itemIndex === index ? "page" : undefined}
                 >
                   <span aria-hidden="true">{num(itemIndex + 1)}</span>

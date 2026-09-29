@@ -103,7 +103,12 @@ export default async function GuideArticlePage({ params }: { params: Promise<{ l
 
       <GuideArticleView
         article={content}
-        series={series.articles.map((item) => ({ slug: item.slug, title: item.title, description: item.description }))}
+        series={series.articles.map((item) => ({
+          slug: item.slug,
+          title: item.title,
+          description: item.description,
+          firstSectionId: item.content.sections[0].id,
+        }))}
         seriesSlug={series.slug}
         seriesTitle={series.title}
         seriesEyebrow={series.eyebrow}

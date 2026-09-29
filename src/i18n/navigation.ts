@@ -32,6 +32,7 @@ type GuideSeriesHref = {
 type GuideArticleHref = {
   pathname: "/blog/series/[series]/[article]";
   params: { series: string; article: string };
+  hash?: string;
 };
 
 type LinkProps = Omit<ComponentProps<typeof NextLink>, "href"> & {
@@ -56,6 +57,10 @@ export function guideSeriesHref(series: string): GuideSeriesHref {
   return { pathname: "/blog/series/[series]", params: { series } };
 }
 
-export function guideArticleHref(series: string, article: string): GuideArticleHref {
-  return { pathname: "/blog/series/[series]/[article]", params: { series, article } };
+export function guideArticleHref(series: string, article: string, hash?: string): GuideArticleHref {
+  return {
+    pathname: "/blog/series/[series]/[article]",
+    params: { series, article },
+    ...(hash ? { hash } : {}),
+  };
 }

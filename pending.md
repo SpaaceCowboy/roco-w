@@ -90,11 +90,13 @@ requires an authorized legacy WordPress export and authenticated database audit.
 
 ### 7. Fix guide-sidebar anchor positioning
 
-- [ ] When a guide-sidebar step such as “درخواست IB” is selected, align the
+**Status (2026-09-29): complete and locally verified.**
+
+- [x] When a guide-sidebar step such as “درخواست IB” is selected, align the
   destination heading near the top of the visible content area.
-- [ ] Account for the fixed site header so the heading is neither obscured nor
+- [x] Account for the fixed site header so the heading is neither obscured nor
   left halfway through the viewport.
-- [ ] Verify direct anchor URLs, click navigation, browser back/forward, LTR,
+- [x] Verify direct anchor URLs, click navigation, browser back/forward, LTR,
   RTL, desktop, and mobile behavior.
 
 ## Exit criteria
