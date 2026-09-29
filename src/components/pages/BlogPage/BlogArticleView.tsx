@@ -32,6 +32,18 @@ function addLegacyHeadingAnchors(html: string): string {
   });
 }
 
+function TableOfContentsList({ items }: { items: BlogPost["tableOfContents"] }) {
+  return (
+    <ol>
+      {items.map((item) => (
+        <li key={item.id} className={item.level > 2 ? styles.tocNested : ""}>
+          <a href={`#${item.id}`}>{item.label}</a>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
 export function BlogArticleView({ post, related, recent, locale, ui }: { post: BlogPost; related: BlogPostSummary[]; recent: BlogPostSummary[]; locale: string; ui: BlogArticleUi }) {
   const formatter = new Intl.DateTimeFormat(locale, { year: "numeric", month: "long", day: "numeric" });
   const sourceDir = isRtl(post.locale) ? "rtl" : "ltr";
@@ -71,6 +83,14 @@ export function BlogArticleView({ post, related, recent, locale, ui }: { post: B
       <div className={styles.contentShell}>
         <div className={styles.content} dir={sourceDir} data-locale={post.locale}>
           <div className={styles.disclaimer}>{ui.educationalNotice}</div>
+          {!!post.tableOfContents.length && (
+            <details className={styles.mobileToc}>
+              <summary>{ui.contents}</summary>
+              <nav aria-label={ui.contents}>
+                <TableOfContentsList items={post.tableOfContents} />
+              </nav>
+            </details>
+          )}
           <div className={styles.prose} dangerouslySetInnerHTML={{ __html: addLegacyHeadingAnchors(post.contentHtml) }} />
           <footer className={styles.articleFooter}>
             {!!post.tags.length && <div className={styles.tags}>{post.tags.map((tag) => <Link key={tag.slug} href={{ pathname: "/blog", query: { tag: tag.slug } }}>#{tag.name}</Link>)}</div>}
@@ -86,7 +106,7 @@ export function BlogArticleView({ post, related, recent, locale, ui }: { post: B
           {!!post.tableOfContents.length && (
             <nav className={styles.toc} aria-label={ui.contents}>
               <strong>{ui.contents}</strong>
-              <ol>{post.tableOfContents.map((item) => <li key={item.id} className={item.level > 2 ? styles.tocNested : ""}><a href={`#${item.id}`}>{item.label}</a></li>)}</ol>
+              <TableOfContentsList items={post.tableOfContents} />
             </nav>
           )}
           {!!recent.length && (

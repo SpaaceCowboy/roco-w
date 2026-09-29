@@ -78,11 +78,13 @@ requires an authorized legacy WordPress export and authenticated database audit.
 
 ### 6. Reduce the space before the main article content
 
-- [ ] Reduce excessive title and introductory-summary sizing where it pushes
+**Status (2026-09-29): complete and locally verified.**
+
+- [x] Reduce excessive title and introductory-summary sizing where it pushes
   the article body too far below the fold.
-- [ ] Tighten unnecessary vertical spacing in the article header.
-- [ ] Move the table of contents closer to the beginning of the article.
-- [ ] Check representative long-title and RTL articles at common viewport
+- [x] Tighten unnecessary vertical spacing in the article header.
+- [x] Move the table of contents closer to the beginning of the article.
+- [x] Check representative long-title and RTL articles at common viewport
   sizes so readers can reach the main content with substantially less
   scrolling.
 
