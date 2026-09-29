@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { emptyEditorDocument, renderEditorDocument } from "./document";
+import { collectPlainText, emptyEditorDocument, renderEditorDocument } from "./document";
 
 test("renders the empty document", () => {
   assert.equal(renderEditorDocument(emptyEditorDocument).html, "<p></p>");
@@ -92,4 +92,49 @@ test("rejects unsupported text alignment values", () => {
     }),
     /Unsupported text alignment/,
   );
+});
+
+test("renders a validated two-button article CTA", () => {
+  const document = {
+    type: "doc",
+    content: [{
+      type: "articleCta",
+      attrs: {
+        heading: "Ready to trade?",
+        body: "Open an account in a few steps.",
+        primaryLabel: "Open account",
+        primaryHref: "/en/accounts",
+        secondaryLabel: "Contact us",
+        secondaryHref: "https://rocobroker.com/en/contact",
+      },
+    }],
+  };
+  const result = renderEditorDocument(document);
+
+  assert.match(result.html, /data-article-cta="true"/);
+  assert.match(result.html, /href="\/en\/accounts"/);
+  assert.match(result.html, /article-cta__button--secondary/);
+  assert.match(collectPlainText(document), /Ready to trade\?/);
+});
+
+test("rejects unsafe CTA links", () => {
+  for (const unsafeHref of ["javascript:alert(1)", "//evil.example/path"]) {
+    assert.throws(
+      () => renderEditorDocument({
+        type: "doc",
+        content: [{
+          type: "articleCta",
+          attrs: {
+            heading: "Ready?",
+            body: "Start here.",
+            primaryLabel: "Open",
+            primaryHref: unsafeHref,
+            secondaryLabel: "Contact",
+            secondaryHref: "/contact",
+          },
+        }],
+      }),
+      /CTA links must be internal paths/,
+    );
+  }
 });

@@ -25,9 +25,11 @@ experience.
 
 ### 2. Support editable two-button CTA blocks
 
-- [ ] Add an editor-supported CTA block with two configurable buttons.
-- [ ] Allow editors to change each button's label and destination safely.
-- [ ] Use it for article sections such as “آماده معامله در بازگشایی بازار
+**Status (2026-09-28): complete in code; authenticated browser QA pending.**
+
+- [x] Add an editor-supported CTA block with two configurable buttons.
+- [x] Allow editors to change each button's label and destination safely.
+- [x] Use it for article sections such as “آماده معامله در بازگشایی بازار
   فارکس هستید؟” without requiring ad hoc markup for routine edits.
 
 ### 3. Restore and preserve inline article images

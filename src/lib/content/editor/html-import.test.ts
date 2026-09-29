@@ -74,6 +74,19 @@ test("source round-trip keeps supported links and alignment", () => {
   assert.doesNotMatch(html, /onclick/i);
 });
 
+test("source round-trip preserves the editable article CTA", () => {
+  const result = importHtmlToDocument(
+    `<section data-article-cta="true" class="article-cta"><div class="article-cta__copy"><h2 class="article-cta__title">Trade now</h2><p class="article-cta__body">Choose an account.</p></div><div class="article-cta__actions"><a class="article-cta__button article-cta__button--primary" href="/en/accounts">Accounts</a><a class="article-cta__button article-cta__button--secondary" href="/en/contact">Contact</a></div></section>`,
+    generateJSON,
+  );
+  const html = renderEditorDocument(result.document).html;
+
+  assert.match(html, /Trade now/);
+  assert.match(html, /href="\/en\/accounts"/);
+  assert.match(html, /href="\/en\/contact"/);
+  assert.match(html, /article-cta__button--secondary/);
+});
+
 test("rejects unsupported alignment values at render", () => {
   assert.throws(
     () => renderEditorDocument({

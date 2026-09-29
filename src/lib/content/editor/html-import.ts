@@ -110,7 +110,7 @@ function dropEmptyBlocks(node: JSONContent, counter: { dropped: number }): JSONC
 function hasVisibleContent(document: JSONContent): boolean {
   if (document.text?.trim()) return true;
   if (document.type === "image" && isUuid(document.attrs?.mediaId)) return true;
-  if (document.type === "horizontalRule" || document.type === "codeBlock") return true;
+  if (document.type === "horizontalRule" || document.type === "codeBlock" || document.type === "articleCta") return true;
   return (document.content ?? []).some(hasVisibleContent);
 }
 

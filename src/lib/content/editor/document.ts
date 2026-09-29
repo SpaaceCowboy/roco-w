@@ -12,12 +12,18 @@ export const emptyEditorDocument: JSONContent = {
 const allowedNodeTypes = new Set([
   "doc", "paragraph", "text", "heading", "bulletList", "orderedList", "listItem",
   "blockquote", "codeBlock", "hardBreak", "horizontalRule", "image", "table", "tableRow",
-  "tableHeader", "tableCell", "callout",
+  "tableHeader", "tableCell", "callout", "articleCta",
 ]);
 const allowedMarkTypes = new Set(["bold", "italic", "strike", "code", "link"]);
 const MAX_DOCUMENT_BYTES = 750_000;
 const MAX_DOCUMENT_NODES = 10_000;
 const MAX_DOCUMENT_DEPTH = 40;
+
+function isSafeArticleHref(value: string): boolean {
+  if (value.length < 1 || value.length > 2_000) return false;
+  if (/^(?:\/(?!\/)|[?#]|\.\.?\/)/.test(value)) return true;
+  return /^(?:https:|mailto:|tel:)/i.test(value);
+}
 
 export const editorDocumentSchema = z.custom<JSONContent>((value) => {
   if (!value || typeof value !== "object" || Array.isArray(value)) return false;
@@ -53,6 +59,23 @@ export function inspectEditorDocument(document: JSONContent): EditorDocumentInsp
     if (node.type === "callout" && !["note", "warning"].includes(String(node.attrs?.tone))) {
       throw new Error("Unsupported callout tone");
     }
+    if (node.type === "articleCta") {
+      const heading = String(node.attrs?.heading ?? "").trim();
+      const body = String(node.attrs?.body ?? "").trim();
+      const primaryLabel = String(node.attrs?.primaryLabel ?? "").trim();
+      const secondaryLabel = String(node.attrs?.secondaryLabel ?? "").trim();
+      const primaryHref = String(node.attrs?.primaryHref ?? "").trim();
+      const secondaryHref = String(node.attrs?.secondaryHref ?? "").trim();
+      if (!heading || heading.length > 160) throw new Error("CTA heading must be between 1 and 160 characters");
+      if (!body || body.length > 500) throw new Error("CTA body must be between 1 and 500 characters");
+      if (!primaryLabel || primaryLabel.length > 80 || !secondaryLabel || secondaryLabel.length > 80) {
+        throw new Error("CTA button labels must be between 1 and 80 characters");
+      }
+      if (!isSafeArticleHref(primaryHref) || !isSafeArticleHref(secondaryHref)) {
+        throw new Error("CTA links must be internal paths or use HTTPS, mailto, or tel");
+      }
+      textLength += heading.length + body.length + primaryLabel.length + secondaryLabel.length;
+    }
     if (node.attrs?.textAlign != null && node.attrs.textAlign !== "") {
       const align = String(node.attrs.textAlign);
       if (!["paragraph", "heading"].includes(node.type ?? "") || !["left", "right", "center", "justify"].includes(align)) {
@@ -81,16 +104,18 @@ export function renderEditorDocument(document: JSONContent): { html: string; ins
   const html = sanitizeHtml(generated, {
     allowedTags: [
       "p", "br", "strong", "em", "s", "code", "pre", "h2", "h3", "h4", "ul", "ol", "li",
-      "blockquote", "hr", "a", "img", "table", "thead", "tbody", "tr", "th", "td", "aside",
+      "blockquote", "hr", "a", "img", "table", "thead", "tbody", "tr", "th", "td", "aside", "section", "div",
     ],
     allowedAttributes: {
-      a: ["href", "target", "rel"],
+      a: ["href", "target", "rel", "class"],
       img: ["src", "alt", "title", "width", "height", "data-media-id"],
       th: ["colspan", "rowspan", "colwidth"],
       td: ["colspan", "rowspan", "colwidth"],
       aside: ["data-callout", "data-tone", "class"],
-      h2: ["id", "style"], h3: ["id", "style"], h4: ["id", "style"],
-      p: ["style"],
+      section: ["data-article-cta", "class"],
+      div: ["class"],
+      h2: ["id", "style", "class"], h3: ["id", "style"], h4: ["id", "style"],
+      p: ["style", "class"],
     },
     allowedStyles: {
       p: { "text-align": [/^left$/, /^right$/, /^center$/, /^justify$/] },
@@ -140,6 +165,14 @@ export function collectPlainText(document: JSONContent): string {
   const parts: string[] = [];
   function visit(node: JSONContent): void {
     if (node.text) parts.push(node.text);
+    if (node.type === "articleCta") {
+      parts.push(
+        String(node.attrs?.heading ?? ""),
+        String(node.attrs?.body ?? ""),
+        String(node.attrs?.primaryLabel ?? ""),
+        String(node.attrs?.secondaryLabel ?? ""),
+      );
+    }
     for (const child of node.content ?? []) visit(child);
   }
   visit(document);

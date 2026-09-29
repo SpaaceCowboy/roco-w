@@ -33,6 +33,14 @@ type EditorMode = "visual" | "source";
 
 function fingerprint(snapshot: Snapshot): string { return JSON.stringify(snapshot); }
 
+function resolveEditorHref(raw: string): string | null {
+  const trimmed = raw.trim();
+  if (/^(?:\/(?!\/)|[?#]|\.\.?\/)/.test(trimmed)) return trimmed;
+  if (/^(https:|mailto:|tel:)/i.test(trimmed)) return trimmed;
+  if (/^[a-z][a-z0-9+.-]*:/i.test(trimmed)) return null;
+  return trimmed ? `https://${trimmed}` : null;
+}
+
 export function EditorWorkspace({ initial, revisions, availableLocales, mediaConfigured, workflowPermissions, initialSeoChecks }: {
   initial: InitialArticle; revisions: Revision[]; availableLocales: ContentLocale[]; mediaConfigured: boolean;
   workflowPermissions: { write: boolean; review: boolean; publish: boolean; archive: boolean };
@@ -228,7 +236,7 @@ export function EditorWorkspace({ initial, revisions, availableLocales, mediaCon
           <button type="button" role="tab" aria-selected={editorMode === "source"} onClick={openSourceMode} disabled={!editor}>HTML source</button>
         </div>
         {editorMode === "visual" ? <>
-          <EditorToolbar editor={editor} onImported={applyImportWarnings} />
+          <EditorToolbar editor={editor} locale={initial.locale} onImported={applyImportWarnings} />
           <EditorContent editor={editor} />
         </> : <div className={styles.sourceEditorPanel}>
           <label htmlFor="article-html-source">Article HTML</label>
@@ -346,7 +354,7 @@ function WorkflowControls({ localizationId, status, permissions }: {
   </section>;
 }
 
-function EditorToolbar({ editor, onImported }: { editor: Editor | null; onImported?: (warnings: string[]) => void }) {
+function EditorToolbar({ editor, locale, onImported }: { editor: Editor | null; locale: ContentLocale; onImported?: (warnings: string[]) => void }) {
   if (!editor) return <div className={styles.toolbar} role="status">Loading editor…</div>;
   const button = (label: string, active: boolean, action: () => void) => <button type="button" aria-pressed={active} onClick={action}>{label}</button>;
   return <div className={styles.toolbar} role="toolbar" aria-label="Text formatting">
@@ -359,16 +367,132 @@ function EditorToolbar({ editor, onImported }: { editor: Editor | null; onImport
     <LinkDialog editor={editor} />
     <button type="button" onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}>Table</button>
     <button type="button" onClick={() => editor.chain().focus().insertContent({ type: "callout", attrs: { tone: "note" }, content: [{ type: "paragraph", content: [{ type: "text", text: "Callout text" }] }] }).run()}>Callout</button>
+    <CtaDialog editor={editor} locale={locale} />
     <ImportHtmlDialog editor={editor} onImported={onImported} />
     <button type="button" onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().undo()}>Undo</button>
     <button type="button" onClick={() => editor.chain().focus().redo().run()} disabled={!editor.can().redo()}>Redo</button>
   </div>;
 }
 
+type CtaValues = {
+  heading: string;
+  body: string;
+  primaryLabel: string;
+  primaryHref: string;
+  secondaryLabel: string;
+  secondaryHref: string;
+};
+
+function defaultCtaValues(locale: ContentLocale): CtaValues {
+  const prefix = `/${locale}`;
+  if (locale === "fa") {
+    return {
+      heading: "آماده معامله هستید؟",
+      body: "برای شروع، حساب معاملاتی خود را افتتاح کنید.",
+      primaryLabel: "افتتاح حساب معاملاتی",
+      primaryHref: `${prefix}/accounts`,
+      secondaryLabel: "تماس با ما",
+      secondaryHref: `${prefix}/contact`,
+    };
+  }
+  return {
+    heading: "Ready to start trading?",
+    body: "Open a trading account to get started.",
+    primaryLabel: "Open an account",
+    primaryHref: `${prefix}/accounts`,
+    secondaryLabel: "Contact us",
+    secondaryHref: `${prefix}/contact`,
+  };
+}
+
+function CtaDialog({ editor, locale }: { editor: Editor | null; locale: ContentLocale }) {
+  const [open, setOpen] = useState(false);
+  const [values, setValues] = useState<CtaValues>(() => defaultCtaValues(locale));
+  const [error, setError] = useState("");
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const firstInputRef = useRef<HTMLInputElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const focusEditorRef = useRef(false);
+  const active = Boolean(editor?.isActive("articleCta"));
+
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+    if (open && !dialog.open) { dialog.showModal(); firstInputRef.current?.focus(); }
+    else if (!open && dialog.open) dialog.close();
+  }, [open]);
+
+  function start() {
+    if (!editor) return;
+    const attrs = editor.getAttributes("articleCta") as Partial<CtaValues>;
+    setValues(active ? { ...defaultCtaValues(locale), ...attrs } : defaultCtaValues(locale));
+    setError("");
+    setOpen(true);
+  }
+
+  function update<K extends keyof CtaValues>(key: K, value: CtaValues[K]) {
+    setValues((current) => ({ ...current, [key]: value }));
+    setError("");
+  }
+
+  function finish() {
+    setOpen(false);
+  }
+
+  function apply() {
+    if (!editor) return;
+    const next = Object.fromEntries(Object.entries(values).map(([key, value]) => [key, value.trim()])) as CtaValues;
+    if (!next.heading || !next.body || !next.primaryLabel || !next.secondaryLabel) {
+      setError("Add a heading, body, and both button labels.");
+      return;
+    }
+    const primaryHref = resolveEditorHref(next.primaryHref);
+    const secondaryHref = resolveEditorHref(next.secondaryHref);
+    if (!primaryHref || !secondaryHref) {
+      setError("Use internal paths or HTTPS, mailto, or tel links for both buttons.");
+      return;
+    }
+    const attrs = { ...next, primaryHref, secondaryHref };
+    focusEditorRef.current = true;
+    if (active) editor.chain().focus().updateAttributes("articleCta", attrs).run();
+    else editor.chain().focus().insertContent({ type: "articleCta", attrs }).run();
+    finish();
+  }
+
+  return <span className={styles.linkControl}>
+    <button ref={triggerRef} type="button" aria-haspopup="dialog" aria-pressed={active} onClick={start}>{active ? "Edit CTA" : "CTA"}</button>
+    <dialog
+      ref={dialogRef}
+      className={`${styles.linkDialog} ${styles.ctaDialog}`}
+      aria-label={active ? "Edit article call to action" : "Add article call to action"}
+      onClose={() => {
+        setOpen(false);
+        if (focusEditorRef.current) { focusEditorRef.current = false; editor?.commands.focus(); }
+        else triggerRef.current?.focus();
+      }}
+    >
+      <label>Heading<input ref={firstInputRef} value={values.heading} maxLength={160} onChange={(event) => update("heading", event.target.value)} /></label>
+      <label>Body<textarea value={values.body} rows={3} maxLength={500} onChange={(event) => update("body", event.target.value)} /></label>
+      <div className={styles.ctaFields}>
+        <label>Primary button label<input value={values.primaryLabel} maxLength={80} onChange={(event) => update("primaryLabel", event.target.value)} /></label>
+        <label>Primary button URL<input value={values.primaryHref} maxLength={2_000} dir="ltr" onChange={(event) => update("primaryHref", event.target.value)} /></label>
+        <label>Secondary button label<input value={values.secondaryLabel} maxLength={80} onChange={(event) => update("secondaryLabel", event.target.value)} /></label>
+        <label>Secondary button URL<input value={values.secondaryHref} maxLength={2_000} dir="ltr" onChange={(event) => update("secondaryHref", event.target.value)} /></label>
+      </div>
+      <p className={styles.muted}>Both buttons are required. Internal paths and HTTPS, mailto, or tel links are supported.</p>
+      {error && <p className={styles.error} role="alert">{error}</p>}
+      <div className={styles.linkDialogActions}>
+        <button type="button" onClick={apply}>{active ? "Update CTA" : "Insert CTA"}</button>
+        <button type="button" onClick={finish}>Cancel</button>
+      </div>
+    </dialog>
+  </span>;
+}
+
 function documentHasBody(document: JSONContent): boolean {
   const visit = (node: JSONContent): boolean => {
     if (node.text?.trim()) return true;
-    if (node.type === "image" || node.type === "horizontalRule" || node.type === "codeBlock") return true;
+    if (node.type === "image" || node.type === "horizontalRule" || node.type === "codeBlock" || node.type === "articleCta") return true;
     return (node.content ?? []).some(visit);
   };
   return visit(document);
@@ -485,17 +609,9 @@ function LinkDialog({ editor }: { editor: Editor | null }) {
     setOpen(false);
   }
 
-  function resolveHref(raw: string): string | null {
-    const trimmed = raw.trim();
-    if (/^(?:[/?#]|\.\.?\/)/.test(trimmed)) return trimmed;
-    if (/^(https:|mailto:|tel:)/i.test(trimmed)) return trimmed;
-    if (/^[a-z][a-z0-9+.-]*:/i.test(trimmed)) return null;
-    return `https://${trimmed}`;
-  }
-
   function apply() {
     if (!editor) return;
-    const href = resolveHref(value);
+    const href = resolveEditorHref(value);
     if (href === null) { setError("Use an https, mailto, or tel link."); return; }
     focusEditorRef.current = true;
     editor.chain().focus().extendMarkRange("link").setLink({ href }).run();
