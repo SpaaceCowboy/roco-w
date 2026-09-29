@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { collectPlainText, emptyEditorDocument, renderEditorDocument } from "./document";
+import { collectInlineMedia, collectPlainText, emptyEditorDocument, renderEditorDocument } from "./document";
 
 test("renders the empty document", () => {
   assert.equal(renderEditorDocument(emptyEditorDocument).html, "<p></p>");
@@ -38,6 +38,57 @@ test("strips non-https image sources", () => {
   });
   assert.doesNotMatch(result.html, /evil\.example\.com/i);
   assert.doesNotMatch(result.html, /http:\/\//i);
+});
+
+test("preserves an inline image's media reference and editable metadata", () => {
+  const document = {
+    type: "doc",
+    content: [{
+      type: "image",
+      attrs: {
+        mediaId: "00000000-0000-4000-8000-000000000000",
+        src: "https://media.example.com/content/chart.webp",
+        alt: "EUR/USD price chart",
+        title: "Weekly market chart",
+        width: 1280,
+        height: 720,
+      },
+    }],
+  };
+  const result = renderEditorDocument(document);
+
+  assert.match(result.html, /data-media-id="00000000-0000-4000-8000-000000000000"/);
+  assert.match(result.html, /src="https:\/\/media\.example\.com\/content\/chart\.webp"/);
+  assert.match(result.html, /alt="EUR\/USD price chart"/);
+  assert.match(result.html, /title="Weekly market chart"/);
+  assert.match(result.html, /width="1280"/);
+  assert.match(result.html, /height="720"/);
+  assert.deepEqual(collectInlineMedia(document), [{
+    mediaId: "00000000-0000-4000-8000-000000000000",
+    src: "https://media.example.com/content/chart.webp",
+    alt: "EUR/USD price chart",
+    title: "Weekly market chart",
+    width: 1280,
+    height: 720,
+  }]);
+});
+
+test("rejects oversized inline image titles", () => {
+  assert.throws(
+    () => renderEditorDocument({
+      type: "doc",
+      content: [{
+        type: "image",
+        attrs: {
+          mediaId: "00000000-0000-4000-8000-000000000000",
+          src: "https://media.example.com/a.webp",
+          alt: "Chart",
+          title: "x".repeat(301),
+        },
+      }],
+    }),
+    /Image titles must be at most 300 characters/,
+  );
 });
 
 test("strips javascript, data, and vbscript link schemes", () => {

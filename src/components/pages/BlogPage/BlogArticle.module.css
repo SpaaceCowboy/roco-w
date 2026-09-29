@@ -22,6 +22,7 @@
 .prose ul,.prose ol { margin: 0 0 1.7em; padding-inline-start: 1.5em; }.prose li { margin-block: .65em; padding-inline-start: .35em; }.prose li::marker { color: #789000; font-weight: 700; }
 .prose a { color: #526600; text-decoration-thickness: 1px; text-underline-offset: 3px; }.prose blockquote { margin: 2em 0; border-inline-start: 4px solid #d7ff45; padding: 20px 25px; background: #172126; color: #eef2f1; font-size: 1.1rem; }
 .prose table { display: block; overflow-x: auto; width: 100%; margin: 2em 0; border-collapse: collapse; }.prose th,.prose td { border: 1px solid #bac4c1; padding: 10px 13px; text-align: start; }.prose th { background: #e3e8e4; }
+.prose img { display: block; max-width: 100%; height: auto; margin: 2em auto; border-radius: 14px; }
 .prose :global(.article-cta) { display: grid; gap: 24px; margin: 2.5em 0; border-radius: 20px; padding: clamp(28px,5vw,48px); color: #f4f7f7; background: linear-gradient(135deg,#172126,#263137); box-shadow: 0 24px 60px rgba(13,21,24,.14); }
 .prose :global(.article-cta__title) { margin: 0; color: inherit; font: 700 clamp(1.75rem,4vw,2.8rem)/1.08 var(--font-brand); letter-spacing: -.035em; }
 .prose :global(.article-cta__body) { max-width: 650px; margin: 12px 0 0; color: #c3cbce; }

@@ -275,12 +275,23 @@ Take a PostgreSQL backup and confirm R2 versioning/backup policy, then run:
 ```bash
 npm run content:import
 npm run content:parity
+npm run content:audit-media
 ```
 
 The parity command fails non-zero on any count, URL, title, excerpt, taxonomy,
 date, author, image metadata, table-of-contents, normalized HTML, text, initial
 redirect, publication, or sitemap/RSS eligibility mismatch. Re-running the
 import after success is safe and reports all posts as skipped.
+
+The inline-media audit compares every current editor document and published
+revision with its rendered HTML, active media record, canonical object-storage
+URL, alt text, and `media_usages` row. It exits non-zero when an image is lost or
+its references disagree. The checked-in legacy snapshot predates inline-image
+preservation and contains no inline `<img>` elements; regenerate it from an
+authorized WordPress export before using the importer to restore those original
+assets. The importer now downloads inline images, stores them locally, uploads
+them to managed media storage, and writes their media IDs into the editor
+document instead of stripping them.
 
 Only after parity returns zero mismatches, set `CONTENT_SOURCE=database` and
 build/deploy the application. `CONTENT_MEDIA_PUBLIC_BASE_URL` is consumed by

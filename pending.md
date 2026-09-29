@@ -34,11 +34,23 @@ experience.
 
 ### 3. Restore and preserve inline article images
 
-- [ ] Audit migrated articles for images that were present in the old content
-  but are missing from the editor document or published article.
-- [ ] Ensure inline images survive import, save, reopen, preview, and publish.
-- [ ] Preserve the associated media record, source, alt text, and usage
-  reference so an editor can continue editing the image safely.
+**Status (2026-09-29): preservation complete in code; historical asset recovery
+requires an authorized legacy WordPress export and authenticated database audit.**
+
+- [x] Audit the checked-in migration snapshot and add a database audit for
+  editor, preview, published-revision, media-record, source, alt-text, and usage
+  parity. The original importer intentionally removed inline images, so the
+  checked-in 69-post snapshot contains zero recoverable inline image records.
+- [x] Ensure managed inline images survive import, save, reopen, preview, and
+  publish, with automated source/visual round-trip coverage.
+- [x] Preserve the associated media record, canonical source, dimensions, alt
+  text, optional title, and usage reference; editors can now edit metadata or
+  replace the selected image safely.
+- [ ] Run `npm run content:audit-media` against the authenticated production
+  database and restore the original image assets from an authorized legacy
+  WordPress export or backup. The current public WordPress API no longer exposes
+  that source, so the missing binary assets cannot be reconstructed from this
+  repository alone.
 
 ### 4. Make article preview match the public article
 

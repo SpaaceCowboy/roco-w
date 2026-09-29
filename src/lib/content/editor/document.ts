@@ -36,6 +36,38 @@ export type EditorDocumentInspection = {
   textLength: number;
 };
 
+export type InlineMediaReference = {
+  mediaId: string;
+  alt: string;
+  src: string;
+  title: string;
+  width: number | null;
+  height: number | null;
+};
+
+export function collectInlineMedia(document: JSONContent): InlineMediaReference[] {
+  const references: InlineMediaReference[] = [];
+  function visit(node: JSONContent): void {
+    if (node.type === "image") {
+      const numberOrNull = (value: unknown) => {
+        const parsed = Number(value);
+        return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+      };
+      references.push({
+        mediaId: String(node.attrs?.mediaId ?? ""),
+        alt: String(node.attrs?.alt ?? "").trim(),
+        src: String(node.attrs?.src ?? "").trim(),
+        title: String(node.attrs?.title ?? "").trim(),
+        width: numberOrNull(node.attrs?.width),
+        height: numberOrNull(node.attrs?.height),
+      });
+    }
+    for (const child of node.content ?? []) visit(child);
+  }
+  visit(document);
+  return references;
+}
+
 export function inspectEditorDocument(document: JSONContent): EditorDocumentInspection {
   let nodeCount = 0;
   let textLength = 0;
@@ -85,8 +117,10 @@ export function inspectEditorDocument(document: JSONContent): EditorDocumentInsp
     if (node.type === "image") {
       const mediaId = String(node.attrs?.mediaId ?? "");
       const alt = String(node.attrs?.alt ?? "").trim();
+      const title = String(node.attrs?.title ?? "").trim();
       if (!z.string().uuid().safeParse(mediaId).success) throw new Error("Every image must reference an uploaded media item");
       if (!alt || alt.length > 300) throw new Error("Every image needs alt text of at most 300 characters");
+      if (title.length > 300) throw new Error("Image titles must be at most 300 characters");
       media.set(mediaId, alt);
     }
     if (node.text) textLength += node.text.length;

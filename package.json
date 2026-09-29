@@ -13,6 +13,7 @@
     "admin:allowlist": "tsx scripts/allowlist-admin.ts",
     "admin:disable": "tsx scripts/disable-admin.ts",
     "content:import": "node --conditions=react-server --import tsx scripts/import-blog-content.ts",
+    "content:audit-media": "node --conditions=react-server --import tsx scripts/audit-inline-media.ts",
     "content:parity": "node --conditions=react-server --import tsx scripts/verify-content-parity.ts",
     "db:generate": "drizzle-kit generate",
     "db:check": "drizzle-kit check",

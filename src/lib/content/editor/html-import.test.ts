@@ -36,12 +36,16 @@ test("strips scripts and external images on import", () => {
 test("keeps images that already reference uploaded media", () => {
   const mediaId = "00000000-0000-4000-8000-000000000000";
   const result = importHtmlToDocument(
-    `<p>Before</p><img data-media-id="${mediaId}" src="https://cdn.example/a.png" alt="chart">`,
+    `<p>Before</p><img data-media-id="${mediaId}" src="https://cdn.example/a.png" alt="chart" title="Daily chart" width="1200" height="675">`,
     generateJSON,
   );
   assert.equal(result.strippedImages, 0);
   const html = renderEditorDocument(result.document).html;
   assert.match(html, new RegExp(mediaId));
+  assert.match(html, /alt="chart"/);
+  assert.match(html, /title="Daily chart"/);
+  assert.match(html, /width="1200"/);
+  assert.match(html, /height="675"/);
 });
 
 test("empty html returns the empty document", () => {

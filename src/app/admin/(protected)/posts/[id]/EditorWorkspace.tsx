@@ -365,6 +365,7 @@ function EditorToolbar({ editor, locale, onImported }: { editor: Editor | null; 
     {button("Numbers", editor.isActive("orderedList"), () => editor.chain().focus().toggleOrderedList().run())}
     {button("Quote", editor.isActive("blockquote"), () => editor.chain().focus().toggleBlockquote().run())}
     <LinkDialog editor={editor} />
+    <ImageDialog editor={editor} />
     <button type="button" onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}>Table</button>
     <button type="button" onClick={() => editor.chain().focus().insertContent({ type: "callout", attrs: { tone: "note" }, content: [{ type: "paragraph", content: [{ type: "text", text: "Callout text" }] }] }).run()}>Callout</button>
     <CtaDialog editor={editor} locale={locale} />
@@ -660,6 +661,78 @@ function LinkDialog({ editor }: { editor: Editor | null }) {
   </span>;
 }
 
+function ImageDialog({ editor }: { editor: Editor | null }) {
+  const [open, setOpen] = useState(false);
+  const [alt, setAlt] = useState("");
+  const [title, setTitle] = useState("");
+  const [error, setError] = useState("");
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const altInputRef = useRef<HTMLInputElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const focusEditorRef = useRef(false);
+  const active = Boolean(editor?.isActive("image"));
+
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+    if (open && !dialog.open) { dialog.showModal(); altInputRef.current?.focus(); }
+    else if (!open && dialog.open) dialog.close();
+  }, [open]);
+
+  function start() {
+    if (!editor || !active) return;
+    const attrs = editor.getAttributes("image") as { alt?: string; title?: string };
+    setAlt(attrs.alt ?? "");
+    setTitle(attrs.title ?? "");
+    setError("");
+    setOpen(true);
+  }
+
+  function finish() {
+    setOpen(false);
+  }
+
+  function apply() {
+    if (!editor) return;
+    const nextAlt = alt.trim();
+    if (!nextAlt) { setError("Alt text is required for every article image."); return; }
+    focusEditorRef.current = true;
+    editor.chain().focus().updateAttributes("image", { alt: nextAlt, title: title.trim() || null }).run();
+    finish();
+  }
+
+  function remove() {
+    if (!editor || !window.confirm("Remove this image from the article? The uploaded media file will remain available.")) return;
+    focusEditorRef.current = true;
+    editor.chain().focus().deleteSelection().run();
+    finish();
+  }
+
+  return <span className={styles.linkControl}>
+    <button ref={triggerRef} type="button" aria-haspopup="dialog" aria-pressed={active} disabled={!active} onClick={start}>Edit image</button>
+    <dialog
+      ref={dialogRef}
+      className={styles.linkDialog}
+      aria-label="Edit inline image"
+      onClose={() => {
+        setOpen(false);
+        if (focusEditorRef.current) { focusEditorRef.current = false; editor?.commands.focus(); }
+        else triggerRef.current?.focus();
+      }}
+    >
+      <label>Alt text<input ref={altInputRef} value={alt} maxLength={300} onChange={(event) => { setAlt(event.target.value); setError(""); }} /></label>
+      <label>Image title (optional)<input value={title} maxLength={300} onChange={(event) => setTitle(event.target.value)} /></label>
+      <p className={styles.muted}>The uploaded media reference and source are preserved when you update the description.</p>
+      {error && <p className={styles.error} role="alert">{error}</p>}
+      <div className={styles.linkDialogActions}>
+        <button type="button" onClick={apply}>Update image</button>
+        <button type="button" onClick={remove}>Remove from article</button>
+        <button type="button" onClick={finish}>Cancel</button>
+      </div>
+    </dialog>
+  </span>;
+}
+
 async function uploadMediaFile(file: File, onState: (state: string) => void) {
   onState("Checking image…");
   const hash = await crypto.subtle.digest("SHA-256", await file.arrayBuffer());
@@ -729,18 +802,28 @@ function MediaUploader({ editor, configured }: { editor: Editor | null; configur
   const [file, setFile] = useState<File | null>(null);
   const [alt, setAlt] = useState("");
   const [state, setState] = useState("");
+  const replacing = Boolean(editor?.isActive("image"));
   async function upload() {
     if (!file || !alt.trim() || !editor) return;
+    const selectedImagePosition = editor.isActive("image") ? editor.state.selection.from : null;
     try {
       const result = await uploadMediaFile(file, setState);
-      editor.chain().focus().insertContent({ type: "image", attrs: { src: result.url, alt: alt.trim(), mediaId: result.item.id, width: result.item.width, height: result.item.height } }).run();
-      setFile(null); setAlt(""); setState("Image inserted");
+      const attrs = { src: result.url, alt: alt.trim(), title: null, mediaId: result.item.id, width: result.item.width, height: result.item.height };
+      const selectedNode = selectedImagePosition == null ? null : editor.state.doc.nodeAt(selectedImagePosition);
+      if (selectedImagePosition != null && selectedNode?.type.name === "image") {
+        editor.chain().focus().setNodeSelection(selectedImagePosition).updateAttributes("image", attrs).run();
+        setState("Image replaced");
+      } else {
+        editor.chain().focus().insertContent({ type: "image", attrs }).run();
+        setState("Image inserted");
+      }
+      setFile(null); setAlt("");
     } catch (error) { setState(error instanceof Error ? error.message : "Upload failed"); }
   }
-  return <section><h2>Insert image</h2>{configured ? <>
+  return <section><h2>{replacing ? "Replace selected image" : "Insert image"}</h2>{configured ? <>
     <label>Image file<input type="file" accept="image/jpeg,image/png,image/webp,image/avif" onChange={(event) => setFile(event.target.files?.[0] ?? null)} /></label>
     <label>Alt text<input value={alt} maxLength={300} onChange={(event) => setAlt(event.target.value)} /></label>
-    <button type="button" className={styles.secondaryButton} disabled={!file || !alt.trim()} onClick={upload}>Upload and insert</button>
+    <button type="button" className={styles.secondaryButton} disabled={!file || !alt.trim()} onClick={upload}>{replacing ? "Upload and replace" : "Upload and insert"}</button>
     {state && <p className={styles.uploadState} role="status">{state}</p>}
   </> : <p className={styles.muted}>Object storage is not configured in this environment.</p>}</section>;
 }

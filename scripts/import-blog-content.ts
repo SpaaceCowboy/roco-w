@@ -4,13 +4,14 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { generateJSON } from "@tiptap/html/server";
 import { and, eq } from "drizzle-orm";
+import sharp from "sharp";
 import source from "../src/content/blog/posts.json";
 import { closeDatabase, getDatabase } from "../src/db/client";
 import {
   auditEvents, categories, categoryLocalizations, mediaUsages, postCategories, postLocalizations,
   postRevisions, posts, postTags, tagLocalizations, tags,
 } from "../src/db/schema";
-import { importTrustedMedia } from "../src/lib/admin/media-storage";
+import { getMediaPublicUrl, importTrustedMedia } from "../src/lib/admin/media-storage";
 import { editorExtensions } from "../src/lib/content/editor/extensions";
 import { collectPlainText, normalizeHeadingIds, renderEditorDocument } from "../src/lib/content/editor/document";
 import type { BlogPost } from "../src/lib/blog";
@@ -33,6 +34,70 @@ type ImportResult = {
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const dryRun = process.argv.includes("--dry-run");
 const summaryOnly = process.argv.includes("--summary-only");
+const mimeByExtension: Record<string, "image/jpeg" | "image/png" | "image/webp" | "image/avif"> = {
+  ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".png": "image/png", ".webp": "image/webp", ".avif": "image/avif",
+};
+
+function htmlAttribute(tag: string, name: string): string {
+  const match = new RegExp(`\\b${name}\\s*=\\s*(?:"([^"]*)"|'([^']*)')`, "i").exec(tag);
+  return decodeAttribute(match?.[1] ?? match?.[2] ?? "");
+}
+
+function decodeAttribute(value: string): string {
+  const named: Record<string, string> = { amp: "&", apos: "'", gt: ">", lt: "<", quot: '"' };
+  return value.replace(/&(#x?[0-9a-f]+|[a-z]+);/gi, (entity, key: string) => {
+    if (key.startsWith("#")) {
+      const hexadecimal = key[1]?.toLowerCase() === "x";
+      const codePoint = Number.parseInt(key.slice(hexadecimal ? 2 : 1), hexadecimal ? 16 : 10);
+      return Number.isFinite(codePoint) ? String.fromCodePoint(codePoint) : entity;
+    }
+    return named[key.toLowerCase()] ?? entity;
+  });
+}
+
+function escapeAttribute(value: string): string {
+  return value.replaceAll("&", "&amp;").replaceAll('"', "&quot;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+}
+
+function dryRunMediaId(bytes: Buffer): string {
+  const digest = createHash("sha256").update(bytes).digest("hex");
+  return `${digest.slice(0, 8)}-${digest.slice(8, 12)}-4${digest.slice(13, 16)}-8${digest.slice(17, 20)}-${digest.slice(20, 32)}`;
+}
+
+async function prepareInlineImages(post: BlogPost): Promise<string> {
+  const matches = [...post.contentHtml.matchAll(/<img\b[^>]*>/gi)];
+  if (!matches.length) return post.contentHtml;
+  let output = "";
+  let cursor = 0;
+  for (const [index, match] of matches.entries()) {
+    output += post.contentHtml.slice(cursor, match.index);
+    cursor = match.index! + match[0].length;
+    const sourcePath = htmlAttribute(match[0], "src");
+    if (!/^\/blog\/images\/[a-z0-9._-]+$/i.test(sourcePath)) {
+      throw new Error(`Inline image ${index + 1} for ${post.locale}/${post.slug} is not a trusted local blog asset`);
+    }
+    const imagePath = path.join(projectRoot, "public", sourcePath.replace(/^\//, ""));
+    const bytes = await readFile(imagePath);
+    const mimeType = mimeByExtension[path.extname(imagePath).toLowerCase()];
+    if (!mimeType) throw new Error(`Unsupported inline image type for ${post.locale}/${post.slug}: ${sourcePath}`);
+    const details = await sharp(bytes).metadata();
+    if (!details.width || !details.height) throw new Error(`Inline image dimensions are missing: ${sourcePath}`);
+    const storageExtension = mimeType === "image/jpeg" ? "jpg" : mimeType.slice("image/".length);
+    const item = dryRun
+      ? { id: dryRunMediaId(bytes), storageKey: `content/imported/${post.sourceId}-inline-${index + 1}.${storageExtension}`, width: details.width, height: details.height }
+      : await importTrustedMedia({
+          bytes,
+          filename: path.basename(imagePath),
+          storageKey: `content/imported/${post.sourceId}-inline-${index + 1}.${storageExtension}`,
+          mimeType,
+        });
+    const src = dryRun ? `https://media.invalid/${item.storageKey}` : getMediaPublicUrl(item.storageKey);
+    const alt = htmlAttribute(match[0], "alt").trim() || post.title;
+    const title = htmlAttribute(match[0], "title").trim();
+    output += `<img data-media-id="${item.id}" src="${escapeAttribute(src)}" alt="${escapeAttribute(alt)}"${title ? ` title="${escapeAttribute(title)}"` : ""} width="${item.width}" height="${item.height}">`;
+  }
+  return output + post.contentHtml.slice(cursor);
+}
 
 function fingerprint(post: BlogPost, renderedHtml: string): string {
   return createHash("sha256").update(JSON.stringify({
@@ -61,8 +126,9 @@ function headingIdsIn(html: string): Set<string> {
 }
 
 async function importPost(post: BlogPost): Promise<ImportResult> {
-  const document = normalizeHeadingIds(generateJSON(post.contentHtml, editorExtensions));
-  const { html: renderedHtml } = renderEditorDocument(document);
+  const preparedHtml = await prepareInlineImages(post);
+  const document = normalizeHeadingIds(generateJSON(preparedHtml, editorExtensions));
+  const { html: renderedHtml, inspection } = renderEditorDocument(document);
   const renderedDocument = generateJSON(renderedHtml, editorExtensions);
   const sourceText = collectPlainText(document);
   const renderedText = collectPlainText(renderedDocument);
@@ -96,9 +162,6 @@ async function importPost(post: BlogPost): Promise<ImportResult> {
 
   const imagePath = path.join(projectRoot, "public", post.featuredImage.replace(/^\//, ""));
   const imageBytes = await readFile(imagePath);
-  const mimeByExtension: Record<string, "image/jpeg" | "image/png" | "image/webp" | "image/avif"> = {
-    ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".png": "image/png", ".webp": "image/webp", ".avif": "image/avif",
-  };
   const mimeType = mimeByExtension[path.extname(imagePath).toLowerCase()];
   if (!mimeType) throw new Error(`Unsupported featured image type for ${post.locale}/${post.slug}: ${post.featuredImage}`);
   const storageExtension = mimeType === "image/jpeg" ? "jpg" : mimeType.slice("image/".length);
@@ -157,6 +220,14 @@ async function importPost(post: BlogPost): Promise<ImportResult> {
       kind: "featured",
       altText: post.featuredImageAlt,
     });
+    if (inspection.media.length) {
+      await tx.insert(mediaUsages).values(inspection.media.map((item) => ({
+        mediaId: item.mediaId,
+        localizationId: localization.id,
+        kind: "inline" as const,
+        altText: item.alt,
+      })));
+    }
 
     let [category] = await tx.select({ id: categoryLocalizations.categoryId }).from(categoryLocalizations)
       .where(and(eq(categoryLocalizations.locale, post.locale), eq(categoryLocalizations.slug, post.category.slug))).limit(1);
