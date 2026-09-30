@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { editorExtensions } from "@/lib/content/editor/extensions";
+import { trackImageUploadTarget } from "@/lib/content/editor/image-upload-target";
 import { importHtmlToDocument, sanitizeImportableHtml } from "@/lib/content/editor/html-import";
 import { rtlContentLocales, type ContentLocale } from "@/lib/admin/content-locales";
 import { publishedArticlePath } from "@/config/blog-routing";
@@ -806,12 +807,16 @@ function MediaUploader({ editor, configured }: { editor: Editor | null; configur
   const replacing = Boolean(editor?.isActive("image"));
   async function upload() {
     if (!file || !alt.trim() || !editor) return;
-    const selectedImagePosition = editor.isActive("image") ? editor.state.selection.from : null;
+    const target = editor.isActive("image") ? trackImageUploadTarget(editor) : null;
     try {
       const result = await uploadMediaFile(file, setState);
       const attrs = { src: result.url, alt: alt.trim(), title: null, mediaId: result.item.id, width: result.item.width, height: result.item.height };
-      const selectedNode = selectedImagePosition == null ? null : editor.state.doc.nodeAt(selectedImagePosition);
-      if (selectedImagePosition != null && selectedNode?.type.name === "image") {
+      const selectedImagePosition = target?.resolve() ?? null;
+      if (target && selectedImagePosition === null) {
+        setState("The selected image was removed or edited during upload. Select an image and try again.");
+        return;
+      }
+      if (selectedImagePosition !== null) {
         editor.chain().focus().setNodeSelection(selectedImagePosition).updateAttributes("image", attrs).run();
         setState("Image replaced");
       } else {
@@ -820,6 +825,7 @@ function MediaUploader({ editor, configured }: { editor: Editor | null; configur
       }
       setFile(null); setAlt("");
     } catch (error) { setState(error instanceof Error ? error.message : "Upload failed"); }
+    finally { target?.dispose(); }
   }
   return <section><h2>{replacing ? "Replace selected image" : "Insert image"}</h2>{configured ? <>
     <label>Image file<input type="file" accept="image/jpeg,image/png,image/webp,image/avif" onChange={(event) => setFile(event.target.files?.[0] ?? null)} /></label>

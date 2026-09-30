@@ -210,7 +210,6 @@ export async function completeMediaUpload(completionToken: string, session: Admi
 export async function importTrustedMedia(input: {
   bytes: Buffer;
   filename: string;
-  storageKey: string;
   mimeType: keyof typeof supportedTypes;
 }) {
   if (input.bytes.byteLength <= 0 || input.bytes.byteLength > MAX_IMAGE_BYTES) throw new Error("Imported image size is not allowed");
@@ -222,6 +221,7 @@ export async function importTrustedMedia(input: {
   const [existing] = await getDatabase().select().from(media).where(and(eq(media.checksumSha256, checksumSha256), isNull(media.deletedAt))).limit(1);
   if (existing) return existing;
 
+  const storageKey = `content/imported/${checksumSha256}.${supportedTypes[input.mimeType]}`;
   const config = readStorageConfig();
   const storage = client(config);
   const correlationId = crypto.randomUUID();
@@ -230,14 +230,15 @@ export async function importTrustedMedia(input: {
   try {
     await storage.send(new PutObjectCommand({
       Bucket: config.bucket,
-      Key: input.storageKey,
+      Key: storageKey,
+      IfNoneMatch: "*",
       Body: input.bytes,
       ContentType: input.mimeType,
       Metadata: { sha256: checksumSha256 },
     }));
     uploaded = true;
     const [item] = await getDatabase().insert(media).values({
-      storageKey: input.storageKey,
+      storageKey,
       originalFilename: input.filename,
       mimeType: input.mimeType,
       byteSize: input.bytes.byteLength,
@@ -252,7 +253,7 @@ export async function importTrustedMedia(input: {
       correlationId, source: "import", latencyMs: Math.round(performance.now() - startedAt),
       errorCode: error instanceof Error ? error.name : "UnknownError",
     });
-    if (uploaded) await storage.send(new DeleteObjectCommand({ Bucket: config.bucket, Key: input.storageKey })).catch(() => undefined);
+    if (uploaded) await storage.send(new DeleteObjectCommand({ Bucket: config.bucket, Key: storageKey })).catch(() => undefined);
     throw error;
   }
 }

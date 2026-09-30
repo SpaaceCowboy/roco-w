@@ -84,11 +84,10 @@ async function prepareInlineImages(post: BlogPost): Promise<string> {
     if (!details.width || !details.height) throw new Error(`Inline image dimensions are missing: ${sourcePath}`);
     const storageExtension = mimeType === "image/jpeg" ? "jpg" : mimeType.slice("image/".length);
     const item = dryRun
-      ? { id: dryRunMediaId(bytes), storageKey: `content/imported/${post.sourceId}-inline-${index + 1}.${storageExtension}`, width: details.width, height: details.height }
+      ? { id: dryRunMediaId(bytes), storageKey: `content/imported/${createHash("sha256").update(bytes).digest("hex")}.${storageExtension}`, width: details.width, height: details.height }
       : await importTrustedMedia({
           bytes,
           filename: path.basename(imagePath),
-          storageKey: `content/imported/${post.sourceId}-inline-${index + 1}.${storageExtension}`,
           mimeType,
         });
     const src = dryRun ? `https://media.invalid/${item.storageKey}` : getMediaPublicUrl(item.storageKey);
@@ -164,11 +163,9 @@ async function importPost(post: BlogPost): Promise<ImportResult> {
   const imageBytes = await readFile(imagePath);
   const mimeType = mimeByExtension[path.extname(imagePath).toLowerCase()];
   if (!mimeType) throw new Error(`Unsupported featured image type for ${post.locale}/${post.slug}: ${post.featuredImage}`);
-  const storageExtension = mimeType === "image/jpeg" ? "jpg" : mimeType.slice("image/".length);
   const featuredMedia = await importTrustedMedia({
     bytes: imageBytes,
     filename: path.basename(imagePath),
-    storageKey: `content/imported/${post.sourceId}.${storageExtension}`,
     mimeType,
   });
 

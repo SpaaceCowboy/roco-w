@@ -134,10 +134,7 @@ async function main() {
     }
   }
 
-  const publishedNumbers = new Map(localizations.map((item) => [item.id, item]));
   for (const revision of publishedRows) {
-    const localization = publishedNumbers.get(revision.localizationId);
-    if (!localization) continue;
     const report = (code: string, mediaId?: string) => problems.push({
       localizationId: revision.localizationId,
       locale: revision.locale,
