@@ -6,6 +6,38 @@ import { webcrypto } from "node:crypto";
 import test from "node:test";
 import { transpileModule, ModuleKind } from "typescript";
 
+test("browser upload grants do not sign a checksum for an absent body", async () => {
+  const require = createRequire(import.meta.url);
+  const mocks: Record<string, unknown> = {
+    "server-only": {}, "@/db/client": {}, "@/db/schema": {},
+    "./permissions": { requireAdminPermission: () => {} }, "./observability": {},
+  };
+  const storageModule = { exports: {} as { createMediaUpload: (input: unknown, session: unknown) => Promise<{ uploadUrl: string; requiredHeaders: Record<string, string> }> } };
+  const code = transpileModule(readFileSync(new URL("./media-storage.ts", import.meta.url), "utf8"), {
+    compilerOptions: { module: ModuleKind.CommonJS, esModuleInterop: true },
+  }).outputText;
+  runInNewContext(code, {
+    exports: storageModule.exports, require: (name: string) => mocks[name] ?? require(name),
+    Buffer, URL, crypto: webcrypto, performance,
+    process: { env: {
+      CONTENT_MEDIA_S3_ENDPOINT: "https://storage.invalid", CONTENT_MEDIA_S3_ACCESS_KEY_ID: "test",
+      CONTENT_MEDIA_S3_SECRET_ACCESS_KEY: "test", CONTENT_MEDIA_S3_BUCKET: "test",
+      CONTENT_MEDIA_PUBLIC_BASE_URL: "https://media.invalid", ADMIN_AUTH_SECRET: "a".repeat(32),
+    } },
+  });
+  const checksum = "a".repeat(64);
+  const grant = await storageModule.exports.createMediaUpload({
+    filename: "image.png", mimeType: "image/png", byteSize: 73664, checksumSha256: checksum,
+  }, { role: "editor", userId: "test" });
+  const url = new URL(grant.uploadUrl);
+  assert.equal(url.searchParams.has("x-amz-checksum-crc32"), false);
+  assert.equal(url.searchParams.has("x-amz-sdk-checksum-algorithm"), false);
+  assert.equal(url.searchParams.get("x-amz-meta-sha256"), checksum);
+  assert.equal(grant.requiredHeaders["x-amz-meta-sha256"], checksum);
+  assert.equal(grant.requiredHeaders["content-type"], "image/png");
+  assert.equal(url.searchParams.get("X-Amz-Expires"), "300");
+});
+
 // Exercise the real storage function with local DB/S3 doubles; no credentials or network.
 test("trusted imports use immutable keys and never delete an object after a refused overwrite", async () => {
   const objects = new Map<string, Buffer>();

@@ -69,6 +69,8 @@ function client(config: StorageConfig): S3Client {
     endpoint: config.endpoint,
     region: config.region,
     credentials: { accessKeyId: config.accessKeyId, secretAccessKey: config.secretAccessKey },
+    // Browser PUTs supply their body after signing; validate SHA-256 on completion instead.
+    requestChecksumCalculation: "WHEN_REQUIRED",
     maxAttempts: 3,
     requestHandler: new NodeHttpHandler({ connectionTimeout: 3_000, requestTimeout: 15_000 }),
   });
