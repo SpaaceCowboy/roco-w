@@ -6,7 +6,7 @@ import { webcrypto } from "node:crypto";
 import test from "node:test";
 import { transpileModule, ModuleKind } from "typescript";
 
-test("browser upload grants do not sign a checksum for an absent body", async () => {
+test("browser upload grants sign metadata only as a header and omit empty-body checksums", async () => {
   const require = createRequire(import.meta.url);
   const mocks: Record<string, unknown> = {
     "server-only": {}, "@/db/client": {}, "@/db/schema": {},
@@ -32,7 +32,8 @@ test("browser upload grants do not sign a checksum for an absent body", async ()
   const url = new URL(grant.uploadUrl);
   assert.equal(url.searchParams.has("x-amz-checksum-crc32"), false);
   assert.equal(url.searchParams.has("x-amz-sdk-checksum-algorithm"), false);
-  assert.equal(url.searchParams.get("x-amz-meta-sha256"), checksum);
+  assert.equal(url.searchParams.has("x-amz-meta-sha256"), false);
+  assert.ok(url.searchParams.get("X-Amz-SignedHeaders")?.split(";").includes("x-amz-meta-sha256"));
   assert.equal(grant.requiredHeaders["x-amz-meta-sha256"], checksum);
   assert.equal(grant.requiredHeaders["content-type"], "image/png");
   assert.equal(url.searchParams.get("X-Amz-Expires"), "300");

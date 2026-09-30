@@ -122,7 +122,11 @@ export async function createMediaUpload(rawInput: unknown, session: AdminSession
   const expiresAt = Date.now() + 5 * 60_000;
   const metadata = { sha256: input.checksumSha256 };
   const command = new PutObjectCommand({ Bucket: config.bucket, Key: key, ContentType: input.mimeType, Metadata: metadata });
-  const uploadUrl = await getSignedUrl(client(config), command, { expiresIn: 300 });
+  const uploadUrl = await getSignedUrl(client(config), command, {
+    expiresIn: 300,
+    // The browser sends metadata as a header; do not duplicate it in the signed query.
+    unhoistableHeaders: new Set(["x-amz-meta-sha256"]),
+  });
   const completionToken = encodeGrant({ v: 1, key, expiresAt, ...input });
   return {
     uploadUrl,
