@@ -1,119 +1,55 @@
-# ParsPack Expiring Video Downloads
+# ROCO Support Video Downloads
 
-A small admin dashboard for uploading videos directly to an S3-compatible ParsPack Object Storage bucket and issuing client download links with this rule:
+A Persian, RTL support dashboard for uploading videos to private ParsPack
+object storage and issuing one-time client download links. It is maintained in
+the website repository but deployed as its own service.
 
-- A freshly created client link has no countdown.
-- The first successful visit starts the timer.
-- The same client link stays valid for 2 hours after that first visit.
-- After 2 hours it returns HTTP 403.
-- Revoking or regenerating a link immediately invalidates the previous app link.
+## Download behavior
 
-The actual object-storage bucket should remain private.
+- Opening `/d/:token` shows a Persian confirmation page. GET and HEAD do not
+  consume the link, so ordinary previews and refreshes are harmless.
+- Clicking «دانلود ویدئو» sends `POST /d/:token/download`. The server durably
+  claims the link before reading the object, then streams it through the VPS.
+- Only one request can claim a link. Used or revoked links return HTTP 403.
+- Storage failure before the response starts releases the claim. Once streaming
+  starts, interrupted downloads require a new link from support.
+- Crash-interrupted claims remain consumed. Range/resume requests are refused.
+- Admin regeneration invalidates the old link and grants one new attempt.
+- Records used under the old two-hour policy remain used. Unused records retain
+  one attempt. `expiresAt` is returned as null for API compatibility.
 
-## Files
+The JSON metadata store is for one service process only. Keep it outside the
+release folder and back it up securely. It contains the client link mappings;
+losing or restoring an older copy can invalidate links or reopen used links.
 
-- `public/index.html` — single-page admin UI.
-- `server.js` — secure API, upload signing, link state and download redirects.
-- `.env.example` — configuration template.
-- `data/uploads.json` — created automatically; stores metadata, not video bytes.
+## Local development
 
-## 1. Requirements
-
-Node.js 20+ and a private ParsPack Object Storage bucket with S3-compatible API credentials.
-
-## 2. Install
+Requirements: Node.js 20+ and a private S3-compatible bucket.
 
 ```bash
-npm install
+npm ci
 cp .env.example .env
-```
-
-Edit `.env` and set:
-
-- `PUBLIC_BASE_URL`
-- `ADMIN_TOKEN`
-- `S3_ENDPOINT`
-- `S3_REGION` if ParsPack gives you a specific region
-- `S3_BUCKET`
-- `S3_ACCESS_KEY_ID`
-- `S3_SECRET_ACCESS_KEY`
-- `S3_FORCE_PATH_STYLE` according to the endpoint style
-
-Generate a strong admin token, for example:
-
-```bash
-openssl rand -hex 32
-```
-
-## 3. Bucket CORS
-
-Because the admin browser uploads the video directly to object storage, the bucket must allow `PUT` requests from your dashboard origin.
-
-Use the equivalent of this CORS policy in your ParsPack bucket settings, replacing the origin:
-
-```json
-[
-  {
-    "AllowedOrigins": ["https://support-downloads.rocobroker.com"],
-    "AllowedMethods": ["PUT"],
-    "AllowedHeaders": ["*"],
-    "ExposeHeaders": ["ETag"],
-    "MaxAgeSeconds": 3600
-  }
-]
-```
-
-Do not make the bucket public.
-
-## 4. Run
-
-```bash
+# Fill configuration directly in your local editor; never commit it.
 npm start
 ```
 
-Open `http://127.0.0.1:3000` for a local test. The process binds to localhost by default.
+The app binds to `127.0.0.1:3000` by default. The public dashboard at
+`https://support-downloads.rocobroker.com` uses the existing MT5 bucket, storing
+videos under `videos/` without managing the MT5 installer.
 
-For production, `PUBLIC_BASE_URL` should be the public HTTPS address, for example:
-
-```env
-PUBLIC_BASE_URL=https://support-downloads.rocobroker.com
+```bash
+npm test
 ```
 
-## 5. How the expiry is enforced
+Tests inject fake storage, synthetic credentials and temporary metadata. They
+never load `.env`, contact ParsPack or access production link data.
 
-The link given to the client looks like:
+The dashboard uses locally served Vazirmatn, Persian digits and Jalali dates
+in Tehran time. The font source and license are included in `public/fonts/`.
+Uploads still go straight from the browser to ParsPack using temporary signed
+PUT URLs. Downloads stream through the VPS, with backpressure and cancellation,
+without exposing signed GET URLs. Download traffic consumes VPS bandwidth.
 
-```text
-https://support-downloads.rocobroker.com/d/<random-token>
-```
-
-On first successful request the server atomically stores:
-
-- `firstUsedAt = now`
-- `expiresAt = now + 2 hours`
-
-Each valid request then creates a short-lived signed GET URL to the private object and redirects the browser to it. The signed storage URL is capped at 5 minutes and is shortened when the 2-hour deadline is closer, so it cannot outlive the client-link window.
-
-## 6. Dashboard features
-
-- Drag-and-drop video upload
-- Direct-to-object-storage upload progress
-- File list with size and upload time
-- Copy client link
-- Unused / active / expired / revoked status
-- Live remaining time for active links
-- First-used and expiry timestamps
-- Revoke a link
-- Generate a fresh unused link
-- Delete the object from storage
-- Simple admin-token lock
-
-## Production notes
-
-The included JSON metadata store is intentionally simple and works well for a small internal tool. If you expect multiple application instances or high concurrency, replace it with PostgreSQL/SQLite/Redis.
-
-Back up `data/uploads.json`; losing it loses the mapping between client tokens and object keys.
-
-The application does not expose ParsPack credentials to the browser. Only temporary presigned upload/download URLs reach the client.
-
-Production installation and Git-based updates are documented in [DEPLOYMENT.md](DEPLOYMENT.md).
+See [DEPLOYMENT.md](DEPLOYMENT.md) for cPanel installation, Git-based updates,
+backup precautions, public verification and the deferred Cloudflare Access
+recommendation. Authentication remains the existing shared admin token.
