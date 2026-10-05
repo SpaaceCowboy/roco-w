@@ -1,62 +1,14 @@
 import type { Config } from "./config.js";
 import { decideResponse } from "./openai.js";
-import { addPrivateNote, getConversationMessages, handoff, sendMessage } from "./chatwoot.js";
+import { addPrivateNote, getConversation, getConversationMessages, handoff, humanOwnsConversation, sendMessage } from "./chatwoot.js";
 import type { ChatwootMessage, ChatwootWebhook, DecisionReason, Job } from "./types.js";
-import { responseMatchesCustomerLanguage } from "./language.js";
-import { detectCustomerLanguage } from "./language.js";
-
-const HUMAN_REQUEST = /\b(human|person|agent|representative|operator|support staff|live support)\b|REQUEST_HUMAN_SUPPORT|انسان|اپراتور|پشتیبان|کارشناس|موظف|دعم بشري|человек|оператор|поддержк|mitarbeiter|berater|人工|客服/i;
-const SENSITIVE_INFORMATION = /\b(password|passcode|otp|one[- ]?time code|2fa|seed phrase|private key|secret key|card number|cvv|wallet address)\b|رمز عبور|رمز یکبار مصرف|کد تأیید|عبارت بازیابی|کلید خصوصی|شماره کارت|کد امنیتی|مفتاح خاص|رمز|验证码|私钥|助记词|карта|пароль/i;
-// Account-specific money movement only — bare "deposit"/"payment" is general FAQ
-// and must reach the model (knowledge has public deposit/withdrawal methods).
-const ACCOUNT_OR_TRANSACTION =
-  /\b(?:account balance|my account|account restriction|verify my|verification status|margin call|stop.?out|bonus claim|(?:my|the)\s+(?:deposit|withdraw(?:al)?|payment|transaction|transfer|refund|trade|order|position)|(?:deposit|withdraw(?:al)?|payment|transaction|transfer|refund)\s+(?:status|pending|failed|rejected|delayed?|delay|not|missing|stuck|arrive[sd]?|completed?|balance)|(?:pending|failed|rejected|delayed?)\s+(?:deposit|withdraw(?:al)?|payment|transaction|transfer))\b|(?:واریز|برداشت|پرداخت|تراکنش|انتقال|بازپرداخت|معامله|سفارش|پوزیشن|بونوس)\s+(?:من|حال|وضعیت|نااموفق|رد|تاخیر|ناموفق)|(?:من|حال|وضعیت|نااموفق|رد|تاخیر|ناموفق)\s+(?:واریز|برداشت|پرداخت|تراکنش|انتقال|بازپرداخت|معامله|سفارش|پوزیشن|بونوس)|موجودی|حساب من|احراز هویت|رصيد الهامش|(?:إيداعي|حسابي|سحب|دفعة)\b|(?:رصيد|حساب)\s+(?:خاص)?(?:نا|ه)|(?:余额|账户|充值|提现|付款|交易|退款|订单)\s*(?:我的|状态|失败|延迟|待)|(?:我的|状态|失败|延迟|待)\s*(?:余额|账户|充值|提现|付款|交易|退款|订单)|сч[её]т|мой\s+(?:депозит|вывод|плат[её]ж|транзакц|сделк|ордер)|(?:депозит|вывод|плат[её]ж|транзакц)\s+(?:статус|pending|не)|сделк|ордер/i;
-const COMPLAINT_OR_LEGAL = /\b(complaint|complain|scam|fraud|stolen|lawsuit|lawyer|legal|regulator|regulatory|chargeback|dispute)\b|شکایت|کلاهبرداری|تقلب|سرقت|وکیل|حقوقی|رگولاتور|اعتراض|شكوى|احتيال|سرقة|محام|قانوني|منظم|اعتراض|投诉|欺诈|盗窃|律师|法律|监管|жалоб|мошеннич|украд|юрист|юридич/i;
-const FINANCIAL_ADVICE = /\b(should i|recommend|advise me|best leverage|which (account|provider|trade|symbol)|buy|sell|invest|guaranteed profit|signal|allocation|risk)\b|آیا.*(بخرم|بفروشم|سرمایه‌گذاری)|اهرم.*(پیشنهاد|مناسب)|سود تضمینی|توصیه مالی|هل أشتري|هل أبيع|استثمر|رافعة مناسبة|شراء|بيع|投资|买入|卖出|推荐|杠杆|гарантированн.*прибыл|купить|продать|инвест/i;
-const PROMPT_INJECTION = /\b(ignore|disregard|forget|override|bypass|reveal|show|print|repeat).{0,40}\b(previous|prior|system|developer|hidden|secret|instruction|prompt|policy)\b|ignore (all|any) (previous|prior) instructions|سیستم پرامپت|دستورهای قبلی|محرمانه|تعليمات السابقة|التعليمات السابقة|系统提示词|忽略之前的指令|предыдущие инструкции/i;
-
-export function deterministicHandoffReason(message: string): DecisionReason | null {
-  if (HUMAN_REQUEST.test(message)) return "human_requested";
-  if (SENSITIVE_INFORMATION.test(message)) return "sensitive_information";
-  if (COMPLAINT_OR_LEGAL.test(message)) return "complaint_or_legal";
-  if (FINANCIAL_ADVICE.test(message)) return "financial_advice";
-  if (PROMPT_INJECTION.test(message)) return "unsupported_or_uncertain";
-  if (ACCOUNT_OR_TRANSACTION.test(message)) return "needs_account_access";
-  return null;
-}
-
-function handoffText(message: string, reason?: DecisionReason): string {
-  const safety = reason === "sensitive_information";
-  const language = detectCustomerLanguage(message);
-  // Persian (including shared-script سلام) only; Arabic customers get English.
-  if (language === "fa") {
-    return safety
-      ? "یک کارشناس پشتیبانی به‌زودی این گفتگو را ادامه می‌دهد. لطفاً رمز عبور، کد یک‌بارمصرف، اطلاعات کارت یا کلید خصوصی خود را ارسال نکنید."
-      : "از پیام شما متشکریم. گفتگو به تیم پشتیبانی منتقل شد؛ یک کارشناس به‌زودی این گفتگو را ادامه می‌دهد. تا زمان پاسخ، صفحه را باز نگه دارید.";
-  }
-  if (language === "ru") return safety
-    ? "Специалист поддержки скоро продолжит этот разговор. Не отправляйте пароль, код подтверждения, данные карты или закрытый ключ."
-    : "Специалист поддержки скоро продолжит этот разговор. Не отправляйте пароль или код подтверждения.";
-  if (language === "zh") return safety
-    ? "支持专员将很快继续此对话。请勿发送密码、验证码、银行卡信息、助记词或私钥。"
-    : "支持专员将很快继续此对话。请不要发送密码或验证码。";
-  if (language === "de" || /\b(hallo|bitte|konto|mitarbeiter|berater|danke)\b/i.test(message)) {
-    return safety
-      ? "Ein Support-Mitarbeiter wird dieses Gespräch in Kürze fortsetzen. Bitte senden Sie niemals Passwörter, Bestätigungscodes, Kartendaten oder private Schlüssel."
-      : "Ein Support-Mitarbeiter wird dieses Gespräch in Kürze fortsetzen. Bitte senden Sie kein Passwort oder keinen Bestätigungscode.";
-  }
-  return safety
-    ? "Your chat has been handed to a support specialist. For your security, never send passwords, one-time codes, or card details here."
-    : "Thanks — your message is with our support team. A specialist will continue this chat shortly. Please keep this window open.";
-}
-
-function isIncoming(message: ChatwootMessage): boolean {
-  return message.message_type === "incoming" || message.message_type === 0;
-}
-
-function isOutgoing(message: ChatwootMessage): boolean {
-  return message.message_type === "outgoing" || message.message_type === 1;
-}
+import { handoffText, offlineText, resolveCustomerLanguage, responseMatchesLanguage } from "./language.js";
+import { buildConversation, isIncoming, isOutgoing } from "./conversation.js";
+import { deterministicHandoffReason } from "./routing.js";
+import { errorCode, ServiceError } from "./errors.js";
+import { isBotAvailable } from "./availability.js";
+import { metrics } from "./metrics.js";
+export { deterministicHandoffReason } from "./routing.js";
 
 function interactivePayload(payload: ChatwootWebhook): string {
   const attributes = payload.content_attributes;
@@ -70,14 +22,6 @@ function interactivePayload(payload: ChatwootWebhook): string {
 
   const value = attributes.payload;
   return typeof value === "string" ? value.trim() : "";
-}
-
-async function recordHandoff(config: Config, conversationId: number, message: string, reason: DecisionReason): Promise<void> {
-  try {
-    await addPrivateNote(config, conversationId, `AI handoff\nReason: ${reason}\nCustomer language: ${detectCustomerLanguage(message)}\nAction: human review required`);
-  } catch (error) {
-    console.error(`[bot] conversation=${conversationId} private_note=failed:`, error instanceof Error ? error.message : "unknown error");
-  }
 }
 
 export function webhookJob(payload: ChatwootWebhook, config: Config): {
@@ -104,7 +48,8 @@ export function webhookJob(payload: ChatwootWebhook, config: Config): {
     inboxId !== config.chatwootInboxId ||
     !Number.isSafeInteger(conversationId) ||
     conversationId < 1 ||
-    !messageId
+    !/^(?:[0-9]+|unknown)$/.test(contactId) ||
+    !Number.isSafeInteger(Number(messageId)) || Number(messageId) < 1
   ) {
     return null;
   }
@@ -114,92 +59,136 @@ export function webhookJob(payload: ChatwootWebhook, config: Config): {
   return { messageId, conversationId, contactId, content };
 }
 
-function transcript(messages: ChatwootMessage[], fallback: string) {
-  const result: Array<{ role: "customer" | "support"; content: string }> = [];
-  for (const message of messages) {
-    if (message.private || typeof message.content !== "string" || !message.content.trim()) continue;
-    if (isIncoming(message)) result.push({ role: "customer", content: message.content });
-    else if (isOutgoing(message)) result.push({ role: "support", content: message.content });
-  }
-  return result.length ? result : [{ role: "customer" as const, content: fallback }];
+function sourceReply(messages: ChatwootMessage[], messageId: string): ChatwootMessage | undefined {
+  return messages.find((message) => !message.private && isOutgoing(message) &&
+    message.content_attributes?.generated_by === "roco-chatwoot-agent" &&
+    String(message.content_attributes.source_message_id) === messageId);
 }
 
-export async function processMessage(
-  config: Config,
-  job: Job,
-): Promise<boolean> {
+function humanHasReplied(messages: ChatwootMessage[], messageId: string): boolean {
+  return messages.some((message) => !message.private && isOutgoing(message) && Number(message.id) > Number(messageId) &&
+    message.content_attributes?.generated_by !== "roco-chatwoot-agent");
+}
+
+export async function processMessage(config: Config, job: Job, persist: (job: Job) => void = () => {}, now: () => Date = () => new Date()): Promise<boolean> {
   const startedAt = Date.now();
+  const save = (patch: Partial<Job>) => { Object.assign(job, patch); persist(job); };
+  const log = `[bot] message=${job.messageId} conversation=${job.conversationId}`;
   try {
-    const messages = await getConversationMessages(config, job.conversationId);
-    if (messages.some((message) => {
-      const attributes = message.content_attributes;
-      return attributes?.generated_by === "roco-chatwoot-agent" && attributes.source_message_id === job.messageId;
-    })) {
-      console.info(`[bot] message=${job.messageId} conversation=${job.conversationId} action=skip reason=already_processed ms=${Date.now() - startedAt}`);
+    const conversationStatus = await getConversation(config, job.conversationId, job.messageId);
+    const resumingHandoff = job.decisionAction === "handoff" || job.phase === "handoff_pending" || job.phase === "handoff_confirmed";
+    if (humanOwnsConversation(conversationStatus) && !resumingHandoff) {
+      console.info(`${log} action=skip reason=human_owned`);
       return true;
     }
-
+    const messages = await getConversationMessages(config, job.conversationId, job.messageId);
+    const delivered = sourceReply(messages, job.messageId);
+    const historyAfterTrigger = (history: ChatwootMessage[]) => history.length > 0 &&
+      history.every((message) => Number(message.id) > Number(job.messageId));
+    // A recent-history window cannot reconcile an older uncertain send safely.
+    if (!resumingHandoff && !delivered && job.phase !== "reply_delivered" && historyAfterTrigger(messages)) {
+      throw new ServiceError("chatwoot_history_unreconciled", false);
+    }
     const content = job.content || messages.find((message) => String(message.id) === job.messageId)?.content?.trim() || "";
+    const context = buildConversation(messages, job.messageId, content);
+    const language = job.language ?? resolveCustomerLanguage(content, context.customerHistory);
+
+    const outsideHours = () => job.outsideHours === true || !isBotAvailable(config.availability, now());
+
+    async function transfer(reason: DecisionReason | "outside_bot_hours"): Promise<boolean> {
+      const alreadyRequested = job.decisionAction === "handoff";
+      // Save transfer intent before the status mutation, independently of reply delivery.
+      save({ decisionAction: "handoff", reason, language, phase: "handoff_pending",
+        outsideHours: job.outsideHours === true || !isBotAvailable(config.availability, now()) });
+      try {
+        const current = await getConversation(config, job.conversationId, job.messageId);
+        if (current.status === "resolved" || current.status === "snoozed") return true;
+        if (humanOwnsConversation(current) && !alreadyRequested) return true;
+        if (current.status !== "open") await handoff(config, job.conversationId, job.messageId);
+        save({ phase: "handoff_confirmed" });
+      } catch (error) {
+        metrics.handoff_failures += 1;
+        throw error;
+      }
+      // Confirm transfer before claiming it happened; reconcile uncertain POSTs.
+      const freshMessages = await getConversationMessages(config, job.conversationId, job.messageId);
+      if ((!job.outsideHours || config.availability.outsideHours === "message_handoff") && !historyAfterTrigger(freshMessages) && !sourceReply(freshMessages, job.messageId) && !humanHasReplied(freshMessages, job.messageId)) {
+        if ((await getConversation(config, job.conversationId, job.messageId)).status !== "open") return true;
+        const text = handoffText(language, reason === "sensitive_information");
+        await sendMessage(config, job.conversationId, job.outsideHours && !isBotAvailable(config.availability, now()) ? `${offlineText(language)} ${text}` : text, job.messageId,
+          { decision_action: "handoff", decision_reason: reason, customer_language: language });
+      }
+      // Notes contain metadata only. Note failure cannot undo a confirmed transfer.
+      if (!freshMessages.some((message) => message.private && message.content_attributes?.type === "handoff_context" &&
+        String(message.content_attributes.source_message_id) === job.messageId)) {
+        try {
+          await addPrivateNote(config, job.conversationId,
+            `AI handoff\nReason: ${reason}\nCustomer language: ${language}\nAction: human review required`, job.messageId);
+        } catch (error) {
+          console.error(`${log} private_note=failed code=${errorCode(error)}`);
+        }
+      }
+      save({ phase: "reply_delivered" });
+      metrics.handoffs += 1;
+      console.info(`${log} action=handoff reason=${reason} language=${language} ms=${Date.now() - startedAt}`);
+      return true;
+    }
+
+    // Legacy replies lacked an action marker. On pending conversations finish a
+    // conservative human transfer instead of silently abandoning a failed handoff.
+    const markerAction = delivered?.content_attributes?.decision_action;
+    if (resumingHandoff || markerAction === "handoff" || (delivered && markerAction === undefined)) {
+      return await transfer(job.reason ?? "unsupported_or_uncertain");
+    }
+    if (delivered || job.phase === "reply_delivered") {
+      console.info(`${log} action=skip reason=already_processed`);
+      return true;
+    }
+    if (humanHasReplied(messages, job.messageId)) return true;
     const forcedReason = deterministicHandoffReason(content);
-    if (!content || forcedReason) {
-      await recordHandoff(config, job.conversationId, content, forcedReason ?? "unsupported_or_uncertain");
-      await sendMessage(config, job.conversationId, handoffText(content, forcedReason ?? undefined), job.messageId);
-      await handoff(config, job.conversationId);
-      console.info(`[bot] message=${job.messageId} conversation=${job.conversationId} action=handoff reason=${forcedReason ?? "unsupported_or_uncertain"} ms=${Date.now() - startedAt}`);
-      return true;
+    if (!content || forcedReason) return await transfer(forcedReason ?? "unsupported_or_uncertain");
+
+    if (outsideHours()) return await transfer("outside_bot_hours");
+
+    let decision;
+    try {
+      decision = await decideResponse({ config, contactId: job.contactId, messages: context.transcript,
+        customerLanguage: language, isFirstTurn: context.isFirstTurn, clarificationUsed: context.clarificationUsed,
+        correlationId: job.messageId });
+      if (decision.action !== "handoff" && !responseMatchesLanguage(language, decision.message)) {
+        if (outsideHours()) return await transfer("outside_bot_hours");
+        metrics.language_retries += 1;
+        console.warn(`${log} action=language_retry language=${language}`);
+        decision = await decideResponse({ config, contactId: job.contactId, messages: context.transcript,
+          customerLanguage: language, isFirstTurn: context.isFirstTurn, clarificationUsed: context.clarificationUsed,
+          requireLanguageOnly: true, correlationId: job.messageId });
+      }
+    } catch (error) {
+      console.error(`${log} model=failed code=${errorCode(error)}`);
+      return await transfer("unsupported_or_uncertain");
     }
+    if (outsideHours()) return await transfer("outside_bot_hours");
+    if (decision.action === "handoff") return await transfer(decision.reason);
+    if (!responseMatchesLanguage(language, decision.message)) return await transfer("unsupported_or_uncertain");
 
-    const customerLanguage = detectCustomerLanguage(content);
-    const conversation = transcript(messages, content);
-    let decision = await decideResponse({
-      config,
-      contactId: job.contactId,
-      messages: conversation,
-      customerLanguage,
-    });
-
-    if (decision.action === "reply" && !responseMatchesCustomerLanguage(content, decision.message)) {
-      // One retry in the detected language before giving up to a human.
-      console.warn(`[bot] message=${job.messageId} conversation=${job.conversationId} action=language_retry lang=${customerLanguage}`);
-      decision = await decideResponse({
-        config,
-        contactId: job.contactId,
-        messages: conversation,
-        customerLanguage,
-        requireLanguageOnly: true,
-      });
-    }
-
-    if (decision.action === "handoff" || !responseMatchesCustomerLanguage(content, decision.message)) {
-      const reason = decision.action === "handoff" ? decision.reason : "unsupported_or_uncertain";
-      await recordHandoff(config, job.conversationId, content, reason);
-      await sendMessage(config, job.conversationId, handoffText(content, decision.action === "handoff" ? decision.reason : undefined), job.messageId);
-      await handoff(config, job.conversationId);
-      console.info(`[bot] message=${job.messageId} conversation=${job.conversationId} action=handoff reason=${reason} ms=${Date.now() - startedAt}`);
-      return true;
-    }
-
-    await sendMessage(config, job.conversationId, decision.message, job.messageId);
-    console.info(
-      `[bot] message=${job.messageId} conversation=${job.conversationId} action=${decision.action} reason=${decision.reason} confidence=${decision.confidence.toFixed(2)} ms=${Date.now() - startedAt}`,
-    );
+    if (humanOwnsConversation(await getConversation(config, job.conversationId, job.messageId))) return true;
+    const freshMessages = await getConversationMessages(config, job.conversationId, job.messageId);
+    if (sourceReply(freshMessages, job.messageId) || humanHasReplied(freshMessages, job.messageId)) return true;
+    // Chatwoot has no conditional-send primitive; minimize the takeover race.
+    if (humanOwnsConversation(await getConversation(config, job.conversationId, job.messageId))) return true;
+    if (outsideHours()) return await transfer("outside_bot_hours");
+    save({ phase: "reply_pending", decisionAction: decision.action, reason: decision.reason, language });
+    await sendMessage(config, job.conversationId, decision.message, job.messageId,
+      { decision_action: decision.action, decision_reason: decision.reason, customer_language: language });
+    save({ phase: "reply_delivered" });
+    if (decision.action === "clarify") metrics.clarifications += 1;
+    console.info(`${log} action=${decision.action} reason=${decision.reason} language=${language} confidence=${decision.confidence.toFixed(2)} ms=${Date.now() - startedAt}`);
     return true;
   } catch (error) {
-    // Never log customer content or model output.
-    console.error(
-      `[bot] message=${job.messageId} conversation=${job.conversationId} outcome=failed:`,
-      error instanceof Error ? error.message : "unknown error",
-    );
-    try {
-      await recordHandoff(config, job.conversationId, job.content, "unsupported_or_uncertain");
-      await sendMessage(config, job.conversationId, handoffText(job.content, "unsupported_or_uncertain"), job.messageId);
-      await handoff(config, job.conversationId);
-    } catch (handoffError) {
-      console.error(
-        `[bot] conversation=${job.conversationId} fallback_handoff=failed:`,
-        handoffError instanceof Error ? handoffError.message : "unknown error",
-      );
-    }
+    // Never post a second fallback after an uncertain POST. Retry reconciles the marker.
+    console.error(`${log} outcome=failed code=${errorCode(error)} ms=${Date.now() - startedAt}`);
+    job.failureCode = errorCode(error);
+    job.retryable = !(error instanceof ServiceError) || error.retryable;
     return false;
   }
 }

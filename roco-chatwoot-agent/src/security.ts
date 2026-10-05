@@ -29,13 +29,19 @@ export function verifyChatwootSignature({
 
 /** Remove common identifiers before any conversation text leaves ROCO infrastructure. */
 export function redactForModel(value: string): string {
+  // Normalize digits only inside the redaction pipeline, not customer history.
   return value
-    .replace(/\b(?:password|passcode|otp|one[- ]?time code|2fa|secret|private key|seed phrase|cvv)\b\s*[:=]?\s*\S+/gi, "[sensitive value removed]")
+    .replace(/[۰-۹]/g, (digit) => String(digit.charCodeAt(0) - 0x06f0))
+    .replace(/[٠-٩]/g, (digit) => String(digit.charCodeAt(0) - 0x0660))
+    .replace(/\b(?:password|passcode|otp|one[- ]?time code|2fa|secret|private key|seed phrase|cvv)\b\s*[:=]?\s*[^\n]+/gi, "[sensitive value removed]")
+    .replace(/(?:رمز(?: عبور)?|کد (?:تأیید|تایید|امنیتی|یک[‌ ]?بار[‌ ]?مصرف)|رمز یک[‌ ]?بار[‌ ]?مصرف|کلید خصوصی|[کك]ل[یي]د خصوص[یي]|عبارت بازیابی|عبارت بازيابي|شماره کارت)\s*[:=]?\s*[^\n]+/gu, "[sensitive value removed]")
     .replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi, "[email removed]")
-    .replace(/\b(?:\+?\d[\d\s().-]{7,}\d)\b/g, "[number removed]")
-    .replace(/\b(?:\d[ -]*?){13,19}\b/g, "[card number removed]")
+    .replace(/(?<![\p{L}\d:.])\+?\d[\d ()-]*\d(?![\d:.])/gu,
+      (number) => number.replace(/\D/g, "").length >= 8 ? "[number removed]" : number)
+    .replace(/(?:\d[ -]*?){13,19}/g, "[card number removed]")
     .replace(/\b[0-9a-f]{8}-[0-9a-f-]{27,}\b/gi, "[identifier removed]")
     .replace(/\b(?:0x)?[0-9a-f]{24,}\b/gi, "[identifier removed]")
+    .replace(/\b[13][a-km-zA-HJ-NP-Z1-9]{25,34}\b|\bbc1[a-z0-9]{25,87}\b|\bT[1-9A-HJ-NP-Za-km-z]{33}\b/g, "[identifier removed]")
     .slice(0, 4_000);
 }
 

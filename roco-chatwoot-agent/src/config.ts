@@ -1,4 +1,7 @@
+import { loadAvailability, type AvailabilitySchedule } from "./availability.js";
+
 export type Config = {
+  availability: AvailabilitySchedule;
   host: string;
   port: number;
   chatwootBaseUrl: string;
@@ -65,6 +68,7 @@ function url(name: string, fallback?: string): string {
 
 export function loadConfig(): Config {
   return {
+    availability: loadAvailability(),
     host: process.env.HOST?.trim() || "127.0.0.1",
     port: integer("PORT", 3200, 1, 65_535),
     chatwootBaseUrl: url("CHATWOOT_BASE_URL", "https://support.rocobroker.com"),

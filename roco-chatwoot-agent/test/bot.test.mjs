@@ -81,11 +81,14 @@ test("validates the response script against the customer language", () => {
   assert.equal(responseMatchesCustomerLanguage("سلام", "سلام! من دستیار هوش مصنوعی روکو هستم."), true);
   assert.equal(responseMatchesCustomerLanguage("سلام", "سلام! من دستیار هوش مصنوعی ROCO هستم."), true);
   assert.equal(responseMatchesCustomerLanguage("سلام", "Hi! I'm ROCO's AI assistant."), false);
-  // Pure Arabic (no Persian letters, not a shared greeting) → English only.
-  assert.equal(detectCustomerLanguage("حساب من محدود شده"), "ar");
-  assert.equal(responseMatchesCustomerLanguage("حساب من محدود شده", "A support specialist will help"), true);
-  assert.equal(responseMatchesCustomerLanguage("حساب من محدود شده", "سيتابع أحد مختصي الدعم هذه المحادثة"), false);
-  assert.equal(responseMatchesCustomerLanguage("حساب من محدود شده", "یک کارشناس پاسخ خواهد داد"), false);
+  // Shared-script Persian remains Persian even without fa-only letters.
+  assert.equal(detectCustomerLanguage("حساب من محدود شده"), "fa");
+  assert.equal(responseMatchesCustomerLanguage("حساب من محدود شده", "یک کارشناس پاسخ خواهد داد"), true);
+  assert.equal(responseMatchesCustomerLanguage("حساب من محدود شده", "A support specialist will help"), false);
+  // Actual Arabic receives English only.
+  assert.equal(detectCustomerLanguage("حسابي مقيد، أريد المساعدة"), "ar");
+  assert.equal(responseMatchesCustomerLanguage("حسابي مقيد، أريد المساعدة", "A support specialist will help"), true);
+  assert.equal(responseMatchesCustomerLanguage("حسابي مقيد، أريد المساعدة", "سيتابع أحد مختصي الدعم هذه المحادثة"), false);
   // Chinese unchanged.
   assert.equal(responseMatchesCustomerLanguage("我的账户受到限制", "支持专员会继续处理"), true);
   assert.equal(responseMatchesCustomerLanguage("我的账户受到限制", "A support specialist will help"), false);

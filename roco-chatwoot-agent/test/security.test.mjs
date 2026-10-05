@@ -43,3 +43,16 @@ test("redacts credential-like historical content", () => {
   assert.equal(value.includes("123456"), false);
   assert.equal(value.includes("4111"), false);
 });
+
+test("redacts Persian/Arabic digit identifiers and Persian credential labels", () => {
+  const cases = [
+    "شماره تماس ۰۹۱۲۱۲۳۴۵۶۷", "شماره تماس ٠٩١٢١٢٣٤٥٦٧", "شماره کارت: ۴۱۱۱ ۱۱۱۱ ۱۱۱۱ ۱۱۱۱",
+    "رمز عبور: synthetic-secret", "کد یک‌بارمصرف: ۱۲۳۴۵۶", "کلید خصوصی: synthetic-private",
+    "عبارت بازیابی: wordone wordtwo wordthree wordfour", "كليد خصوصي: synthetic-private",
+  ];
+  for (const value of cases) {
+    const result = redactForModel(value);
+    assert.doesNotMatch(result, /09121234567|4111|123456|synthetic-secret|synthetic-private|wordone|wordtwo/);
+  }
+  assert.equal(redactForModel("USDT TRC20 1:1000 0.01"), "USDT TRC20 1:1000 0.01");
+});

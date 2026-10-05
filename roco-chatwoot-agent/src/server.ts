@@ -2,21 +2,17 @@ import { createServer, type IncomingMessage, type ServerResponse } from "node:ht
 import { loadConfig } from "./config.js";
 import { processMessage, webhookJob } from "./bot.js";
 import { verifyChatwootSignature } from "./security.js";
-import type { ChatwootWebhook, Job } from "./types.js";
+import type { ChatwootWebhook } from "./types.js";
 import { JobStore } from "./store.js";
+import { JobQueue } from "./queue.js";
+import { errorCode } from "./errors.js";
+import { isBotAvailable } from "./availability.js";
+import { metrics } from "./metrics.js";
 
 const config = loadConfig();
 const MAX_BODY_BYTES = 64 * 1024;
-const DEDUPE_TTL_MS = 15 * 60_000;
-const queue: Job[] = [];
-const activeConversations = new Set<number>();
-const store = new JobStore(config.stateFile);
-for (const job of store.pending()) queue.push({ ...job, content: "" });
-const seen = new Map<string, number>(queue.map((job) => [job.messageId, Date.now() + DEDUPE_TTL_MS]));
-let active = 0;
-let consecutiveFailures = 0;
-let totalFailures = 0;
-let totalRetryExhaustions = 0;
+const store = new JobStore(config.stateFile, config.maxAttempts);
+const queue = new JobQueue(config, store, processMessage);
 
 function json(response: ServerResponse, status: number, body: object): void {
   const value = JSON.stringify(body);
@@ -40,77 +36,24 @@ async function rawBody(request: IncomingMessage): Promise<string> {
   return Buffer.concat(chunks).toString("utf8");
 }
 
-function pruneSeen(now: number): void {
-  for (const [id, expiresAt] of seen) if (expiresAt <= now) seen.delete(id);
-}
+const server = createServer((request, response) => {
+  void handleRequest(request, response).catch((error) => {
+    console.error(`[server] request=failed code=${errorCode(error)}`);
+    if (!response.headersSent) json(response, 503, { ok: false });
+    else response.end();
+  });
+});
 
-function drain(): void {
-  while (active < config.maxConcurrent && queue.length) {
-    const index = queue.findIndex((candidate) => !activeConversations.has(candidate.conversationId));
-    if (index < 0) return;
-    const [job] = queue.splice(index, 1);
-    if (!job) return;
-    active += 1;
-    activeConversations.add(job.conversationId);
-    void processMessage(config, job).then((succeeded) => {
-      if (succeeded) {
-        store.remove(job.messageId);
-        consecutiveFailures = 0;
-      }
-      if (!succeeded && job.attempt < config.maxAttempts) {
-        consecutiveFailures += 1;
-        totalFailures += 1;
-        if (consecutiveFailures >= config.alertFailureThreshold) {
-          console.error(`[alert] consecutive_failures=${consecutiveFailures} threshold=${config.alertFailureThreshold}`);
-        }
-        const delay = config.retryBaseDelayMs * 2 ** (job.attempt - 1);
-        console.warn(`[bot] message=${job.messageId} conversation=${job.conversationId} retry=${job.attempt + 1}/${config.maxAttempts} delay_ms=${delay}`);
-        setTimeout(() => {
-          const retry = { ...job, attempt: job.attempt + 1 };
-          store.update(retry);
-          queue.push(retry);
-          drain();
-        }, delay).unref();
-      } else if (!succeeded) {
-        consecutiveFailures += 1;
-        totalFailures += 1;
-        totalRetryExhaustions += 1;
-        console.error(`[bot] message=${job.messageId} conversation=${job.conversationId} retries=exhausted`);
-        console.error(`[alert] retry_exhausted_total=${totalRetryExhaustions}`);
-      }
-    }).finally(() => {
-      active -= 1;
-      activeConversations.delete(job.conversationId);
-      drain();
-    });
-  }
-}
-
-function enqueue(job: NonNullable<ReturnType<typeof webhookJob>>): boolean {
-  const now = Date.now();
-  pruneSeen(now);
-  if (seen.has(job.messageId)) return true;
-  if (queue.length >= config.queueLimit) return false;
-  seen.set(job.messageId, now + DEDUPE_TTL_MS);
-  const queued = { ...job, attempt: 1 };
-  store.add(queued);
-  queue.push(queued);
-  drain();
-  return true;
-}
-
-const server = createServer(async (request, response) => {
+async function handleRequest(request: IncomingMessage, response: ServerResponse): Promise<void> {
   const url = new URL(request.url ?? "/", `http://${request.headers.host ?? "localhost"}`);
 
   if (request.method === "GET" && url.pathname === "/health") {
-    json(response, 200, {
-      ok: true,
-      active,
-      active_conversations: activeConversations.size,
-      queued: queue.length,
-      consecutive_failures: consecutiveFailures,
-      total_failures: totalFailures,
-      retry_exhaustions: totalRetryExhaustions,
+    const snapshot = queue.snapshot();
+    json(response, snapshot.accepting ? 200 : 503, {
+      ok: snapshot.accepting,
+      ...snapshot,
+      ...metrics,
+      bot_availability: { ...config.availability, available: isBotAvailable(config.availability) },
     });
     return;
   }
@@ -144,6 +87,7 @@ const server = createServer(async (request, response) => {
   let payload: ChatwootWebhook;
   try {
     payload = JSON.parse(body) as ChatwootWebhook;
+    if (!payload || typeof payload !== "object" || Array.isArray(payload)) throw new Error("invalid_webhook");
   } catch {
     json(response, 400, { ok: false });
     return;
@@ -154,7 +98,7 @@ const server = createServer(async (request, response) => {
     json(response, 200, { ok: true, ignored: true });
     return;
   }
-  if (!enqueue(job)) {
+  if (!queue.enqueue({ ...job, outsideHours: !isBotAvailable(config.availability) })) {
     console.error(`[webhook] conversation=${job.conversationId} queue=full`);
     json(response, 503, { ok: false });
     return;
@@ -162,19 +106,21 @@ const server = createServer(async (request, response) => {
 
   // Acknowledge before model work so Chatwoot does not retry a slow AI request.
   json(response, 202, { ok: true });
-});
+}
 
 server.requestTimeout = 10_000;
 server.headersTimeout = 12_000;
 server.listen(config.port, config.host, () => {
+  queue.start();
   console.info(`[server] listening on http://${config.host}:${config.port}`);
 });
 
 function shutdown(signal: string): void {
   console.info(`[server] received ${signal}, shutting down`);
+  queue.stop();
   server.close((error) => {
     if (error) {
-      console.error("[server] shutdown failed:", error.message);
+      console.error(`[server] shutdown=failed code=${errorCode(error)}`);
       process.exitCode = 1;
     }
   });

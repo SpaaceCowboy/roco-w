@@ -6,5 +6,7 @@
   "sources": [
     "https://rocobroker.com/",
     "https://rocobroker.com/swap-free"
-  ]
+  ],
+  "behavior_last_reviewed": "2026-10-05",
+  "behavior_review_source": "User-approved Persian support improvement specification, 2026-10-05; product facts unchanged."
 }

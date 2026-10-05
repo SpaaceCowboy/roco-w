@@ -3,6 +3,7 @@ export type ChatwootMessage = {
   content?: string | null;
   message_type?: "incoming" | "outgoing" | "activity" | "template" | number;
   private?: boolean;
+  created_at?: number | string;
   sender_type?: string | null;
   sender?: { id?: number | string; type?: string; name?: string } | null;
   content_attributes?: Record<string, unknown> | null;
@@ -14,6 +15,14 @@ export type Job = {
   contactId: string;
   content: string;
   attempt: number;
+  phase?: "queued" | "reply_pending" | "reply_delivered" | "handoff_pending" | "handoff_confirmed" | "failed";
+  decisionAction?: BotDecision["action"];
+  reason?: DecisionReason | "outside_bot_hours";
+  outsideHours?: boolean;
+  language?: import("./language.js").CustomerLanguage;
+  nextAttemptAt?: number;
+  failureCode?: string;
+  retryable?: boolean;
 };
 
 export type ChatwootWebhook = ChatwootMessage & {
@@ -31,6 +40,7 @@ export type ChatwootWebhook = ChatwootMessage & {
 
 export const decisionReasons = [
   "knowledge_answer",
+  "clarification_needed",
   "needs_account_access",
   "financial_advice",
   "complaint_or_legal",
@@ -42,8 +52,9 @@ export const decisionReasons = [
 export type DecisionReason = (typeof decisionReasons)[number];
 
 export type BotDecision = {
-  action: "reply" | "handoff";
+  action: "reply" | "clarify" | "handoff";
   message: string;
   reason: DecisionReason;
   confidence: number;
+  evidence: string[];
 };
