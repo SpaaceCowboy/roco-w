@@ -52,8 +52,6 @@ export async function createMt5DownloadUrl(correlationId: string): Promise<strin
   const command = new GetObjectCommand({
     Bucket: config.bucket,
     Key: config.objectKey,
-    ResponseContentDisposition: 'attachment; filename="rocobroker5setup.exe"',
-    ResponseContentType: "application/vnd.microsoft.portable-executable",
   });
 
   try {
