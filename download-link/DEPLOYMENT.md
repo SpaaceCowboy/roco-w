@@ -23,7 +23,7 @@ account, the website checkout at `/opt/rocobroker-next`, and Node.js at
 {
   "AllowedOrigins": ["https://support-downloads.rocobroker.com"],
   "AllowedMethods": ["PUT"],
-  "AllowedHeaders": ["Content-Type", "Content-Disposition"],
+  "AllowedHeaders": ["Content-Type"],
   "ExposeHeaders": ["ETag"],
   "MaxAgeSeconds": 3600
 }
@@ -130,6 +130,12 @@ configured admin token, upload a small video and test its client link in Chrome.
 Test revocation afterward. Already issued storage URLs can remain usable for
 up to five minutes after revocation. The first redirect starts the expiry timer;
 it does not confirm that the storage download succeeded.
+
+ParsPack supplies the download `Content-Disposition` header. The application
+must not store a second disposition on upload or override it in the signed GET
+URL. Objects uploaded by the earlier version retain that stored metadata;
+re-upload affected videos after updating the service. Regenerating the client
+link does not change object metadata.
 
 ## Subsequent updates
 

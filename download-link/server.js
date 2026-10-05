@@ -138,14 +138,6 @@ function sanitizeFilename(name) {
     .slice(0, 180) || "video";
 }
 
-function asciiFilename(name) {
-  const cleaned = sanitizeFilename(name)
-    .normalize("NFKD")
-    .replace(/[^\x20-\x7E]/g, "_")
-    .replace(/["\\]/g, "_");
-  return cleaned || "download";
-}
-
 function publicBase(req) {
   return (process.env.PUBLIC_BASE_URL || `${req.protocol}://${req.get("host")}`).replace(/\/+$/, "");
 }
@@ -195,13 +187,12 @@ app.post("/api/uploads/init", requireAdmin, async (req, res, next) => {
     const token = crypto.randomBytes(24).toString("base64url");
     const day = new Date().toISOString().slice(0, 10);
     const objectKey = `videos/${day}/${id}-${filename}`;
-    const contentDisposition = `attachment; filename="${asciiFilename(filename)}"`;
-
+    // ParsPack adds its own download disposition. Storing another header on
+    // the object causes Chrome to reject the response as duplicate headers.
     const command = new PutObjectCommand({
       Bucket: process.env.S3_BUCKET,
       Key: objectKey,
-      ContentType: contentType,
-      ContentDisposition: contentDisposition
+      ContentType: contentType
     });
     const putUrl = await getSignedUrl(s3, command, { expiresIn: UPLOAD_URL_SECONDS });
 
@@ -225,8 +216,7 @@ app.post("/api/uploads/init", requireAdmin, async (req, res, next) => {
       id,
       putUrl,
       putHeaders: {
-        "Content-Type": contentType,
-        "Content-Disposition": contentDisposition
+        "Content-Type": contentType
       }
     });
   } catch (e) { next(e); }
