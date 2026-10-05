@@ -1,0 +1,32 @@
+[Unit]
+Description=ROCO Support Video Downloads
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=rocodownloads
+Group=rocodownloads
+WorkingDirectory=/opt/roco-support-downloads
+Environment=NODE_ENV=production
+Environment=HOST=127.0.0.1
+Environment=PORT=3300
+Environment=PUBLIC_BASE_URL=https://support-downloads.rocobroker.com
+Environment=DATA_FILE=/var/lib/roco-support-downloads/uploads.json
+EnvironmentFile=/etc/roco-support-downloads.env
+ExecStart=/opt/rocobroker-node/bin/node /opt/roco-support-downloads/server.js
+Restart=on-failure
+RestartSec=5
+UMask=0077
+StateDirectory=roco-support-downloads
+StateDirectoryMode=0700
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/roco-support-downloads
+RestrictSUIDSGID=true
+LockPersonality=true
+
+[Install]
+WantedBy=multi-user.target
