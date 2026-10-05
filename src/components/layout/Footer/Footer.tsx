@@ -10,7 +10,7 @@ import styles from "./Footer.module.css";
 const MT5 = {
   ios: "https://download.terminal.free/cdn/mobile/mt5/ios?server=RocoBroker-Ltd",
   android: "https://download.terminal.free/cdn/mobile/mt5/android?server=RocoBroker-Ltd",
-  windows: "https://download.terminal.free/cdn/web/roco.broker.ltd/mt5/rocobroker5setup.exe",
+  windows: "/downloads/mt5/windows",
   mac: "https://download.mql5.com/cdn/web/metaquotes.software.corp/mt5/MetaTrader5.pkg.zip",
   web: "https://webtrading.rocobroker.com/terminal?utm_source=www.rocobroker.com&mode=demo&lang=en&theme-mode=0&theme=greenRed",
 };

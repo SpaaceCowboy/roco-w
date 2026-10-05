@@ -56,7 +56,7 @@ export function MetaTrader({
       Icon: WindowsIcon,
       pre: t("downloadFor"),
       name: "Windows",
-      href: "https://download.terminal.free/cdn/web/roco.broker.ltd/mt5/rocobroker5setup.exe",
+      href: "/downloads/mt5/windows",
     },
     {
       key: "mac",
