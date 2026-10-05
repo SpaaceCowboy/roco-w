@@ -42,6 +42,8 @@ export async function createMt5DownloadUrl(correlationId: string): Promise<strin
     region: config.region,
     credentials: { accessKeyId: config.accessKeyId, secretAccessKey: config.secretAccessKey },
     forcePathStyle: true,
+    requestChecksumCalculation: "WHEN_REQUIRED",
+    responseChecksumValidation: "WHEN_REQUIRED",
     maxAttempts: 3,
     requestHandler: new NodeHttpHandler({ connectionTimeout: 3_000, requestTimeout: 10_000 }),
   });
