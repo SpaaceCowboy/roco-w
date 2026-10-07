@@ -21,3 +21,7 @@ test("admins have every permission", () => {
 test("denied permissions throw a typed error", () => {
   assert.throws(() => requireAdminPermission("editor", "content:publish"), AdminAuthorizationError);
 });
+
+test("every role can manage categories", () => {
+  for (const role of ["editor", "reviewer", "admin"] as const) assert.equal(hasAdminPermission(role, "taxonomy:write"), true);
+});

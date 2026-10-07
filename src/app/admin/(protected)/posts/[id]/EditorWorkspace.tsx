@@ -1,13 +1,15 @@
 "use client";
 
-import type { Editor, JSONContent } from "@tiptap/core";
+import type { JSONContent } from "@tiptap/core";
 import { generateJSON } from "@tiptap/html";
 import { EditorContent, useEditor } from "@tiptap/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { CategoryPicker } from "./CategoryPicker";
+import { EditorToolbar, HistoryControls } from "./EditorToolbar";
+import { uploadMediaFile } from "./media-upload";
 import { editorExtensions } from "@/lib/content/editor/extensions";
-import { trackImageUploadTarget } from "@/lib/content/editor/image-upload-target";
 import { importHtmlToDocument, sanitizeImportableHtml } from "@/lib/content/editor/html-import";
 import { rtlContentLocales, type ContentLocale } from "@/lib/admin/content-locales";
 import { publishedArticlePath } from "@/config/blog-routing";
@@ -34,18 +36,11 @@ type EditorMode = "visual" | "source";
 
 function fingerprint(snapshot: Snapshot): string { return JSON.stringify(snapshot); }
 
-function resolveEditorHref(raw: string): string | null {
-  const trimmed = raw.trim();
-  if (/^(?:\/(?!\/)|[?#]|\.\.?\/)/.test(trimmed)) return trimmed;
-  if (/^(https:|mailto:|tel:)/i.test(trimmed)) return trimmed;
-  if (/^[a-z][a-z0-9+.-]*:/i.test(trimmed)) return null;
-  return trimmed ? `https://${trimmed}` : null;
-}
-
-export function EditorWorkspace({ initial, revisions, availableLocales, mediaConfigured, workflowPermissions, initialSeoChecks }: {
+export function EditorWorkspace({ initial, revisions, availableLocales, mediaConfigured, workflowPermissions, initialSeoChecks, category }: {
   initial: InitialArticle; revisions: Revision[]; availableLocales: ContentLocale[]; mediaConfigured: boolean;
   workflowPermissions: { write: boolean; review: boolean; publish: boolean; archive: boolean };
   initialSeoChecks: SeoCheck[];
+  category: { options: Array<{ id: string; label: string }>; initialCategoryId: string | null; importedCategoryName: string | null; lockedReason: string | null };
 }) {
   const router = useRouter();
   const [title, setTitle] = useState(initial.title);
@@ -233,12 +228,23 @@ export function EditorWorkspace({ initial, revisions, availableLocales, mediaCon
       <section className={styles.editorMain} dir={rtlContentLocales.has(initial.locale) ? "rtl" : "ltr"}>
         <label className={styles.titleField}><span>Title</span><textarea value={title} maxLength={220} rows={2} onChange={(event) => setTitle(event.target.value)} /></label>
         <label><span>Excerpt</span><textarea value={excerpt} maxLength={600} rows={3} onChange={(event) => setExcerpt(event.target.value)} /></label>
-        <div className={styles.editorModeBar} role="tablist" aria-label="Article body editing mode">
-          <button type="button" role="tab" aria-selected={editorMode === "visual"} onClick={showVisualMode}>Visual</button>
-          <button type="button" role="tab" aria-selected={editorMode === "source"} onClick={openSourceMode} disabled={!editor}>HTML source</button>
+        <div className={styles.editorModeRow} dir="ltr">
+          {editorMode === "visual" && editor ? <HistoryControls editor={editor} /> : <span />}
+          <div className={styles.editorModeBar} role="tablist" aria-label="Article body editing mode" onKeyDown={(event) => {
+            if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+            event.preventDefault();
+            const tabs = Array.from(event.currentTarget.querySelectorAll<HTMLButtonElement>('[role="tab"]:not(:disabled)'));
+            const index = tabs.indexOf(document.activeElement as HTMLButtonElement);
+            const next = event.key === "Home" ? tabs[0] : event.key === "End" ? tabs[tabs.length - 1] : tabs[(index + (event.key === "ArrowRight" ? 1 : -1) + tabs.length) % tabs.length];
+            next?.focus();
+            next?.click();
+          }}>
+            <button type="button" role="tab" aria-selected={editorMode === "visual"} tabIndex={editorMode === "visual" ? 0 : -1} onClick={showVisualMode}>Visual</button>
+            <button type="button" role="tab" aria-selected={editorMode === "source"} tabIndex={editorMode === "source" ? 0 : -1} onClick={openSourceMode} disabled={!editor}>HTML source</button>
+          </div>
         </div>
         {editorMode === "visual" ? <>
-          <EditorToolbar editor={editor} locale={initial.locale} onImported={applyImportWarnings} />
+          <EditorToolbar editor={editor} locale={initial.locale} mediaConfigured={mediaConfigured} onImported={applyImportWarnings} />
           <EditorContent editor={editor} />
         </> : <div className={styles.sourceEditorPanel}>
           <label htmlFor="article-html-source">Article HTML</label>
@@ -273,6 +279,7 @@ export function EditorWorkspace({ initial, revisions, availableLocales, mediaCon
           <label>Slug<input value={slug} maxLength={180} dir="ltr" onChange={(event) => setSlug(event.target.value)} /></label>
           <label>Author<input value={authorName} maxLength={160} onChange={(event) => setAuthorName(event.target.value)} /></label>
         </section>
+        <CategoryPicker localizationId={initial.id} options={category.options} initialCategoryId={category.initialCategoryId} importedCategoryName={category.importedCategoryName} canWrite={workflowPermissions.write} lockedReason={category.lockedReason} />
         <SeoPanel
           locale={initial.locale}
           slug={slug}
@@ -284,7 +291,6 @@ export function EditorWorkspace({ initial, revisions, availableLocales, mediaCon
           canEditCanonical={workflowPermissions.review}
           mediaConfigured={mediaConfigured}
         />
-        <MediaUploader editor={editor} configured={mediaConfigured} />
         <section><h2>Translations</h2><div className={styles.translationList}>{initial.translations.map((translation) => <Link key={translation.id} href={`/admin/posts/${translation.id}`}><span>{translation.locale}</span>{translation.title}</Link>)}</div>
           {!!availableLocales.length && <div className={styles.addTranslations}>{availableLocales.map((locale) => <button type="button" key={locale} onClick={() => createTranslation(locale)}>+ {locale}</button>)}</div>}
         </section>
@@ -356,408 +362,6 @@ function WorkflowControls({ localizationId, status, permissions }: {
   </section>;
 }
 
-function EditorToolbar({ editor, locale, onImported }: { editor: Editor | null; locale: ContentLocale; onImported?: (warnings: string[]) => void }) {
-  if (!editor) return <div className={styles.toolbar} role="status">Loading editor…</div>;
-  const button = (label: string, active: boolean, action: () => void) => <button type="button" aria-pressed={active} onClick={action}>{label}</button>;
-  return <div className={styles.toolbar} role="toolbar" aria-label="Text formatting">
-    {button("Bold", editor.isActive("bold"), () => editor.chain().focus().toggleBold().run())}
-    {button("Italic", editor.isActive("italic"), () => editor.chain().focus().toggleItalic().run())}
-    {[2, 3, 4].map((level) => button(`H${level}`, editor.isActive("heading", { level }), () => editor.chain().focus().toggleHeading({ level: level as 2 | 3 | 4 }).run()))}
-    {button("Bullets", editor.isActive("bulletList"), () => editor.chain().focus().toggleBulletList().run())}
-    {button("Numbers", editor.isActive("orderedList"), () => editor.chain().focus().toggleOrderedList().run())}
-    {button("Quote", editor.isActive("blockquote"), () => editor.chain().focus().toggleBlockquote().run())}
-    <LinkDialog editor={editor} />
-    <ImageDialog editor={editor} />
-    <button type="button" onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}>Table</button>
-    <button type="button" onClick={() => editor.chain().focus().insertContent({ type: "callout", attrs: { tone: "note" }, content: [{ type: "paragraph", content: [{ type: "text", text: "Callout text" }] }] }).run()}>Callout</button>
-    <CtaDialog editor={editor} locale={locale} />
-    <ImportHtmlDialog editor={editor} onImported={onImported} />
-    <button type="button" onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().undo()}>Undo</button>
-    <button type="button" onClick={() => editor.chain().focus().redo().run()} disabled={!editor.can().redo()}>Redo</button>
-  </div>;
-}
-
-type CtaValues = {
-  heading: string;
-  body: string;
-  primaryLabel: string;
-  primaryHref: string;
-  secondaryLabel: string;
-  secondaryHref: string;
-};
-
-function defaultCtaValues(locale: ContentLocale): CtaValues {
-  const prefix = `/${locale}`;
-  if (locale === "fa") {
-    return {
-      heading: "آماده معامله هستید؟",
-      body: "برای شروع، حساب معاملاتی خود را افتتاح کنید.",
-      primaryLabel: "افتتاح حساب معاملاتی",
-      primaryHref: `${prefix}/accounts`,
-      secondaryLabel: "تماس با ما",
-      secondaryHref: `${prefix}/contact`,
-    };
-  }
-  return {
-    heading: "Ready to start trading?",
-    body: "Open a trading account to get started.",
-    primaryLabel: "Open an account",
-    primaryHref: `${prefix}/accounts`,
-    secondaryLabel: "Contact us",
-    secondaryHref: `${prefix}/contact`,
-  };
-}
-
-function CtaDialog({ editor, locale }: { editor: Editor | null; locale: ContentLocale }) {
-  const [open, setOpen] = useState(false);
-  const [values, setValues] = useState<CtaValues>(() => defaultCtaValues(locale));
-  const [error, setError] = useState("");
-  const dialogRef = useRef<HTMLDialogElement>(null);
-  const firstInputRef = useRef<HTMLInputElement>(null);
-  const triggerRef = useRef<HTMLButtonElement>(null);
-  const focusEditorRef = useRef(false);
-  const active = Boolean(editor?.isActive("articleCta"));
-
-  useEffect(() => {
-    const dialog = dialogRef.current;
-    if (!dialog) return;
-    if (open && !dialog.open) { dialog.showModal(); firstInputRef.current?.focus(); }
-    else if (!open && dialog.open) dialog.close();
-  }, [open]);
-
-  function start() {
-    if (!editor) return;
-    const attrs = editor.getAttributes("articleCta") as Partial<CtaValues>;
-    setValues(active ? { ...defaultCtaValues(locale), ...attrs } : defaultCtaValues(locale));
-    setError("");
-    setOpen(true);
-  }
-
-  function update<K extends keyof CtaValues>(key: K, value: CtaValues[K]) {
-    setValues((current) => ({ ...current, [key]: value }));
-    setError("");
-  }
-
-  function finish() {
-    setOpen(false);
-  }
-
-  function apply() {
-    if (!editor) return;
-    const next = Object.fromEntries(Object.entries(values).map(([key, value]) => [key, value.trim()])) as CtaValues;
-    if (!next.heading || !next.body || !next.primaryLabel || !next.secondaryLabel) {
-      setError("Add a heading, body, and both button labels.");
-      return;
-    }
-    const primaryHref = resolveEditorHref(next.primaryHref);
-    const secondaryHref = resolveEditorHref(next.secondaryHref);
-    if (!primaryHref || !secondaryHref) {
-      setError("Use internal paths or HTTPS, mailto, or tel links for both buttons.");
-      return;
-    }
-    const attrs = { ...next, primaryHref, secondaryHref };
-    focusEditorRef.current = true;
-    if (active) editor.chain().focus().updateAttributes("articleCta", attrs).run();
-    else editor.chain().focus().insertContent({ type: "articleCta", attrs }).run();
-    finish();
-  }
-
-  return <span className={styles.linkControl}>
-    <button ref={triggerRef} type="button" aria-haspopup="dialog" aria-pressed={active} onClick={start}>{active ? "Edit CTA" : "CTA"}</button>
-    <dialog
-      ref={dialogRef}
-      className={`${styles.linkDialog} ${styles.ctaDialog}`}
-      aria-label={active ? "Edit article call to action" : "Add article call to action"}
-      onClose={() => {
-        setOpen(false);
-        if (focusEditorRef.current) { focusEditorRef.current = false; editor?.commands.focus(); }
-        else triggerRef.current?.focus();
-      }}
-    >
-      <label>Heading<input ref={firstInputRef} value={values.heading} maxLength={160} onChange={(event) => update("heading", event.target.value)} /></label>
-      <label>Body<textarea value={values.body} rows={3} maxLength={500} onChange={(event) => update("body", event.target.value)} /></label>
-      <div className={styles.ctaFields}>
-        <label>Primary button label<input value={values.primaryLabel} maxLength={80} onChange={(event) => update("primaryLabel", event.target.value)} /></label>
-        <label>Primary button URL<input value={values.primaryHref} maxLength={2_000} dir="ltr" onChange={(event) => update("primaryHref", event.target.value)} /></label>
-        <label>Secondary button label<input value={values.secondaryLabel} maxLength={80} onChange={(event) => update("secondaryLabel", event.target.value)} /></label>
-        <label>Secondary button URL<input value={values.secondaryHref} maxLength={2_000} dir="ltr" onChange={(event) => update("secondaryHref", event.target.value)} /></label>
-      </div>
-      <p className={styles.muted}>Both buttons are required. Internal paths and HTTPS, mailto, or tel links are supported.</p>
-      {error && <p className={styles.error} role="alert">{error}</p>}
-      <div className={styles.linkDialogActions}>
-        <button type="button" onClick={apply}>{active ? "Update CTA" : "Insert CTA"}</button>
-        <button type="button" onClick={finish}>Cancel</button>
-      </div>
-    </dialog>
-  </span>;
-}
-
-function documentHasBody(document: JSONContent): boolean {
-  const visit = (node: JSONContent): boolean => {
-    if (node.text?.trim()) return true;
-    if (node.type === "image" || node.type === "horizontalRule" || node.type === "codeBlock" || node.type === "articleCta") return true;
-    return (node.content ?? []).some(visit);
-  };
-  return visit(document);
-}
-
-function ImportHtmlDialog({ editor, onImported }: { editor: Editor | null; onImported?: (warnings: string[]) => void }) {
-  const [open, setOpen] = useState(false);
-  const [value, setValue] = useState("");
-  const [error, setError] = useState("");
-  const dialogRef = useRef<HTMLDialogElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const triggerRef = useRef<HTMLButtonElement>(null);
-  const focusEditorRef = useRef(false);
-
-  useEffect(() => {
-    const dialog = dialogRef.current;
-    if (!dialog) return;
-    if (open && !dialog.open) { dialog.showModal(); textareaRef.current?.focus(); }
-    else if (!open && dialog.open) dialog.close();
-  }, [open]);
-
-  function start() {
-    setValue(""); setError(""); setOpen(true);
-  }
-
-  function finish() {
-    setOpen(false);
-  }
-
-  async function readFile(file: File) {
-    try {
-      setValue(await file.text());
-      setError("");
-    } catch {
-      setError("Could not read that file.");
-    }
-  }
-
-  function apply() {
-    if (!editor || !value.trim()) return;
-    try {
-      const result = importHtmlToDocument(value, generateJSON);
-      const hasBody = documentHasBody(editor.getJSON());
-      if (hasBody && !window.confirm("Replace the current article body with this HTML?")) return;
-      focusEditorRef.current = true;
-      editor.chain().setContent(result.document, { emitUpdate: true }).run();
-      onImported?.(result.warnings);
-      finish();
-    } catch (importError) {
-      setError(importError instanceof Error ? importError.message : "Could not import HTML");
-    }
-  }
-
-  return <span className={styles.linkControl}>
-    <button ref={triggerRef} type="button" aria-haspopup="dialog" onClick={start}>Import HTML</button>
-    <dialog
-      ref={dialogRef}
-      className={styles.linkDialog}
-      aria-label="Import HTML into article body"
-      onClose={() => {
-        setOpen(false);
-        if (focusEditorRef.current) { focusEditorRef.current = false; editor?.commands.focus(); }
-        else triggerRef.current?.focus();
-      }}
-    >
-      <label>Article HTML
-        <textarea
-          ref={textareaRef}
-          value={value}
-          rows={10}
-          maxLength={400_000}
-          placeholder="Paste HTML, or choose an .html file"
-          onChange={(event) => { setValue(event.target.value); setError(""); }}
-        />
-      </label>
-      <label className={styles.muted}>Or load a file
-        <input type="file" accept=".html,text/html" onChange={(event) => { const file = event.target.files?.[0]; if (file) void readFile(file); }} />
-      </label>
-      <p className={styles.muted}>Scripts and external images are removed. Limited text alignment is kept. Import replaces the body after confirmation.</p>
-      {error && <p className={styles.error} role="alert">{error}</p>}
-      <div className={styles.linkDialogActions}>
-        <button type="button" onClick={apply} disabled={!value.trim()}>Import (replace body)</button>
-        <button type="button" onClick={finish}>Cancel</button>
-      </div>
-    </dialog>
-  </span>;
-}
-
-function LinkDialog({ editor }: { editor: Editor | null }) {
-  const [open, setOpen] = useState(false);
-  const [value, setValue] = useState("");
-  const [error, setError] = useState("");
-  const dialogRef = useRef<HTMLDialogElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const triggerRef = useRef<HTMLButtonElement>(null);
-  const focusEditorRef = useRef(false);
-  const activeHref = ((editor?.getAttributes("link").href as string | undefined) ?? "").trim();
-
-  useEffect(() => {
-    const dialog = dialogRef.current;
-    if (!dialog) return;
-    if (open && !dialog.open) { dialog.showModal(); inputRef.current?.focus(); }
-    else if (!open && dialog.open) dialog.close();
-  }, [open]);
-
-  function start() {
-    if (!editor) return;
-    setValue((editor.getAttributes("link").href as string | undefined) ?? "");
-    setError("");
-    setOpen(true);
-  }
-
-  function finish() {
-    setOpen(false);
-  }
-
-  function apply() {
-    if (!editor) return;
-    const href = resolveEditorHref(value);
-    if (href === null) { setError("Use an https, mailto, or tel link."); return; }
-    focusEditorRef.current = true;
-    editor.chain().focus().extendMarkRange("link").setLink({ href }).run();
-    finish();
-  }
-
-  function remove() {
-    if (!editor) return;
-    focusEditorRef.current = true;
-    editor.chain().focus().extendMarkRange("link").unsetLink().run();
-    finish();
-  }
-
-  return <span className={styles.linkControl}>
-    <button ref={triggerRef} type="button" aria-haspopup="dialog" aria-pressed={Boolean(activeHref)} onClick={start}>{activeHref ? "Edit link" : "Link"}</button>
-    {activeHref && <span className={styles.linkDestination} dir="ltr" title={activeHref}><span className={styles.srOnly}>Current link: </span>{activeHref}</span>}
-    <dialog
-      ref={dialogRef}
-      className={styles.linkDialog}
-      aria-label="Insert or edit link"
-      onClose={() => {
-        setOpen(false);
-        if (focusEditorRef.current) { focusEditorRef.current = false; editor?.commands.focus(); }
-        else triggerRef.current?.focus();
-      }}
-    >
-      <label>Link URL
-        <input
-          ref={inputRef}
-          type="text"
-          inputMode="url"
-          dir="ltr"
-          value={value}
-          placeholder="https://example.com"
-          onChange={(event) => setValue(event.target.value)}
-          onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); apply(); } }}
-        />
-      </label>
-      {error && <p className={styles.error} role="alert">{error}</p>}
-      <div className={styles.linkDialogActions}>
-        <button type="button" onClick={apply} disabled={!value.trim()}>Apply</button>
-        <button type="button" onClick={remove} disabled={!editor?.isActive("link")}>Remove</button>
-        <button type="button" onClick={finish}>Cancel</button>
-      </div>
-    </dialog>
-  </span>;
-}
-
-function ImageDialog({ editor }: { editor: Editor | null }) {
-  const [open, setOpen] = useState(false);
-  const [alt, setAlt] = useState("");
-  const [title, setTitle] = useState("");
-  const [error, setError] = useState("");
-  const dialogRef = useRef<HTMLDialogElement>(null);
-  const altInputRef = useRef<HTMLInputElement>(null);
-  const triggerRef = useRef<HTMLButtonElement>(null);
-  const focusEditorRef = useRef(false);
-  const active = Boolean(editor?.isActive("image"));
-
-  useEffect(() => {
-    const dialog = dialogRef.current;
-    if (!dialog) return;
-    if (open && !dialog.open) { dialog.showModal(); altInputRef.current?.focus(); }
-    else if (!open && dialog.open) dialog.close();
-  }, [open]);
-
-  function start() {
-    if (!editor || !active) return;
-    const attrs = editor.getAttributes("image") as { alt?: string; title?: string };
-    setAlt(attrs.alt ?? "");
-    setTitle(attrs.title ?? "");
-    setError("");
-    setOpen(true);
-  }
-
-  function finish() {
-    setOpen(false);
-  }
-
-  function apply() {
-    if (!editor) return;
-    const nextAlt = alt.trim();
-    if (!nextAlt) { setError("Alt text is required for every article image."); return; }
-    focusEditorRef.current = true;
-    editor.chain().focus().updateAttributes("image", { alt: nextAlt, title: title.trim() || null }).run();
-    finish();
-  }
-
-  function remove() {
-    if (!editor || !window.confirm("Remove this image from the article? The uploaded media file will remain available.")) return;
-    focusEditorRef.current = true;
-    editor.chain().focus().deleteSelection().run();
-    finish();
-  }
-
-  return <span className={styles.linkControl}>
-    <button ref={triggerRef} type="button" aria-haspopup="dialog" aria-pressed={active} disabled={!active} onClick={start}>Edit image</button>
-    <dialog
-      ref={dialogRef}
-      className={styles.linkDialog}
-      aria-label="Edit inline image"
-      onClose={() => {
-        setOpen(false);
-        if (focusEditorRef.current) { focusEditorRef.current = false; editor?.commands.focus(); }
-        else triggerRef.current?.focus();
-      }}
-    >
-      <label>Alt text<input ref={altInputRef} value={alt} maxLength={300} onChange={(event) => { setAlt(event.target.value); setError(""); }} /></label>
-      <label>Image title (optional)<input value={title} maxLength={300} onChange={(event) => setTitle(event.target.value)} /></label>
-      <p className={styles.muted}>The uploaded media reference and source are preserved when you update the description.</p>
-      {error && <p className={styles.error} role="alert">{error}</p>}
-      <div className={styles.linkDialogActions}>
-        <button type="button" onClick={apply}>Update image</button>
-        <button type="button" onClick={remove}>Remove from article</button>
-        <button type="button" onClick={finish}>Cancel</button>
-      </div>
-    </dialog>
-  </span>;
-}
-
-async function uploadMediaFile(file: File, onState: (state: string) => void) {
-  onState("Checking image…");
-  const hash = await crypto.subtle.digest("SHA-256", await file.arrayBuffer());
-  const checksumSha256 = [...new Uint8Array(hash)].map((value) => value.toString(16).padStart(2, "0")).join("");
-  const start = await fetch("/api/admin/media/uploads", {
-    method: "POST", headers: { "content-type": "application/json" },
-    body: JSON.stringify({ filename: file.name, mimeType: file.type, byteSize: file.size, checksumSha256 }),
-  });
-  const grant = await start.json();
-  if (!start.ok) throw new Error(grant.error ?? "Could not start upload");
-  onState("Uploading…");
-  const put = await fetch(grant.uploadUrl, { method: "PUT", headers: grant.requiredHeaders, body: file });
-  if (!put.ok) throw new Error(`Object storage rejected the upload (${put.status})`);
-  onState("Validating…");
-  const complete = await fetch("/api/admin/media/uploads", {
-    method: "PUT", headers: { "content-type": "application/json" },
-    body: JSON.stringify({ completionToken: grant.completionToken }),
-  });
-  const result = await complete.json();
-  if (!complete.ok) throw new Error(result.error ?? "Image validation failed");
-  return result as { item: { id: string; width: number; height: number; byteSize: number }; url: string };
-}
-
 function SeoPanel({ locale, slug, articleTitle, excerpt, seo, setSeo, checks, canEditCanonical, mediaConfigured }: {
   locale: ContentLocale; slug: string; articleTitle: string; excerpt: string; seo: SeoSettings;
   setSeo: (value: SeoSettings | ((current: SeoSettings) => SeoSettings)) => void;
@@ -798,41 +402,6 @@ function SeoPanel({ locale, slug, articleTitle, excerpt, seo, setSeo, checks, ca
     <div className={styles.socialPreview} dir={rtlContentLocales.has(locale) ? "rtl" : "ltr"}><div>{seo.socialMediaId ? "Custom 1200×630 image" : seo.featuredMediaId ? "Featured image fallback" : "Default social image"}</div><span>ROCOBROKER.COM</span><strong>{socialTitle}</strong><p>{socialDescription}</p></div>
     {!!checks.length && <div className={styles.seoChecks}><h3>Editorial checks</h3><ul>{checks.map((check) => <li key={`${check.code}-${check.message}`} data-severity={check.severity}>{check.message}</li>)}</ul></div>}
   </section>;
-}
-
-function MediaUploader({ editor, configured }: { editor: Editor | null; configured: boolean }) {
-  const [file, setFile] = useState<File | null>(null);
-  const [alt, setAlt] = useState("");
-  const [state, setState] = useState("");
-  const replacing = Boolean(editor?.isActive("image"));
-  async function upload() {
-    if (!file || !alt.trim() || !editor) return;
-    const target = editor.isActive("image") ? trackImageUploadTarget(editor) : null;
-    try {
-      const result = await uploadMediaFile(file, setState);
-      const attrs = { src: result.url, alt: alt.trim(), title: null, mediaId: result.item.id, width: result.item.width, height: result.item.height };
-      const selectedImagePosition = target?.resolve() ?? null;
-      if (target && selectedImagePosition === null) {
-        setState("The selected image was removed or edited during upload. Select an image and try again.");
-        return;
-      }
-      if (selectedImagePosition !== null) {
-        editor.chain().focus().setNodeSelection(selectedImagePosition).updateAttributes("image", attrs).run();
-        setState("Image replaced");
-      } else {
-        editor.chain().focus().insertContent({ type: "image", attrs }).run();
-        setState("Image inserted");
-      }
-      setFile(null); setAlt("");
-    } catch (error) { setState(error instanceof Error ? error.message : "Upload failed"); }
-    finally { target?.dispose(); }
-  }
-  return <section><h2>{replacing ? "Replace selected image" : "Insert image"}</h2>{configured ? <>
-    <label>Image file<input type="file" accept="image/jpeg,image/png,image/webp,image/avif" onChange={(event) => setFile(event.target.files?.[0] ?? null)} /></label>
-    <label>Alt text<input value={alt} maxLength={300} onChange={(event) => setAlt(event.target.value)} /></label>
-    <button type="button" className={styles.secondaryButton} disabled={!file || !alt.trim()} onClick={upload}>{replacing ? "Upload and replace" : "Upload and insert"}</button>
-    {state && <p className={styles.uploadState} role="status">{state}</p>}
-  </> : <p className={styles.muted}>Object storage is not configured in this environment.</p>}</section>;
 }
 
 function plainText(document: JSONContent): string {

@@ -7,7 +7,13 @@ import styles from "../admin.module.css";
  * Native `<details>` popover that closes on outside click or Escape. Kept
  * uncontrolled so the browser owns the open state; the listeners only close it.
  */
-export function Popover({ summary, children }: { summary: ReactNode; children: ReactNode }) {
+export function Popover({ summary, children, className = styles.filterDetails, summaryClassName = styles.ghostButton, label }: {
+  summary: ReactNode;
+  children: ReactNode;
+  className?: string;
+  summaryClassName?: string;
+  label?: string;
+}) {
   const ref = useRef<HTMLDetailsElement>(null);
 
   useEffect(() => {
@@ -27,8 +33,8 @@ export function Popover({ summary, children }: { summary: ReactNode; children: R
   }, []);
 
   return (
-    <details ref={ref} className={styles.filterDetails}>
-      <summary className={styles.ghostButton}>{summary}</summary>
+    <details ref={ref} className={className}>
+      <summary className={summaryClassName} aria-label={label} title={label}>{summary}</summary>
       {children}
     </details>
   );

@@ -10,6 +10,19 @@ const slugSchema = z.string().trim().min(1).max(180).transform((value) => normal
   "Slug may contain letters, numbers, and single hyphens only",
 );
 
+export const categoryInputSchema = z.object({
+  localizations: z.array(z.object({
+    locale: z.enum(contentLocales),
+    name: z.string().trim().min(1).max(120),
+    slug: slugSchema,
+  })).min(1, "Add at least one language").refine(
+    (items) => new Set(items.map((item) => item.locale)).size === items.length,
+    "Each language may appear only once",
+  ),
+});
+
+export type CategoryInput = z.infer<typeof categoryInputSchema>;
+
 export const createPostSchema = z.object({
   locale: z.enum(contentLocales),
   title: z.string().trim().min(1).max(220),

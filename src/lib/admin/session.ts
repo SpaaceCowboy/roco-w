@@ -8,22 +8,26 @@ import { adminUsers } from "@/db/schema";
 import type { AdminRole } from "./permissions";
 import { getAdminAuth } from "./auth";
 import { isSessionActive } from "./session-policy";
+import { isLocalDevAdminRequest } from "./local-dev-policy";
+import { getLocalDevAdminSession } from "./local-dev-session";
 
 export type AdminSession = {
   userId: string;
   role: AdminRole;
   expiresAt: Date;
+  localDevelopment?: boolean;
 };
 
 /**
- * Fails closed until the selected OIDC provider is connected. The protected
- * admin route already depends on this boundary, so adding a provider cannot
- * accidentally bypass server-side authorization.
+ * Google authentication is required unless the explicit localhost development
+ * bypass is enabled. Both pages and API mutations use this boundary.
  */
 export async function getAdminSession(): Promise<AdminSession | null> {
+  const requestHeaders = await headers();
+  if (isLocalDevAdminRequest(requestHeaders)) return getLocalDevAdminSession();
   const auth = getAdminAuth();
   if (!auth) return null;
-  const session = await auth.api.getSession({ headers: await headers() });
+  const session = await auth.api.getSession({ headers: requestHeaders });
   if (!session?.user?.id || !session.user.emailVerified) return null;
 
   const [admin] = await getDatabase()

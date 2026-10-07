@@ -1,8 +1,12 @@
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 import { isAdminAuthConfigured } from "@/lib/admin/auth-config";
+import { isLocalDevAdminRequest } from "@/lib/admin/local-dev-policy";
 import { GoogleSignInButton } from "./GoogleSignInButton";
 import styles from "../admin.module.css";
 
-export default function AdminSignInPage() {
+export default async function AdminSignInPage() {
+  if (isLocalDevAdminRequest(await headers())) redirect("/admin");
   const configured = isAdminAuthConfigured();
   return (
     <main className={styles.panel}>
