@@ -1,6 +1,10 @@
 "use client";
 
-import type { ReactNode } from "react";
+import type { ChangeEvent, ReactNode } from "react";
+
+function submit(event: ChangeEvent<HTMLSelectElement | HTMLInputElement>) {
+  event.currentTarget.form?.requestSubmit();
+}
 
 /** Filter controls that apply immediately, so selecting a value re-runs the query. */
 export function AutoSubmitSelect({ name, defaultValue, children }: {
@@ -12,7 +16,7 @@ export function AutoSubmitSelect({ name, defaultValue, children }: {
     <select
       name={name}
       defaultValue={defaultValue}
-      onChange={(event) => event.currentTarget.form?.requestSubmit()}
+      onChange={submit}
     >
       {children}
     </select>
@@ -31,7 +35,7 @@ export function AutoSubmitInput({ type, name, defaultValue, label }: {
       name={name}
       defaultValue={defaultValue}
       aria-label={label}
-      onChange={(event) => event.currentTarget.form?.requestSubmit()}
+      onChange={submit}
     />
   );
 }

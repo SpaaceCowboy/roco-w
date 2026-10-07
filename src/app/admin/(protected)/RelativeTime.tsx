@@ -40,7 +40,6 @@ export function RelativeTime({ value }: { value: string }) {
   }, [date]);
 
   return <time className={styles.relativeTime} dateTime={value} title={labels.exact}>
-    <span>{labels.relative}</span>
-    <small>{labels.exact}</small>
+    {labels.relative}
   </time>;
 }

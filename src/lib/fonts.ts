@@ -1,4 +1,4 @@
-import { Montserrat, Noto_Sans_SC, Open_Sans, Vazirmatn } from "next/font/google";
+import { Estedad, Montserrat, Noto_Sans_SC, Open_Sans, Vazirmatn } from "next/font/google";
 
 /**
  * Montserrat is RocoBroker's brand font. It covers Latin + Cyrillic, so it
@@ -45,5 +45,15 @@ export const notoSansSC = Noto_Sans_SC({
   weight: "variable",
   variable: "--font-noto-sans-sc",
   display: "swap",
+  preload: false,
+});
+
+/** Estedad — Persian/Latin typeface for the content admin (variable weight). */
+export const estedad = Estedad({
+  subsets: ["arabic", "latin"],
+  weight: "variable",
+  variable: "--font-estedad",
+  display: "swap",
+  // This module is also imported by the public layout; never preload the admin font there.
   preload: false,
 });

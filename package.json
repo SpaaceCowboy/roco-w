@@ -5,6 +5,7 @@
   "description": "RocoBroker — multilingual marketing site and native educational blog built with Next.js and next-intl.",
   "scripts": {
     "dev": "next dev",
+    "dev:local": "ADMIN_LOCAL_DEV_BYPASS=1 next dev --hostname 127.0.0.1",
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint",

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { deleteContentSchema, normalizeSlug, saveDraftSchema } from "./content-validation";
+import { categoryInputSchema, deleteContentSchema, normalizeSlug, saveDraftSchema } from "./content-validation";
 
 test("normalizes Latin and Persian slugs without dropping script characters", () => {
   assert.equal(normalizeSlug("  Hello_World  "), "hello-world");
@@ -33,4 +33,13 @@ test("rejects an unknown scope or a missing/non-positive version", () => {
   assert.equal(deleteContentSchema.safeParse({ scope: "post" }).success, false);
   assert.equal(deleteContentSchema.safeParse({ scope: "post", expectedVersion: 0 }).success, false);
   assert.equal(deleteContentSchema.safeParse({ scope: "post", expectedVersion: -1 }).success, false);
+});
+
+test("category input normalizes slugs and rejects duplicate languages", () => {
+  const parsed = categoryInputSchema.parse({ localizations: [{ locale: "fa", name: " بازار ", slug: "بازار فارکس" }] });
+  assert.deepEqual(parsed.localizations[0], { locale: "fa", name: "بازار", slug: "بازار-فارکس" });
+  assert.equal(categoryInputSchema.safeParse({ localizations: [] }).success, false);
+  assert.equal(categoryInputSchema.safeParse({
+    localizations: [{ locale: "en", name: "A", slug: "a" }, { locale: "en", name: "B", slug: "b" }],
+  }).success, false);
 });

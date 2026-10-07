@@ -6,6 +6,20 @@ allowlist. A valid Google login alone never grants access.
 
 ## Required configuration
 
+### Local development without Google sign-in
+
+Run `npm run dev:local` and open `http://localhost:3000/admin`. This opts into
+`ADMIN_LOCAL_DEV_BYPASS=1`, binds the server to `127.0.0.1`, and requires an
+already migrated local PostgreSQL database configured through `DATABASE_URL`.
+Production and test modes, plain `npm run dev` (which listens on every network
+interface), public hostnames, foreign origins, and remote database URLs cannot
+use the bypass, even if `ADMIN_LOCAL_DEV_BYPASS` is set in a `.env` file. Origin checks and role checks still apply.
+
+The bypass creates a dedicated, disabled `Local developer` admin row in the
+local database for audit and content foreign keys. It cannot sign in through
+Google and never impersonates an existing administrator. Stop the server and
+use `npm run dev` to restore normal sign-in. The sidebar identifies bypass mode.
+
 Apply database migrations before enabling authentication:
 
 ```bash

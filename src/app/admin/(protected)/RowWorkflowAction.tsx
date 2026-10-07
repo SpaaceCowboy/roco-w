@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { PublicationAction } from "@/lib/admin/publication-policy";
 import styles from "../admin.module.css";
@@ -21,6 +21,13 @@ export function RowWorkflowAction({ localizationId, action, label }: Props) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const buttonRef = useRef<HTMLButtonElement>(null);
+
+  // The button can sit inside a row menu that closes on outside clicks; reopen it so failures are seen.
+  function fail(message: string) {
+    setError(message);
+    buttonRef.current?.closest("details")?.setAttribute("open", "");
+  }
 
   async function run() {
     if (CONFIRM_ACTIONS.includes(action) && !window.confirm(`${label} this article?`)) return;
@@ -34,12 +41,12 @@ export function RowWorkflowAction({ localizationId, action, label }: Props) {
       });
       const body = (await response.json().catch(() => ({}))) as { error?: string };
       if (!response.ok) {
-        setError(body.error ?? "The action could not be completed.");
+        fail(body.error ?? "The action could not be completed.");
         return;
       }
       router.refresh();
     } catch {
-      setError("The action could not be completed. Check your connection and try again.");
+      fail("The action could not be completed. Check your connection and try again.");
     } finally {
       setBusy(false);
     }
@@ -47,7 +54,7 @@ export function RowWorkflowAction({ localizationId, action, label }: Props) {
 
   return (
     <>
-      <button type="button" className={styles.rowAction} onClick={run} disabled={busy}>
+      <button ref={buttonRef} type="button" className={styles.rowAction} onClick={run} disabled={busy}>
         {busy ? "Working…" : label}
       </button>
       {error && <span className={styles.rowActionError} role="alert">{error}</span>}

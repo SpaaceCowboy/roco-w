@@ -77,10 +77,12 @@ export function DeletePostDialog({ localizationId, version, title, locale, local
   }
 
   if (!anyAllowed) {
+    const reason = localization.allowed === false ? localization.message : "";
     return (
-      <span className={styles.deleteUnavailable}>
-        Delete unavailable: {localization.allowed === false ? localization.message : ""}
-      </span>
+      <>
+        <button type="button" className={styles.deleteButton} disabled aria-describedby={`delete-reason-${localizationId}`}>Delete</button>
+        <span id={`delete-reason-${localizationId}`} className={styles.menuNote}>{reason || "Delete is unavailable for this article."}</span>
+      </>
     );
   }
 
