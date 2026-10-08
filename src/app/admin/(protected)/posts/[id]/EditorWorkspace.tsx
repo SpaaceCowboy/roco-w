@@ -11,6 +11,7 @@ import { EditorToolbar, HistoryControls } from "./EditorToolbar";
 import { uploadMediaFile } from "./media-upload";
 import { editorExtensions } from "@/lib/content/editor/extensions";
 import { importHtmlToDocument, sanitizeImportableHtml } from "@/lib/content/editor/html-import";
+import { formatHtmlSource } from "@/lib/content/editor/html-source";
 import { rtlContentLocales, type ContentLocale } from "@/lib/admin/content-locales";
 import { publishedArticlePath } from "@/config/blog-routing";
 import styles from "../../../admin.module.css";
@@ -89,7 +90,7 @@ export function EditorWorkspace({ initial, revisions, availableLocales, mediaCon
 
   function openSourceMode() {
     if (!editor) return;
-    setSourceDraft(editor.getHTML());
+    setSourceDraft(formatHtmlSource(editor.getHTML()));
     setSourceError("");
     setSourceDirty(false);
     setEditorMode("source");
@@ -122,7 +123,7 @@ export function EditorWorkspace({ initial, revisions, availableLocales, mediaCon
 
   function discardSourceChanges() {
     if (!editor) return;
-    setSourceDraft(editor.getHTML());
+    setSourceDraft(formatHtmlSource(editor.getHTML()));
     setSourceError("");
     setSourceDirty(false);
     setEditorMode("visual");
@@ -255,6 +256,7 @@ export function EditorWorkspace({ initial, revisions, availableLocales, mediaCon
             maxLength={400_000}
             rows={28}
             dir="ltr"
+            wrap="soft"
             spellCheck={false}
             aria-describedby="article-html-source-help"
             aria-invalid={Boolean(sourceError)}

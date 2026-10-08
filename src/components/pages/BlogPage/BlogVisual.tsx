@@ -16,12 +16,13 @@ export function BlogVisual({ seed, label, src, alt = "", width, height, articleH
     return (
       <div
         className={`${styles.visual} ${styles.photo} ${articleHero ? styles.articleHero : ""}`}
-        style={articleHero && width && height ? { aspectRatio: `${width} / ${height}` } : undefined}
       >
         <Image
           src={src}
           alt={alt}
-          fill
+          {...(articleHero
+            ? { width: width && width > 0 ? width : 1280, height: height && height > 0 ? height : 720 }
+            : { fill: true })}
           sizes={articleHero
             ? "(max-width: 700px) calc(100vw - 32px), (max-width: 1344px) calc(100vw - 64px), 1280px"
             : "(max-width: 700px) 100vw, (max-width: 1100px) 50vw, 760px"}
