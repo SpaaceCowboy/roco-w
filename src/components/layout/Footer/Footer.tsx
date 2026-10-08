@@ -170,7 +170,7 @@ export function Footer() {
             </p>
             <a
               className={styles.riskLink}
-              href="/documents/risk-disclosure.pdf"
+              href="/documents/Risk-Disclosure-statement-vol2.pdf"
               target="_blank"
               rel="noopener noreferrer"
             >

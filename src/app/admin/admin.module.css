@@ -543,7 +543,8 @@
   min-height: 34rem !important;
   resize: vertical;
   tab-size: 2;
-  white-space: pre;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
   font: .84rem/1.65 ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",monospace !important;
   direction: ltr;
   text-align: left;

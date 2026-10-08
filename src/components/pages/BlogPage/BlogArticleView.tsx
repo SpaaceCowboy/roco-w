@@ -23,12 +23,17 @@ export type BlogArticleUi = {
   copied: string;
 };
 
-function addLegacyHeadingAnchors(html: string): string {
+function prepareArticleHtml(html: string): string {
   let index = 0;
   return html.replace(/<h([2-6])(\s[^>]*)?>/gi, (heading) => {
     const anchor = `<span id="elementor-toc__heading-anchor-${index}" aria-hidden="true" style="display:block;scroll-margin-top:8rem"></span>`;
     index += 1;
     return `${anchor}${heading}`;
+  }).replace(/<\/?table\b[^>]*>/gi, (tag) => {
+    // Keep native table sizing; horizontal overflow belongs to the wrapper.
+    return tag.startsWith("</")
+      ? `${tag}</div>`
+      : `<div class="article-table-scroll" tabindex="0">${tag}`;
   });
 }
 
@@ -68,7 +73,7 @@ export function BlogArticleView({ post, related, recent, locale, ui }: { post: B
         </div>
       </header>
 
-      <div className={styles.visualWrap}>
+      <div className={`${styles.visualWrap} ${post.featuredImage ? styles.visualWrapPhoto : ""}`}>
         <BlogVisual
           seed={post.sourceId}
           label={post.category.name}
@@ -91,7 +96,7 @@ export function BlogArticleView({ post, related, recent, locale, ui }: { post: B
               </nav>
             </details>
           )}
-          <div className={styles.prose} dangerouslySetInnerHTML={{ __html: addLegacyHeadingAnchors(post.contentHtml) }} />
+          <div className={styles.prose} dangerouslySetInnerHTML={{ __html: prepareArticleHtml(post.contentHtml) }} />
           <footer className={styles.articleFooter}>
             {!!post.tags.length && <div className={styles.tags}>{post.tags.map((tag) => <Link key={tag.slug} href={{ pathname: "/blog", query: { tag: tag.slug } }}>#{tag.name}</Link>)}</div>}
             <ArticleShare title={post.title} shareLabel={ui.share} copyLabel={ui.copyLink} copiedLabel={ui.copied} />

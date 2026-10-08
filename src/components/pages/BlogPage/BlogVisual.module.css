@@ -23,7 +23,11 @@
 }
 
 .articleHero .image {
-  object-fit: contain;
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: clamp(320px, 42vw, 520px);
 }
 
 .variant1 { color: #92e6cf; }
@@ -104,4 +108,5 @@
 
 @media (max-width: 700px) {
   .visual { min-height: 190px; }
+  .articleHero .image { max-height: clamp(180px, 48vw, 200px); }
 }
