@@ -1,3 +1,10 @@
+## 2026-10-08 — SCC staff authentication (opt-in)
+
+- Added terminal-provisioned email/password accounts, mandatory authenticator MFA, recovery codes, global revocation and an eight-hour hard session limit.
+- Added a protected session-validation API for the independently deployed SEO dashboard, with explicit human-actor mapping.
+- Added the content-dashboard switch link, authenticated SCC proxy/origin checks, additive migration and main-VPS operator handoff.
+- Google mode remains the default until the coordinated cutover. Public website and publication ownership remain in this repository.
+
 # Changelog
 
 This file records changes made during the launch-readiness remediation. New

@@ -1,3 +1,5 @@
+> The optional SCC staff-login deployment is documented in [scc-staff-deployment.md](scc-staff-deployment.md). Its flags are off by default; the Google-mode procedures below remain applicable until cutover.
+
 # Content admin operations
 
 The internal content panel is served at `/admin`. It uses Google OpenID Connect

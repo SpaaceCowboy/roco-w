@@ -171,3 +171,7 @@ runuser -u rocoweb -- env \
 
 Stopping the app affects only this private service. Apache, WordPress, cPanel,
 Exim and Dovecot are untouched by it.
+
+## Prepared SCC staff-login release (2026-10-08)
+
+The `codex/scc-shared-staff-login` branch adds an opt-in shared email/password + authenticator login and SCC proxy integration. This is a prepared release, not a claim that the main VPS has been updated. Main-VPS deployment, account provisioning, the key transfer and rollback are documented in `docs/scc-staff-deployment.md`. Both services remain on their existing VPSs.

@@ -14,7 +14,24 @@ export default function middleware(request: NextRequest) {
   // authorization are enforced again inside its server layouts and handlers;
   // bypassing next-intl here only prevents /admin from being rewritten to a
   // public locale route.
-  if (request.nextUrl.pathname === "/admin" || request.nextUrl.pathname.startsWith("/admin/")) {
+  if (
+    request.nextUrl.pathname === "/admin" ||
+    request.nextUrl.pathname.startsWith("/admin/")
+  ) {
+    if (
+      process.env.ADMIN_AUTH_MODE === "staff" &&
+      process.env.ADMIN_AUTH_BASE_URL
+    ) {
+      const target = new URL(process.env.ADMIN_AUTH_BASE_URL);
+      if (
+        request.headers.get("x-forwarded-host") !== target.host &&
+        request.headers.get("host") !== target.host
+      ) {
+        target.pathname = request.nextUrl.pathname;
+        target.search = request.nextUrl.search;
+        return NextResponse.redirect(target, 307);
+      }
+    }
     return NextResponse.next();
   }
 

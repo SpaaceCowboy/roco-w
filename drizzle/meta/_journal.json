@@ -43,6 +43,13 @@
       "when": 1789988738876,
       "tag": "0005_content_deletion",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1791467104314,
+      "tag": "0006_shared_staff_login",
+      "breakpoints": true
     }
   ]
 }

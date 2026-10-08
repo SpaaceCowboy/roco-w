@@ -14,19 +14,46 @@ test("returns null when admin authentication is entirely unconfigured", () => {
 });
 
 test("rejects a partial authentication configuration", () => {
-  assert.throws(() => readAdminAuthConfig({ ADMIN_AUTH_BASE_URL: complete.ADMIN_AUTH_BASE_URL }), /Incomplete/);
+  assert.throws(
+    () =>
+      readAdminAuthConfig({
+        ADMIN_AUTH_BASE_URL: complete.ADMIN_AUTH_BASE_URL,
+      }),
+    /Incomplete/,
+  );
 });
 
 test("rejects non-HTTPS remote origins", () => {
-  assert.throws(() => readAdminAuthConfig({ ...complete, ADMIN_AUTH_BASE_URL: "http://example.com" }), /HTTPS/);
+  assert.throws(
+    () =>
+      readAdminAuthConfig({
+        ...complete,
+        ADMIN_AUTH_BASE_URL: "http://example.com",
+      }),
+    /HTTPS/,
+  );
 });
 
 test("accepts complete Google OIDC configuration", () => {
   assert.deepEqual(readAdminAuthConfig(complete), {
+    mode: "google",
     baseUrl: "https://rocobroker.com",
     secret: complete.ADMIN_AUTH_SECRET,
     googleClientId: "client-id",
     googleClientSecret: "client-secret",
     googleHostedDomain: undefined,
   });
+});
+
+test("staff mode requires no Google credentials and rejects unknown modes", () => {
+  const result = readAdminAuthConfig({
+    ADMIN_AUTH_MODE: "staff",
+    ADMIN_AUTH_BASE_URL: "https://scc.rocobroker.com",
+    ADMIN_AUTH_SECRET: "a".repeat(32),
+  });
+  assert.equal(result?.mode, "staff");
+  assert.throws(
+    () => readAdminAuthConfig({ ADMIN_AUTH_MODE: "invalid" }),
+    /ADMIN_AUTH_MODE/,
+  );
 });

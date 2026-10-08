@@ -2497,3 +2497,9 @@ button.tableLink {
   font-size: .8125rem;
   line-height: 1.5;
 }
+.staffLogin { display: grid; gap: 12px; width: min(100%, 480px); margin-top: 24px; }
+.staffLogin input:not([type="checkbox"]) { width: 100%; min-height: 44px; padding: 10px 12px; border: 1px solid #d3d7df; border-radius: 8px; background: white; color: #18202d; }
+.staffLogin input:focus-visible { outline: 2px solid #3457d5; outline-offset: 2px; }
+.staffLogin label { font-weight: 600; }
+.staffLogin p { line-height: 1.6; }
+.staffLogin section { display: grid; gap: 12px; }

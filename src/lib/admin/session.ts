@@ -10,12 +10,15 @@ import { getAdminAuth } from "./auth";
 import { isSessionActive } from "./session-policy";
 import { isLocalDevAdminRequest } from "./local-dev-policy";
 import { getLocalDevAdminSession } from "./local-dev-session";
+import { staffMode, trustedStaffProxy } from "./staff-policy";
+import { getVerifiedStaffSession } from "./staff-session";
 
 export type AdminSession = {
   userId: string;
   role: AdminRole;
   expiresAt: Date;
   localDevelopment?: boolean;
+  seoActorId?: string | null;
 };
 
 /**
@@ -25,6 +28,10 @@ export type AdminSession = {
 export async function getAdminSession(): Promise<AdminSession | null> {
   const requestHeaders = await headers();
   if (isLocalDevAdminRequest(requestHeaders)) return getLocalDevAdminSession();
+  if (staffMode()) {
+    if (!trustedStaffProxy(requestHeaders)) return null;
+    return getVerifiedStaffSession(new Headers(requestHeaders));
+  }
   const auth = getAdminAuth();
   if (!auth) return null;
   const session = await auth.api.getSession({ headers: requestHeaders });
@@ -33,7 +40,12 @@ export async function getAdminSession(): Promise<AdminSession | null> {
   const [admin] = await getDatabase()
     .select({ id: adminUsers.id, role: adminUsers.role })
     .from(adminUsers)
-    .where(and(eq(adminUsers.authUserId, session.user.id), eq(adminUsers.isActive, true)))
+    .where(
+      and(
+        eq(adminUsers.authUserId, session.user.id),
+        eq(adminUsers.isActive, true),
+      ),
+    )
     .limit(1);
   if (!admin) return null;
 

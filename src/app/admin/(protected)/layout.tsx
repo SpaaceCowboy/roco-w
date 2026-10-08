@@ -5,6 +5,7 @@ import { requireAdminSession } from "@/lib/admin/session";
 import { SignOutButton } from "../SignOutButton";
 import { NavLink } from "./NavLink";
 import styles from "../admin.module.css";
+import { staffMode } from "@/lib/admin/staff-policy";
 
 function ArticlesIcon() {
   return (
@@ -49,6 +50,7 @@ export default async function ProtectedAdminLayout({ children }: { children: Rea
         </Link>
 
         <nav className={styles.sideNav} aria-label="Main navigation">
+          {staffMode() && session.seoActorId && <a href={process.env.ADMIN_AUTH_BASE_URL} className={styles.sideNavItem}>SEO Control Center</a>}
           <NavLink href="/admin" sections={["/admin/posts"]} className={styles.sideNavItem}>
             <ArticlesIcon />
             Articles

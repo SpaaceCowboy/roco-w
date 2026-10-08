@@ -37,6 +37,7 @@ export const adminUsers = pgTable(
     oidcIssuer: text("oidc_issuer"),
     oidcSubject: text("oidc_subject"),
     authUserId: text("auth_user_id"),
+    seoActorId: uuid("seo_actor_id"),
     role: adminRole("role").notNull(),
     isActive: boolean("is_active").default(true).notNull(),
     lastLoginAt: timestamp("last_login_at", { withTimezone: true }),
@@ -61,6 +62,7 @@ export const authUsers = pgTable(
     name: text("name").notNull(),
     email: text("email").notNull(),
     emailVerified: boolean("email_verified").default(false).notNull(),
+    twoFactorEnabled: boolean("two_factor_enabled").default(false).notNull(),
     image: text("image"),
     ...timestamps,
   },
@@ -72,6 +74,7 @@ export const authSessions = pgTable(
   {
     id: text("id").primaryKey(),
     expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    mfaVerifiedAt: timestamp("mfa_verified_at", { withTimezone: true }),
     token: text("token").notNull(),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
@@ -121,6 +124,21 @@ export const authVerifications = pgTable(
   },
   (table) => [index("auth_verifications_identifier_idx").on(table.identifier)],
 );
+
+export const authTwoFactors = pgTable("auth_two_factors", {
+  id: text("id").primaryKey(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => authUsers.id, { onDelete: "cascade" })
+    .unique(),
+  secret: text("secret").notNull(),
+  backupCodes: text("backup_codes").notNull(),
+  verified: boolean("verified").default(true).notNull(),
+  failedVerificationCount: integer("failed_verification_count")
+    .default(0)
+    .notNull(),
+  lockedUntil: timestamp("locked_until", { withTimezone: true }),
+});
 
 export const media = pgTable(
   "media",

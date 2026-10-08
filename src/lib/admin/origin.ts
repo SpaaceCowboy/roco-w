@@ -1,4 +1,5 @@
 import { AdminApiError } from "./errors";
+import { staffMode, trustedStaffProxy } from "./staff-policy";
 
 /**
  * Same-origin enforcement for admin mutations.
@@ -21,13 +22,22 @@ export type OriginRequest = {
 };
 
 export function requestOrigin(request: OriginRequest): string {
-  const forwardedHost = request.headers.get("x-forwarded-host") ?? request.headers.get("host");
+  const forwardedHost =
+    request.headers.get("x-forwarded-host") ?? request.headers.get("host");
   const forwardedProto =
-    request.headers.get("x-forwarded-proto") ?? new URL(request.url).protocol.slice(0, -1);
+    request.headers.get("x-forwarded-proto") ??
+    new URL(request.url).protocol.slice(0, -1);
   return `${forwardedProto}://${forwardedHost}`;
 }
 
 export function isSameOrigin(request: OriginRequest): boolean {
+  if (
+    staffMode() &&
+    (!trustedStaffProxy(request.headers) ||
+      request.headers.get("origin") !==
+        new URL(process.env.ADMIN_AUTH_BASE_URL!).origin)
+  )
+    return false;
   const origin = request.headers.get("origin");
   if (!origin) return false;
   try {
@@ -40,5 +50,6 @@ export function isSameOrigin(request: OriginRequest): boolean {
 export function assertSameOrigin(request: OriginRequest): void {
   const origin = request.headers.get("origin");
   if (!origin) throw new AdminApiError(403, "Origin header is required");
-  if (!isSameOrigin(request)) throw new AdminApiError(403, "Cross-origin mutation denied");
+  if (!isSameOrigin(request))
+    throw new AdminApiError(403, "Cross-origin mutation denied");
 }

@@ -3,6 +3,7 @@ import "server-only";
 import { randomUUID } from "node:crypto";
 import { APIError } from "better-auth/api";
 import { betterAuth } from "better-auth";
+import { twoFactor } from "better-auth/plugins";
 import { drizzleAdapter } from "@better-auth/drizzle-adapter";
 import { and, eq, isNull } from "drizzle-orm";
 import { getDatabase } from "@/db/client";
@@ -13,6 +14,7 @@ import {
   authSessions,
   authUsers,
   authVerifications,
+  authTwoFactors,
 } from "@/db/schema";
 import { normalizeAdminEmail } from "./identity";
 import { readAdminAuthConfig, type AdminAuthConfig } from "./auth-config";
@@ -41,6 +43,10 @@ function createAdminAuth(config: AdminAuthConfig) {
     basePath: "/api/auth",
     secret: config.secret,
     trustedOrigins: [config.baseUrl],
+    ...(config.mode === "staff" ? {
+      emailAndPassword: { enabled: true, disableSignUp: true, minPasswordLength: 12, maxPasswordLength: 128 },
+      plugins: [twoFactor({ issuer: "RocoBroker Staff" })],
+    } : {}),
     database: drizzleAdapter(db, {
       provider: "pg",
       schema: {
@@ -48,9 +54,10 @@ function createAdminAuth(config: AdminAuthConfig) {
         session: authSessions,
         account: authAccounts,
         verification: authVerifications,
+        twoFactor: authTwoFactors,
       },
     }),
-    socialProviders: {
+    socialProviders: config.mode === "staff" ? {} : {
       google: {
         clientId: config.googleClientId,
         clientSecret: config.googleClientSecret,
@@ -62,6 +69,7 @@ function createAdminAuth(config: AdminAuthConfig) {
     session: {
       expiresIn: 60 * 60 * 8,
       updateAge: 60 * 60,
+      additionalFields: { mfaVerifiedAt: { type: "date", required: false, input: false } },
     },
     account: {
       accountLinking: { enabled: false },
@@ -73,6 +81,10 @@ function createAdminAuth(config: AdminAuthConfig) {
     },
     advanced: {
       useSecureCookies: config.baseUrl.startsWith("https://"),
+      ...(config.mode === "staff" ? {
+        cookiePrefix: "roco-staff",
+        ipAddress: { ipAddressHeaders: ["x-roco-client-ip"] },
+      } : {}),
       database: { generateId: () => randomUUID() },
     },
     databaseHooks: {
@@ -138,7 +150,7 @@ function createAdminAuth(config: AdminAuthConfig) {
       },
       session: {
         create: {
-          before: async (session) => {
+          before: async (session, context) => {
             const [admin] = await db
               .select({ id: adminUsers.id })
               .from(adminUsers)
@@ -148,9 +160,13 @@ function createAdminAuth(config: AdminAuthConfig) {
               reportAdminFailure(adminEvents.auth, { stage: "session_create", reason: "not_allowlisted" });
               throw new APIError("FORBIDDEN", { message: "Admin access is not permitted." });
             }
-            return { data: session };
+            const mfaVerifiedAt = config.mode === "staff" &&
+              (context?.path === "/two-factor/verify-totp" || context?.path === "/two-factor/verify-backup-code")
+              ? new Date() : null;
+            return { data: { ...session, mfaVerifiedAt } };
           },
           after: async (session) => {
+            if (config.mode === "staff" && !session.mfaVerifiedAt) return;
             const [admin] = await db
               .update(adminUsers)
               .set({ lastLoginAt: new Date(), updatedAt: new Date() })
@@ -159,13 +175,13 @@ function createAdminAuth(config: AdminAuthConfig) {
             if (!admin) return;
             await db.insert(auditEvents).values({
               actorId: admin.id,
-              action: "auth.google.signed_in",
+              action: config.mode === "staff" ? "staff.signed_in" : "auth.google.signed_in",
               entityType: "admin_session",
               outcome: "success",
               correlationId: randomUUID(),
-              metadata: { provider: "google" },
+              metadata: { provider: config.mode === "staff" ? "password_mfa" : "google" },
             });
-            reportAdminSuccess(adminEvents.auth, { provider: "google" });
+            reportAdminSuccess(adminEvents.auth, { provider: config.mode === "staff" ? "password_mfa" : "google" });
           },
         },
       },

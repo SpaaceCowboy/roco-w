@@ -1,4 +1,5 @@
 export type AdminAuthConfig = {
+  mode: "google" | "staff";
   baseUrl: string;
   secret: string;
   googleClientId: string;
@@ -15,35 +16,56 @@ const requiredKeys = [
 
 type Environment = Record<string, string | undefined>;
 
-export function readAdminAuthConfig(environment: Environment = process.env): AdminAuthConfig | null {
-  const configured = requiredKeys.filter((key) => Boolean(environment[key]));
+export function readAdminAuthConfig(
+  environment: Environment = process.env,
+): AdminAuthConfig | null {
+  const mode = environment.ADMIN_AUTH_MODE ?? "google";
+  if (mode !== "google" && mode !== "staff")
+    throw new Error("ADMIN_AUTH_MODE must be google or staff");
+  const keys = mode === "staff" ? requiredKeys.slice(0, 2) : requiredKeys;
+  const configured = keys.filter((key) => Boolean(environment[key]));
   if (configured.length === 0) return null;
 
-  const missing = requiredKeys.filter((key) => !environment[key]);
+  const missing = keys.filter((key) => !environment[key]);
   if (missing.length > 0) {
-    throw new Error(`Incomplete admin authentication configuration: missing ${missing.join(", ")}`);
+    throw new Error(
+      `Incomplete admin authentication configuration: missing ${missing.join(", ")}`,
+    );
   }
 
   const baseUrl = new URL(environment.ADMIN_AUTH_BASE_URL!);
   if (baseUrl.pathname !== "/" || baseUrl.search || baseUrl.hash) {
-    throw new Error("ADMIN_AUTH_BASE_URL must be an origin without a path, query, or fragment");
+    throw new Error(
+      "ADMIN_AUTH_BASE_URL must be an origin without a path, query, or fragment",
+    );
   }
-  if (baseUrl.protocol !== "https:" && baseUrl.hostname !== "localhost" && baseUrl.hostname !== "127.0.0.1") {
-    throw new Error("ADMIN_AUTH_BASE_URL must use HTTPS outside local development");
+  if (
+    baseUrl.protocol !== "https:" &&
+    baseUrl.hostname !== "localhost" &&
+    baseUrl.hostname !== "127.0.0.1"
+  ) {
+    throw new Error(
+      "ADMIN_AUTH_BASE_URL must use HTTPS outside local development",
+    );
   }
 
   const secret = environment.ADMIN_AUTH_SECRET!;
-  if (secret.length < 32) throw new Error("ADMIN_AUTH_SECRET must contain at least 32 characters");
+  if (secret.length < 32)
+    throw new Error("ADMIN_AUTH_SECRET must contain at least 32 characters");
 
   return {
+    mode,
     baseUrl: baseUrl.origin,
     secret,
     googleClientId: environment.ADMIN_GOOGLE_CLIENT_ID!,
     googleClientSecret: environment.ADMIN_GOOGLE_CLIENT_SECRET!,
-    googleHostedDomain: environment.ADMIN_GOOGLE_HOSTED_DOMAIN?.trim() || undefined,
+    googleHostedDomain:
+      environment.ADMIN_GOOGLE_HOSTED_DOMAIN?.trim() || undefined,
   };
 }
 
-export function isAdminAuthConfigured(environment: Environment = process.env): boolean {
+export function isAdminAuthConfigured(
+  environment: Environment = process.env,
+): boolean {
   return readAdminAuthConfig(environment) !== null;
 }
