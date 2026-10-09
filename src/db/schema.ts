@@ -424,3 +424,32 @@ export type AdminUser = typeof adminUsers.$inferSelect;
 export type NewAdminUser = typeof adminUsers.$inferInsert;
 export type PostLocalization = typeof postLocalizations.$inferSelect;
 export type NewAuditEvent = typeof auditEvents.$inferInsert;
+
+export const leadAccountStatus = pgEnum("lead_account_status", ["new", "lion", "cheetah", "other"]);
+
+/**
+ * Campaign landing page leads (/lp/swap-free), listed and exported to Excel at
+ * /admin/leads for the support team. Contains personal data (name, phone, email).
+ */
+export const leads = pgTable(
+  "leads",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    /** Client-generated per form submission; makes a double-submit a no-op. */
+    submissionId: text("submission_id").notNull(),
+    name: text("name").notNull(),
+    phone: text("phone").notNull(),
+    email: text("email"),
+    accountStatus: leadAccountStatus("account_status").notNull(),
+    locale: contentLocale("locale").notNull(),
+    utmSource: text("utm_source"),
+    utmMedium: text("utm_medium"),
+    utmCampaign: text("utm_campaign"),
+    utmContent: text("utm_content"),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    uniqueIndex("leads_submission_id_unique").on(table.submissionId),
+    index("leads_created_idx").on(table.createdAt),
+  ],
+);

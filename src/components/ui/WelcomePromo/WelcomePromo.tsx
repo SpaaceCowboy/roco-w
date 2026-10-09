@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { useLocale } from "next-intl";
 import { Button } from "@/components/ui/Button/Button";
 import { routing, type Locale } from "@/i18n/routing";
@@ -22,6 +23,9 @@ export function WelcomePromo() {
   const locale = useLocale();
   const copy = welcomePromoCopy[locale as Locale] ?? welcomePromoCopy.en;
   const [show, setShow] = useState(false);
+  // Campaign landing pages (/lp/*) already are the swap-free pitch: the promo
+  // would only pull visitors away from the lead form.
+  const onLandingPage = usePathname().includes("/lp/");
   const timerRef = useRef<number | null>(null);
   const swapFreeHref = locale === routing.defaultLocale ? "/swap-free-account" : `/${locale}/swap-free-account`;
 
@@ -61,7 +65,7 @@ export function WelcomePromo() {
     setShow(false);
   };
 
-  if (!show) return null;
+  if (!show || onLandingPage) return null;
 
   return (
     <aside className={styles.promo} role="complementary" aria-label={copy.title}>

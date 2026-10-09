@@ -22,6 +22,8 @@ export const adminRateLimitPolicies = {
   upload: { limit: 30, windowMs: 60_000 },
   /** Draft preview token issuance. */
   preview: { limit: 30, windowMs: 60_000 },
+  /** Lead exports (Excel download of personal data). */
+  export: { limit: 10, windowMs: 60_000 },
 } as const satisfies Record<string, AdminRateLimitPolicy>;
 
 export type AdminRateLimitBucket = keyof typeof adminRateLimitPolicies;

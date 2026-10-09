@@ -22,6 +22,8 @@ export const routing = defineRouting({
       "zh-hans": "/roco-账户",
     },
     "/swap-free-account": "/swap-free-account",
+    // Unlisted campaign landing page (noindex; not in nav, footer or sitemap).
+    "/lp/swap-free": "/lp/swap-free",
     "/social-trading": {
       en: "/social-trading-platform",
       de: "/social-trading-platform",

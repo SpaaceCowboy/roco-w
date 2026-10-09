@@ -1,6 +1,6 @@
 # Pending Work
 
-Last updated: 2026-09-29 (Asia/Tehran)
+Last updated: 2026-10-09 (Asia/Tehran)
 
 This file contains the remaining blog and admin work in implementation order.
 
@@ -112,3 +112,22 @@ requires an authorized legacy WordPress export and authenticated database audit.
   shorter path from the page title to the main content.
 - Guide sidebar links consistently place the selected heading below the fixed
   header.
+
+## Dashboard restructure: admin and support roles
+
+**Status (2026-10-09): pending, not started.** Agreed while adding campaign
+lead capture (`/lp/swap-free` → `leads` table → `/admin/leads` with Excel
+export). Do this when this pending list is next worked through.
+
+- [ ] Split the dashboard into two tabs:
+  - **Support**: the leads listing and Excel export (`/admin/leads`), plus any
+    future support features.
+  - **Blog / content**: the existing articles and categories sections.
+- [ ] Replace the current `admin` / `editor` / `reviewer` roles with two roles:
+  - **support** can access only the Support tab.
+  - **admin** can access everything, including blog content.
+- [ ] Migrate existing `admin_role` values and update `src/lib/admin/permissions.ts`.
+  Today `leads:read` is granted to all three current roles as an interim.
+  Restrict it during the role change.
+- [ ] Until then, the current admin sections stay as they are. `/admin/leads`
+  is only a new sidebar link.

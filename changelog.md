@@ -1,3 +1,10 @@
+## 2026-10-09 — Swap-free campaign landing page and lead capture
+
+- Added the unlisted campaign page `/lp/swap-free` (fa, en; other locales redirect to en). It is noindex, has no canonical/hreflang, and is not in nav, footer or sitemap. The site WelcomePromo is suppressed on `/lp/*`.
+- Lead form saves to the new `leads` table (additive migration `0007_leads`) via `POST /api/leads`: same-origin check, per-IP rate limit, honeypot, shared zod validation, idempotent submission ids. No email is sent.
+- Added `/admin/leads` (all fields, newest 1000) with an Excel export (`exceljs`, new dependency). The export is audit-logged and refuses cross-site requests. Access uses the new `leads:read` permission (admin/editor/reviewer for now; see `pending.md`).
+- `npm test` now runs every `src/**/*.test.ts` (the unquoted glob had only matched one directory deep).
+
 ## 2026-10-09 — Shared staff login deployed
 
 - Promoted the verified website runtime and activated SCC API/dashboard/proxy while preserving other services, the SEO worker and both databases.

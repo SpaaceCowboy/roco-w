@@ -12,12 +12,14 @@ export const adminPermissions = [
   "taxonomy:write",
   "users:manage",
   "audit:read",
+  /** Campaign leads: personal data (name, phone, email). */
+  "leads:read",
 ] as const;
 
 export type AdminPermission = (typeof adminPermissions)[number];
 
 const rolePermissions: Record<AdminRole, ReadonlySet<AdminPermission>> = {
-  editor: new Set(["content:read", "content:write", "content:delete", "media:write", "taxonomy:write"]),
+  editor: new Set(["content:read", "content:write", "content:delete", "media:write", "taxonomy:write", "leads:read"]),
   reviewer: new Set([
     "content:read",
     "content:write",
@@ -28,6 +30,7 @@ const rolePermissions: Record<AdminRole, ReadonlySet<AdminPermission>> = {
     "media:write",
     "taxonomy:write",
     "audit:read",
+    "leads:read",
   ]),
   admin: new Set(adminPermissions),
 };
