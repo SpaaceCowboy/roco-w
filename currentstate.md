@@ -320,3 +320,13 @@ Verified on 2026-10-09:
 
 A full end-to-end check through the browser and admin export is still to do
 with a real staff login.
+
+## Authenticator QR enrollment release — 2026-10-09
+
+The latest website runtime is `df71a9e` at `/opt/rocobroker-releases/staff-qr-df71a9e/.next`, linked from `/opt/rocobroker-next/.next`. It includes the existing landing-page release plus a browser-local enrollment QR code. The operations checkout remains at `19b55b0`; its staff-user CLI is unchanged. No database migration or authentication configuration change was needed.
+
+New users scan the QR in their authenticator app, save recovery codes, and confirm the generated six-digit code. The manual setup key remains as a fallback. The QR is rendered locally using pinned `qrcode.react` 4.2.0; no third-party QR service receives the enrollment URI.
+
+Verification: typecheck, lint, local and isolated VPS production builds, synthetic SVG QR rendering, private preview, live SCC sign-in assets, public English/Persian pages and landing pages, unauthenticated admin denial, and lead validation passed. The private preview was stopped. The running service list and PM2 daemon startup/restart counters matched before and after deployment. Only `rocobroker-next` was restarted; SEO services were untouched. A phone-camera scan was not performed by the agent.
+
+Rollback: repoint `/opt/rocobroker-next/.next` to `/opt/rocobroker-releases/leads-a1f9029/.next` and restart only `rocobroker-next` through the existing `rocoweb` PM2 daemon, without `--update-env`. Keep the current staff configuration and database. Protected deployment metadata is in `/root/roco-staff-qr-df71a9e`.

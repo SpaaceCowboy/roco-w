@@ -1,3 +1,9 @@
+## 2026-10-09 — Authenticator enrollment QR code deployed
+
+- Added browser-local SVG QR generation with pinned `qrcode.react` 4.2.0. The QR encodes the existing enrollment URI; the manual setup key, recovery codes and mandatory verification remain available.
+- Deployed `df71a9e` in an isolated release, preserving the swap-free landing page and existing authentication configuration. Only the website app was restarted; SCC services were unchanged.
+- Typecheck, lint, production builds, synthetic QR rendering, private preview and live page/asset/authentication checks passed.
+
 ## 2026-10-09 — Swap-free landing page and leads deployed
 
 - Deployed `a1f9029` from a separate release directory.
