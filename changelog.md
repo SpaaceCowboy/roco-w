@@ -1,3 +1,8 @@
+## 2026-10-09 — Apache compatibility for SCC staff requests
+
+- Accept the authenticated SCC-pinned first forwarded host when Apache appends the apex host, preventing admin redirect loops and false CSRF denials.
+- Keep Apache configuration and Google-mode behavior unchanged; regression tests cover valid chains, wrong credentials and foreign origins.
+
 ## 2026-10-08 — SCC staff authentication (opt-in)
 
 - Added terminal-provisioned email/password accounts, mandatory authenticator MFA, recovery codes, global revocation and an eight-hour hard session limit.

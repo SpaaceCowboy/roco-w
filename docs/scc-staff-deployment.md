@@ -1,6 +1,6 @@
 # SCC staff login: main website VPS handoff
 
-This release keeps the website and SEO services on their existing VPSs. The user performs all main-VPS work. The agent may prepare and activate the SEO side, but must not connect to the website VPS.
+This release keeps the website and SEO services on their existing VPSs. The initial handoff kept main-VPS work with the operator. On 2026-10-09 the user explicitly authorized the agent to complete the website deployment too, with all unrelated services kept untouched. The commands below remain available for operator deployment and rollback.
 
 Recorded website setup (from `currentstate.md`, last updated 2026-09-18): checkout `/opt/rocobroker-next`, account `rocoweb`, Node `/opt/rocobroker-node/bin`, application `rocobroker-next`, systemd service `pm2-rocoweb`. Confirm those still match before running these commands. The deployment below follows the recorded stop/build/start procedure and needs a maintenance window.
 
@@ -80,7 +80,7 @@ ADMIN_STAFF_SERVICE_SECRET_FILE=/home/rocoweb/.config/roco-staff/service-key
 
 Do not also set `ADMIN_STAFF_SERVICE_SECRET`. Keep the existing database, media, preview, scheduled-publication, and `ADMIN_AUTH_SECRET` settings. Keep the Google values available for rollback; staff mode disables that provider.
 
-Apache must pass `X-Roco-Proxy-Key`, `X-Forwarded-Host`, and `X-Roco-Client-IP` from SCC through to the application. Keep `ProxyPreserveHost On` and the existing HTTPS scheme header. No Apache route changes are otherwise needed.
+Apache must pass `X-Roco-Proxy-Key`, `X-Forwarded-Host`, and `X-Roco-Client-IP` from SCC through to the application. Its default proxy behavior appends the apex host to `X-Forwarded-Host`; the application accepts the SCC-pinned first value only after validating the proxy credential, and uses its configured staff origin for CSRF checks. Keep `ProxyPreserveHost On` and the existing HTTPS scheme header. No Apache route changes are otherwise needed.
 
 Rebuild/restart using the recorded standalone procedure:
 

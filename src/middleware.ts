@@ -4,6 +4,7 @@ import { resolveLegacyRedirect } from "./config/legacyRedirects.mjs";
 import { routing } from "./i18n/routing";
 import { clientIp } from "./lib/rateLimit";
 import { enforceAdminRateLimit } from "./lib/admin/rate-limit";
+import { firstForwardedValue } from "./lib/admin/proxy-host";
 
 // Detects the visitor's language (URL → cookie → Accept-Language header) and
 // redirects to the correct locale prefix.
@@ -24,7 +25,7 @@ export default function middleware(request: NextRequest) {
     ) {
       const target = new URL(process.env.ADMIN_AUTH_BASE_URL);
       if (
-        request.headers.get("x-forwarded-host") !== target.host &&
+        firstForwardedValue(request.headers.get("x-forwarded-host")) !== target.host &&
         request.headers.get("host") !== target.host
       ) {
         target.pathname = request.nextUrl.pathname;

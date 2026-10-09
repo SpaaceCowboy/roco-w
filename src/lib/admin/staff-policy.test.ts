@@ -76,3 +76,31 @@ test("session service rejects missing, wrong and unconfigured credentials", () =
     true,
   );
 });
+
+ test("authenticated SCC headers remain valid through Apache's appended proxy host", async () => {
+  const { trustedStaffProxy } = await import("./staff-policy");
+  const { isSameOrigin } = await import("./origin");
+  const names = ["ADMIN_AUTH_MODE", "ADMIN_AUTH_BASE_URL", "ADMIN_STAFF_SERVICE_SECRET", "ADMIN_STAFF_SERVICE_SECRET_FILE"];
+  const before = Object.fromEntries(names.map((name) => [name, process.env[name]]));
+  try {
+    process.env.ADMIN_AUTH_MODE = "staff";
+    process.env.ADMIN_AUTH_BASE_URL = "https://scc.rocobroker.com";
+    process.env.ADMIN_STAFF_SERVICE_SECRET = "test-service-key-".repeat(3);
+    delete process.env.ADMIN_STAFF_SERVICE_SECRET_FILE;
+    const headers = new Headers({ origin: "https://scc.rocobroker.com", host: "rocobroker.com", "x-forwarded-host": "scc.rocobroker.com, rocobroker.com", "x-forwarded-proto": "https", "x-roco-proxy-key": process.env.ADMIN_STAFF_SERVICE_SECRET });
+    assert.equal(trustedStaffProxy(headers), true);
+    assert.equal(isSameOrigin({ url: "http://127.0.0.1:3100/api/admin/posts", headers }), true);
+    headers.set("x-roco-proxy-key", "wrong");
+    assert.equal(trustedStaffProxy(headers), false);
+    headers.set("x-roco-proxy-key", process.env.ADMIN_STAFF_SERVICE_SECRET);
+    headers.set("x-forwarded-host", "evil.example, scc.rocobroker.com");
+    assert.equal(trustedStaffProxy(headers), false);
+    headers.set("x-forwarded-host", "scc.rocobroker.com, rocobroker.com");
+    headers.set("origin", "https://evil.example");
+    assert.equal(isSameOrigin({ url: "http://127.0.0.1:3100/api/admin/posts", headers }), false);
+  } finally {
+    for (const name of names) {
+      if (before[name] === undefined) delete process.env[name]; else process.env[name] = before[name];
+    }
+  }
+});

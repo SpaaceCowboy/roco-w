@@ -1,5 +1,6 @@
 import { createHash, timingSafeEqual } from "node:crypto";
 import { readFileSync, statSync } from "node:fs";
+import { firstForwardedValue } from "./proxy-host";
 
 export function staffServiceSecret(): string | undefined {
   const path = process.env.ADMIN_STAFF_SERVICE_SECRET_FILE;
@@ -37,10 +38,10 @@ export function trustedStaffProxy(headers: {
 }): boolean {
   return (
     serviceAuthorized(headers, staffServiceSecret()) &&
-    headers.get("x-forwarded-host") ===
+    firstForwardedValue(headers.get("x-forwarded-host")) ===
       new URL(process.env.ADMIN_AUTH_BASE_URL ?? "https://scc.rocobroker.com")
         .host &&
-    headers.get("x-forwarded-proto") === "https"
+    firstForwardedValue(headers.get("x-forwarded-proto")) === "https"
   );
 }
 

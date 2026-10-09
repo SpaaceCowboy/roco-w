@@ -22,6 +22,9 @@ export type OriginRequest = {
 };
 
 export function requestOrigin(request: OriginRequest): string {
+  if (staffMode() && trustedStaffProxy(request.headers)) {
+    return new URL(process.env.ADMIN_AUTH_BASE_URL!).origin;
+  }
   const forwardedHost =
     request.headers.get("x-forwarded-host") ?? request.headers.get("host");
   const forwardedProto =
