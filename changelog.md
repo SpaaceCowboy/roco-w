@@ -1,3 +1,9 @@
+## 2026-10-09 — Shared staff login deployed
+
+- Promoted the verified website runtime and activated SCC API/dashboard/proxy while preserving other services, the SEO worker and both databases.
+- Preserved the existing administrator and human SEO actor; verified mandatory MFA, shared sessions, draft save/conflicts, real media upload and global logout through the live proxy.
+- Recorded the isolated runtime, protected backup locations and PM2 environment rollback requirements without recording credentials.
+
 ## 2026-10-09 — Apache compatibility for SCC staff requests
 
 - Accept the authenticated SCC-pinned first forwarded host when Apache appends the apex host, preventing admin redirect loops and false CSRF denials.

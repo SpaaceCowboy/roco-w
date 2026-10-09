@@ -1,3 +1,9 @@
+> **Deployment update — 2026-10-09:** shared staff login is live. Website runtime revision `19b55b0` is served through `/opt/rocobroker-next/.next`, which now points to `/opt/rocobroker-releases/scc-staff-c38eca7/.next`. The directory name identifies the initial staged revision; it includes the verified Apache-header fix from `19b55b0`. Only the `rocobroker-next` application was restarted; the systemd-owned PM2 daemon and unrelated services remained running. SCC API/dashboard/proxy use `roco-seo:staff-cd7a7b6`; its worker and PostgreSQL were not recreated.
+>
+> Staff login is at `https://scc.rocobroker.com/admin/sign-in`, with terminal-managed email/password accounts and mandatory authenticator enrollment. The existing administrator identity and SEO actor were preserved. No credentials are recorded in this document. The protected password handoff and backups remain only on the website VPS. Both repository implementation branches are pushed; the website production checkout is pinned at `19b55b0`.
+>
+> Live verification covered MFA, both dashboards, draft save/conflict handling, a real image upload, asset routing and global logout. The temporary draft/image were removed and verification accounts disabled, with audit history retained. Public English/Persian pages remained healthy. The historical setup below remains useful but its old source/deployed-commit statements are superseded by this update.
+
 # Current Deployment State
 
 Last updated: 2026-09-18 (Asia/Tehran)
