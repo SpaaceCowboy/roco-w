@@ -1,3 +1,5 @@
+> **Pending deploy — 2026-10-09:** `c69a326` (swap-free landing page, leads table, admin export) is on `main` but not deployed. See "Prepared release: swap-free landing page and leads" at the end of this file.
+>
 > **Deployment update — 2026-10-09:** shared staff login is live. Website runtime revision `19b55b0` is served through `/opt/rocobroker-next/.next`, which now points to `/opt/rocobroker-releases/scc-staff-c38eca7/.next`. The directory name identifies the initial staged revision; it includes the verified Apache-header fix from `19b55b0`. Only the `rocobroker-next` application was restarted; the systemd-owned PM2 daemon and unrelated services remained running. SCC API/dashboard/proxy use `roco-seo:staff-cd7a7b6`; its worker and PostgreSQL were not recreated.
 >
 > Staff login is at `https://scc.rocobroker.com/admin/sign-in`, with terminal-managed email/password accounts and mandatory authenticator enrollment. The existing administrator identity and SEO actor were preserved. No credentials are recorded in this document. The protected password handoff and backups remain only on the website VPS. Both repository implementation branches are pushed; the website production checkout is pinned at `19b55b0`.
@@ -181,3 +183,106 @@ Exim and Dovecot are untouched by it.
 ## Prepared SCC staff-login release (2026-10-08)
 
 The `codex/scc-shared-staff-login` branch adds an opt-in shared email/password + authenticator login and SCC proxy integration. This is a prepared release, not a claim that the main VPS has been updated. Main-VPS deployment, account provisioning, the key transfer and rollback are documented in `docs/scc-staff-deployment.md`. Both services remain on their existing VPSs.
+
+## Prepared release: swap-free landing page and leads (2026-10-09)
+
+**Status: pushed to `main` as `c69a326`, not yet deployed.** Production still
+serves `19b55b0`. `main` now also contains the three staff-login commits that
+are already live, so this release changes only the items below:
+
+- the public campaign page `/lp/swap-free` (fa, en)
+- `POST /api/leads` → new `leads` table (additive migration `0007_leads`)
+- `/admin/leads` with an Excel export
+- the new `exceljs` dependency
+
+There is no new environment variable and no email change.
+
+Do **not** use the in-place "Deploy procedure" above for this release.
+`/opt/rocobroker-next/.next` is a symlink into
+`/opt/rocobroker-releases/scc-staff-c38eca7/`, so a build in the checkout would
+overwrite the live runtime and the rollback target. Build a separate release
+directory and repoint the symlink, as the staff-login rollout did.
+
+Run on the main website VPS, as root:
+
+```bash
+set -eu
+# 0. Confirm the layout before changing anything
+readlink -f /opt/rocobroker-next/.next     # expect /opt/rocobroker-releases/scc-staff-c38eca7/.next
+runuser -u rocoweb -- git -C /opt/rocobroker-next rev-parse --short HEAD   # expect 19b55b0
+
+# 1. Back up the content database
+install -d -m 700 -o rocoweb -g rocoweb /home/rocoweb/backups/leads-c69a326
+cd /opt/rocobroker-next
+runuser -u rocoweb -- env CONTENT_BACKUP_DIR=/home/rocoweb/backups/leads-c69a326 PATH=/opt/rocobroker-node/bin:/usr/bin:/bin \
+  node --env-file=.env.production -e \
+  'require("node:child_process").execFileSync("bash",["scripts/backup-content-db.sh"],{stdio:"inherit"})'
+
+# 2. Build the release in its own directory; the live site keeps running
+R=/opt/rocobroker-releases/leads-c69a326
+install -d -o rocoweb -g rocoweb "$R"
+runuser -u rocoweb -- git clone --quiet /opt/rocobroker-next "$R"
+cd "$R"
+runuser -u rocoweb -- git fetch --quiet "$(runuser -u rocoweb -- git -C /opt/rocobroker-next remote get-url origin)" main
+runuser -u rocoweb -- git switch --detach c69a326
+runuser -u rocoweb -- ln -s /opt/rocobroker-next/.env.production .env.production
+runuser -u rocoweb -- env PATH=/opt/rocobroker-node/bin:/usr/bin:/bin npm ci
+
+# 3. Additive migration: creates only `leads` and the `lead_account_status` enum.
+#    Safe while the current version is serving.
+runuser -u rocoweb -- env PATH=/opt/rocobroker-node/bin:/usr/bin:/bin \
+  node --env-file=.env.production node_modules/drizzle-kit/bin.cjs migrate
+
+runuser -u rocoweb -- env PATH=/opt/rocobroker-node/bin:/usr/bin:/bin npm run build
+runuser -u rocoweb -- cp -r .next/static .next/standalone/.next/static
+runuser -u rocoweb -- cp -r public .next/standalone/public
+runuser -u rocoweb -- ln -sfn /opt/rocobroker-next/.env.production .next/standalone/.env.production
+
+# 4. Promote: repoint the runtime and restart only the app.
+#    Don't stop pm2-rocoweb, and don't pass --update-env: the app's PM2
+#    environment carries the staff-login settings.
+ln -sfn "$R/.next" /opt/rocobroker-next/.next
+cd /home/rocoweb
+runuser -u rocoweb -- env \
+  HOME=/home/rocoweb PM2_HOME=/home/rocoweb/.pm2 \
+  PATH=/home/rocoweb/.local/bin:/opt/rocobroker-node/bin:/usr/bin:/bin \
+  pm2 restart rocobroker-next
+```
+
+Verify:
+
+```bash
+for u in / /lp/swap-free /fa/lp/swap-free; do curl -s -o /dev/null -w "$u %{http_code}\n" https://rocobroker.com$u; done   # all 200
+curl -s -o /dev/null -w "de %{http_code} -> %{redirect_url}\n" https://rocobroker.com/de/lp/swap-free                    # 307 -> /lp/swap-free
+curl -s https://rocobroker.com/fa/lp/swap-free | grep -o '<meta name="robots"[^>]*>'                                 # noindex, nofollow
+curl -s https://rocobroker.com/sitemap.xml | grep -c lp/swap-free                                                    # 0
+curl -s -o /dev/null -w "leads %{http_code}\n" -X POST https://rocobroker.com/api/leads \
+  -H 'Content-Type: application/json' -H 'Origin: https://rocobroker.com' -d '{}'                                    # 400 = route live
+```
+
+Then test end to end in a browser:
+
+1. Submit the `/fa/lp/swap-free` form with the name `Deploy Test`.
+2. Confirm the lead shows at `/admin/leads`.
+3. Click **Export to Excel** and open the file.
+4. Delete the test row, with `.env.production` loaded:
+   `psql "$DATABASE_URL" -c "delete from leads where name = 'Deploy Test'"`.
+
+A `503` from `/api/leads` means the database write failed. Check the
+application log for `[leads] … outcome=failed code=…`. The migration not
+having run gives code `42P01`.
+
+Rollback: point the runtime back and restart only the app. Leave the additive
+`leads` table in place, because the previous code never reads it.
+
+```bash
+ln -sfn /opt/rocobroker-releases/scc-staff-c38eca7/.next /opt/rocobroker-next/.next
+cd /home/rocoweb
+runuser -u rocoweb -- env \
+  HOME=/home/rocoweb PM2_HOME=/home/rocoweb/.pm2 \
+  PATH=/home/rocoweb/.local/bin:/opt/rocobroker-node/bin:/usr/bin:/bin \
+  pm2 restart rocobroker-next
+```
+
+After a successful deploy, update the deployment banner at the top of this file
+with the new revision and runtime link.
