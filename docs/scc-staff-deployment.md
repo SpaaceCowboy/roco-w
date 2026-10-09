@@ -110,6 +110,8 @@ Use existing safe logs for status/latency/correlation IDs. Do not inspect cookie
 
 ## Recovery and rollback
 
+See [Staff account management](staff-account-management.md) for ready-to-run password changes, new-user creation, authenticator recovery and account disabling.
+
 Password recovery and MFA reset are terminal-only. On the main VPS:
 
 ```bash
