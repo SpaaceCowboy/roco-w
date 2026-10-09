@@ -1,4 +1,13 @@
-> **Pending deploy — 2026-10-09:** `c69a326` (swap-free landing page, leads table, admin export) is on `main` but not deployed. See "Prepared release: swap-free landing page and leads" at the end of this file.
+> **Deployment update — 2026-10-09 (later):** website revision `a1f9029` is live, adding the swap-free landing page, the leads table and the admin export.
+>
+> - **Runtime:** `/opt/rocobroker-next/.next` → `/opt/rocobroker-releases/leads-a1f9029/.next`.
+> - **Rollback target:** the previous runtime, `/opt/rocobroker-releases/scc-staff-c38eca7/.next`.
+> - **Migration:** `0007_leads` was applied (8 migrations).
+> - **Backup:** a pre-migration content DB backup is at `/home/rocoweb/backups/leads-c69a326/`.
+> - **Restart scope:** only `rocobroker-next` was restarted, and the PM2 staff-login environment was kept. A before/after diff of running services and Docker containers showed no change.
+> - **Production checkout:** `/opt/rocobroker-next` is still at `19b55b0`. Only the runtime link moved.
+>
+> Details and procedure are in "Release: swap-free landing page and leads" at the end of this file. The staff-login update below still applies.
 >
 > **Deployment update — 2026-10-09:** shared staff login is live. Website runtime revision `19b55b0` is served through `/opt/rocobroker-next/.next`, which now points to `/opt/rocobroker-releases/scc-staff-c38eca7/.next`. The directory name identifies the initial staged revision; it includes the verified Apache-header fix from `19b55b0`. Only the `rocobroker-next` application was restarted; the systemd-owned PM2 daemon and unrelated services remained running. SCC API/dashboard/proxy use `roco-seo:staff-cd7a7b6`; its worker and PostgreSQL were not recreated.
 >
@@ -184,11 +193,13 @@ Exim and Dovecot are untouched by it.
 
 The `codex/scc-shared-staff-login` branch adds an opt-in shared email/password + authenticator login and SCC proxy integration. This is a prepared release, not a claim that the main VPS has been updated. Main-VPS deployment, account provisioning, the key transfer and rollback are documented in `docs/scc-staff-deployment.md`. Both services remain on their existing VPSs.
 
-## Prepared release: swap-free landing page and leads (2026-10-09)
+## Release: swap-free landing page and leads (2026-10-09)
 
-**Status: pushed to `main` as `c69a326`, not yet deployed.** Production still
-serves `19b55b0`. `main` now also contains the three staff-login commits that
-are already live, so this release changes only the items below:
+**Status: deployed 2026-10-09 as `a1f9029`.** That is `c69a326` plus a fix that
+drops the inherited canonical and hreflang links from the noindex landing page.
+The steps below are what was run; reuse them for the next release with a new
+revision and directory name. `main` also contains the three staff-login commits
+that were already live, so this release changed only:
 
 - the public campaign page `/lp/swap-free` (fa, en)
 - `POST /api/leads` → new `leads` table (additive migration `0007_leads`)
@@ -219,12 +230,12 @@ runuser -u rocoweb -- env CONTENT_BACKUP_DIR=/home/rocoweb/backups/leads-c69a326
   'require("node:child_process").execFileSync("bash",["scripts/backup-content-db.sh"],{stdio:"inherit"})'
 
 # 2. Build the release in its own directory; the live site keeps running
-R=/opt/rocobroker-releases/leads-c69a326
+R=/opt/rocobroker-releases/leads-a1f9029
 install -d -o rocoweb -g rocoweb "$R"
 runuser -u rocoweb -- git clone --quiet /opt/rocobroker-next "$R"
 cd "$R"
 runuser -u rocoweb -- git fetch --quiet "$(runuser -u rocoweb -- git -C /opt/rocobroker-next remote get-url origin)" main
-runuser -u rocoweb -- git switch --detach c69a326
+runuser -u rocoweb -- git switch --detach a1f9029
 runuser -u rocoweb -- ln -s /opt/rocobroker-next/.env.production .env.production
 runuser -u rocoweb -- env PATH=/opt/rocobroker-node/bin:/usr/bin:/bin npm ci
 
@@ -233,10 +244,24 @@ runuser -u rocoweb -- env PATH=/opt/rocobroker-node/bin:/usr/bin:/bin npm ci
 runuser -u rocoweb -- env PATH=/opt/rocobroker-node/bin:/usr/bin:/bin \
   node --env-file=.env.production node_modules/drizzle-kit/bin.cjs migrate
 
-runuser -u rocoweb -- env PATH=/opt/rocobroker-node/bin:/usr/bin:/bin npm run build
+# Two page-generation workers (CIRCLE_NODE_TOTAL=3), capped in a scope. The
+# default (cores - 1 = 7 workers) needs about 2.1 GB on top of the compiler and
+# was OOM-killed in the 2.5 GB cap. Uncapped, it would compete with ClamAV,
+# Chatwoot and MariaDB for the ~3 GB free on this host.
+systemd-run --quiet --scope -p MemoryMax=2500M -p CPUQuota=400% nice -n 10 \
+  runuser -u rocoweb -- env HOME=/home/rocoweb NEXT_TELEMETRY_DISABLED=1 CIRCLE_NODE_TOTAL=3 \
+  PATH=/opt/rocobroker-node/bin:/usr/bin:/bin npm run build
 runuser -u rocoweb -- cp -r .next/static .next/standalone/.next/static
 runuser -u rocoweb -- cp -r public .next/standalone/public
 runuser -u rocoweb -- ln -sfn /opt/rocobroker-next/.env.production .next/standalone/.env.production
+
+# 3b. Before promoting, run the release privately on a spare loopback port and
+#     test it (the page, /api/leads 400/403, a real insert, then delete the row):
+#     systemd-run --unit=rocobroker-leads-preview --uid=rocoweb --gid=rocoweb \
+#       -p WorkingDirectory=$R/.next/standalone -p MemoryMax=1G \
+#       --setenv=NODE_ENV=production --setenv=PORT=3199 --setenv=HOSTNAME=127.0.0.1 \
+#       /opt/rocobroker-node/bin/node server.js
+#     ...then: systemctl stop rocobroker-leads-preview
 
 # 4. Promote: repoint the runtime and restart only the app.
 #    Don't stop pm2-rocoweb, and don't pass --update-env: the app's PM2
@@ -284,5 +309,14 @@ runuser -u rocoweb -- env \
   pm2 restart rocobroker-next
 ```
 
-After a successful deploy, update the deployment banner at the top of this file
-with the new revision and runtime link.
+Verified on 2026-10-09:
+
+- **Public pages:** `/`, `/fa`, `/lp/swap-free` and `/fa/lp/swap-free` return 200, and `/de/lp/swap-free` returns 307 to `/lp/swap-free`.
+- **Search exclusion:** the landing page is noindex, has no canonical or hreflang links, and is absent from the sitemap.
+- **Lead endpoint:** `/api/leads` returns 400 for an empty body and 403 for a cross-site request.
+- **Export:** `/api/admin/leads/export` returns 401 without a session.
+- **SCC sign-in:** returns 200.
+- **Probe lead:** a real insert of a probe lead (Persian digits normalised), followed by a duplicate retry of the same submission ID (stored once), and then deletion. `leads` holds 0 rows.
+
+A full end-to-end check through the browser and admin export is still to do
+with a real staff login.

@@ -1,3 +1,11 @@
+## 2026-10-09 — Swap-free landing page and leads deployed
+
+- Deployed `a1f9029` from a separate release directory.
+- The additive `0007_leads` migration ran after a fresh content DB backup.
+- Only `rocobroker-next` was restarted. The other services and the Chatwoot containers were unchanged.
+- The landing page no longer inherits the home page canonical and hreflang links.
+- The production build now uses two page-generation workers, because the default seven were OOM-killed within the build's memory cap.
+
 ## 2026-10-09 — Swap-free campaign landing page and lead capture
 
 - Added the unlisted campaign page `/lp/swap-free` (fa, en; other locales redirect to en). It is noindex, has no canonical/hreflang, and is not in nav, footer or sitemap. The site WelcomePromo is suppressed on `/lp/*`.
