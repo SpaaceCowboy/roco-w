@@ -26,6 +26,9 @@ export async function generateMetadata({
     title: t("metaTitle"),
     description: t("metaDescription"),
     robots: { index: false, follow: false },
+    // Replace the locale layout's canonical/hreflang (which point at the home
+    // page) rather than inherit them.
+    alternates: {},
   };
 }
 
