@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { QRCodeSVG } from "qrcode.react";
 import styles from "../admin.module.css";
 
 async function authRequest(path: string, body: Record<string, unknown>) {
@@ -27,9 +28,11 @@ export function StaffSignInForm({ returnTo }: { returnTo: string }) {
   );
   const [busy, setBusy] = useState(false),
     [error, setError] = useState("");
-  const [setup, setSetup] = useState<{ key: string; codes: string[] } | null>(
-    null,
-  );
+  const [setup, setSetup] = useState<{
+    uri: string;
+    key: string;
+    codes: string[];
+  } | null>(null);
   const [recovery, setRecovery] = useState(false);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
@@ -54,6 +57,7 @@ export function StaffSignInForm({ returnTo }: { returnTo: string }) {
         });
         form.reset();
         setSetup({
+          uri: result.totpURI,
           key: new URL(result.totpURI).searchParams.get("secret") ?? "",
           codes: result.backupCodes,
         });
@@ -125,8 +129,21 @@ export function StaffSignInForm({ returnTo }: { returnTo: string }) {
           {setup && (
             <section aria-label="Authenticator setup">
               <p>
-                Add an account manually in your authenticator app. Choose a
-                time-based code and enter this setup key.
+                In your authenticator app, add an account and scan this QR code.
+                Then enter the six-digit code below to finish setup.
+              </p>
+              <QRCodeSVG
+                value={setup.uri}
+                size={240}
+                level="M"
+                marginSize={4}
+                title="Scan with your authenticator app to set up your account"
+                role="img"
+                className={styles.authenticatorQr}
+              />
+              <p>
+                Can’t scan? Add an account manually, choose a time-based code,
+                and enter this setup key.
               </p>
               <label htmlFor="authenticator-key">Setup key</label>
               <input

@@ -2503,3 +2503,4 @@ button.tableLink {
 .staffLogin label { font-weight: 600; }
 .staffLogin p { line-height: 1.6; }
 .staffLogin section { display: grid; gap: 12px; }
+.authenticatorQr { display: block; width: 240px; max-width: 100%; height: auto; background: #fff; justify-self: center; }
